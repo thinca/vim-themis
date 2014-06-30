@@ -111,7 +111,7 @@ function! s:options.help(args, options)
 endfunction
 
 function! s:options.version(args, options)
-  call themis#log('themis version ' . s:version)
+  call themis#log('themis version ' . themis#version())
   let a:options.exit = 1
 endfunction
 

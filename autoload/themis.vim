@@ -27,6 +27,10 @@ function! themis#default_options()
   return deepcopy(s:default_options)
 endfunction
 
+function! themis#version()
+  return s:version
+endfunction
+
 function! themis#run(scripts, ...)
   let s:current_runner = themis#runner#new()
   try
