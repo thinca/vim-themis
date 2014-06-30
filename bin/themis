@@ -1,0 +1,16 @@
+#!/bin/sh
+# Command line utility for themis.vim
+# Version: 1.0
+# Author : thinca <thinca+vim@gmail.com>
+# License: zlib License
+
+
+[ -z "${THEMIS_HOME}" ] && THEMIS_HOME=$(dirname $(dirname $(realpath $0)))
+
+STARTUP_SCRIPT="${THEMIS_HOME}/macros/themis_startup.vim"
+if [ ! -f "${STARTUP_SCRIPT}" ]; then
+	echo '$THEMIS_HOME is not set up correctly.' >&2
+	exit 2
+fi
+
+${THEMIS_VIM:-vim} -u NORC -i NONE -N -e -s --cmd "source ${STARTUP_SCRIPT}" -- "$@" 3>&1 1>&2 2>&3 3>&-
