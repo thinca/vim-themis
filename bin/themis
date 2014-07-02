@@ -5,13 +5,15 @@
 # License: zlib License
 
 
-if [ -z $(type -P realpath) ]; then
+THEMIS_VIM=${THEMIS_VIM:-vim}
+
+if ! type realpath >/dev/null 2>&1; then
 	realpath() {
-		${THEMIS_VIM:-vim} -u NONE -i NONE -N -V1 -e -s --cmd "echon resolve(argv(0))" --cmd "echo ''" --cmd quit $1 2>&1
+		${THEMIS_VIM} -u NONE -i NONE -N -V1 -e -s --cmd "echon resolve(argv(0))" --cmd "echo ''" --cmd quit "$1" 2>&1
 	}
 fi
 
-[ -z "${THEMIS_HOME}" ] && THEMIS_HOME=$(dirname $(dirname $(realpath $0)))
+THEMIS_HOME=${THEMIS_HOME:-"$(dirname $(dirname $(realpath "$0")))"}
 
 STARTUP_SCRIPT="${THEMIS_HOME}/macros/themis_startup.vim"
 if [ ! -f "${STARTUP_SCRIPT}" ]; then
@@ -19,4 +21,4 @@ if [ ! -f "${STARTUP_SCRIPT}" ]; then
 	exit 2
 fi
 
-${THEMIS_VIM:-vim} -u NORC -i NONE -N -e -s --cmd "source ${STARTUP_SCRIPT}" -- "$@" 3>&1 1>&2 2>&3 3>&-
+${THEMIS_VIM} -u NORC -i NONE -N -e -s --cmd "source ${STARTUP_SCRIPT}" -- "$@" 3>&1 1>&2 2>&3 3>&-
