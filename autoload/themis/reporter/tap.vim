@@ -16,10 +16,6 @@ function! s:reporter.start(runner)
   call themis#log('1..' . a:runner.total_test_count())
 endfunction
 
-function! s:reporter.before_suite(bundle)
-  " call themis#log('# ' . a:bundle.filename)
-endfunction
-
 function! s:reporter.pass(report)
   let title = a:report.get_full_title()
   let mes = printf('ok %d - %s', self.stats.count(), title)
