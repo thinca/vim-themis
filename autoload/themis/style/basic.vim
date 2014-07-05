@@ -101,9 +101,5 @@ function! themis#style#basic#new(runner)
   return style
 endfunction
 
-function! s:sum(list)
-  return empty(a:list) ? 0 : eval(join(a:list, '+'))
-endfunction
-
 let &cpo = s:save_cpo
 unlet s:save_cpo
