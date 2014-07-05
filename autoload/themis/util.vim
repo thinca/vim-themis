@@ -65,6 +65,17 @@ function! themis#util#funcline(func, line)
   return line[num_width :]
 endfunction
 
+function! themis#util#error_info(stacktrace)
+  let tracelines = map(copy(a:stacktrace), 'themis#util#funcinfo_format(v:val)')
+  let tail = a:stacktrace[-1]
+  if has_key(tail, 'funcname')
+    let line_str = themis#util#funcline(tail.funcname, tail.line)
+    let error_line = printf('%d: %s', tail.line, line_str)
+    let tracelines += [error_line]
+  endif
+  return join(tracelines, "\n")
+endfunction
+
 
 let &cpo = s:save_cpo
 unlet s:save_cpo

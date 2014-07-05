@@ -39,11 +39,17 @@ function! s:runner.run(scripts, options)
     let error_count = stats.fail()
   catch
     let phase = get(self,  'phase', 'core')
-    let stacktrace = themis#util#callstack(v:throwpoint, -1)
-    let tail = stacktrace[-1]
-    let line_str = themis#util#funcline(tail.funcname, tail.line)
-    let error_line = printf('%d: %s', tail.line, line_str)
-    call self.emit('error', phase, stacktrace, error_line, v:exception)
+    if v:exception =~# '^themis:'
+      let info = {
+      \   'exception': matchstr(v:exception, '\C^themis:\s*\zs.*'),
+      \ }
+    else
+      let info = {
+      \   'exception': v:exception,
+      \   'stacktrace': themis#util#callstack(v:throwpoint, -1),
+      \ }
+    endif
+    call self.emit('error', phase, info)
     let error_count = 1
   finally
     let &runtimepath = save_runtimepath

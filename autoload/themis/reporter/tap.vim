@@ -40,12 +40,12 @@ function! s:reporter.pending(report)
   call s:print_message(a:report.message)
 endfunction
 
-function! s:reporter.error(phase, stacktrace, error_line, exception)
+function! s:reporter.error(phase, info)
   call themis#log(printf('Bail out!  Error occurred in %s.', a:phase))
-  let tracelines = map(a:stacktrace, 'themis#util#funcinfo_format(v:val)')
-  call s:print_message(tracelines)
-  call s:print_message(a:error_line)
-  call s:print_message(a:exception)
+  if has_key(a:info, 'stacktrace')
+    call s:print_message(themis#util#error_info(a:info.stacktrace))
+  endif
+  call s:print_message(a:info.exception)
 endfunction
 
 function! s:reporter.end(runner)

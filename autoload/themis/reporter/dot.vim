@@ -29,12 +29,12 @@ function! s:reporter.end(runner)
   call themis#log(self.stats.stat())
 endfunction
 
-function! s:reporter.error(phase, stacktrace, error_line, exception)
+function! s:reporter.error(phase, info)
   call themis#log(printf('Error occurred in %s.', a:phase))
-  let tracelines = map(a:stacktrace, 'themis#util#funcinfo_format(v:val)')
-  call themis#log(tracelines)
-  call themis#log(a:error_line)
-  call themis#log(a:exception)
+  if has_key(a:info, 'stacktrace')
+    call themis#log(themis#util#error_info(a:info.stacktrace))
+  endif
+  call themis#log(a:info.exception)
 endfunction
 
 function! s:print_message(message)
