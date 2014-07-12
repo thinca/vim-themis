@@ -185,11 +185,11 @@ function! s:helper.is_not_list(value)
 endfunction
 
 function! s:helper.is_dict(value)
-  return s:check_type(a:value, 'Dict', 0)
+  return s:check_type(a:value, 'Dictionary', 0)
 endfunction
 
 function! s:helper.is_not_dict(value)
-  return s:check_type(a:value, 'Dict', 1)
+  return s:check_type(a:value, 'Dictionary', 1)
 endfunction
 
 function! s:helper.is_float(value)
