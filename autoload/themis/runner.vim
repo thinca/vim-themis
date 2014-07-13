@@ -13,6 +13,8 @@ let s:runner = {
 
 function! s:runner.run(scripts, options)
   let scripts = type(a:scripts) == type([]) ? a:scripts : [a:scripts]
+  let self.style = themis#module#style(a:options.style, self)
+  call filter(scripts, 'self.style.can_handle(v:val)')
   if empty(scripts)
     throw 'themis: Target file not found.'
   endif
@@ -27,7 +29,6 @@ function! s:runner.run(scripts, options)
   let stats = self.supporter('stats')
   let self.bundle = themis#bundle#new()
   let self.current_bundle = self.bundle
-  let self.style = themis#module#style(a:options.style, self)
   let reporter = themis#module#reporter(a:options.reporter)
   call self.add_event(reporter)
   try

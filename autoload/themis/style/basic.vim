@@ -89,10 +89,12 @@ function! s:to_i(value)
   return a:value =~# '^\d\+$' ? str2nr(a:value) : a:value
 endfunction
 
+function! s:style.can_handle(filename)
+  return fnamemodify(a:filename, ':e') ==? 'vim'
+endfunction
+
 function! s:style.load_script(filename)
-  if fnamemodify(a:filename, ':e') ==? 'vim'
-    source `=a:filename`
-  endif
+  source `=a:filename`
 endfunction
 
 function! themis#style#basic#new(runner)
