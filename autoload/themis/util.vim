@@ -24,6 +24,10 @@ function! themis#util#callstack(throwpoint, ...)
 endfunction
 
 function! themis#util#funcinfo_format(funcinfo)
+  if a:funcinfo.signature ==# ''
+    " This is a file.
+    return printf('%s Line:%d', a:funcinfo.file, a:funcinfo.line)
+  endif
   let result = a:funcinfo.signature
   if a:funcinfo.line
     let result .= '  Line:' . a:funcinfo.line
@@ -37,16 +41,27 @@ function! themis#util#funcinfo(func)
   if f =~# ',.*\d'
     let [f, line] = matchlist(f, '^\(.\+\),.\{-}\(\d\+\)')[1 : 2]
   endif
-  let body = themis#util#funcbody(f, 1)
-  let signature = matchstr(body[0], '^\s*\zs.*')
-  let file = matchstr(body[1], '^\s*Last set from\s*\zs.*$')
-  let file = substitute(file, '[/\\]\+', '/', 'g')
-  return {
-  \   'funcname': f,
-  \   'signature': signature,
-  \   'file': file,
-  \   'line': line,
-  \ }
+  if themis#util#is_funcname(f)
+    let body = themis#util#funcbody(f, 1)
+    let signature = matchstr(body[0], '^\s*\zs.*')
+    let file = matchstr(body[1], '^\s*Last set from\s*\zs.*$')
+    let file = substitute(file, '[/\\]\+', '/', 'g')
+    return {
+    \   'funcname': f,
+    \   'signature': signature,
+    \   'file': file,
+    \   'line': line,
+    \ }
+  elseif filereadable(f)
+    return {
+    \   'funcname': f,
+    \   'signature': '',
+    \   'file': f,
+    \   'line': line,
+    \ }
+  else
+    return {}
+  endif
 endfunction
 
 function! themis#util#funcbody(func, verbose)
@@ -58,11 +73,17 @@ function! themis#util#funcbody(func, verbose)
   return split(body, "\n")
 endfunction
 
-function! themis#util#funcline(func, line)
-  let body = themis#util#funcbody(a:func, 0)
-  let line = body[a:line]
-  let num_width = a:line < 1000 ? 3 : len(a:line)
-  return line[num_width :]
+function! themis#util#funcline(target, line)
+  if themis#util#is_funcname(a:target)
+    let body = themis#util#funcbody(a:target, 0)
+    let line = body[a:line]
+    let num_width = a:line < 1000 ? 3 : len(a:line)
+    return line[num_width :]
+  elseif filereadable(a:target)
+    let lines = readfile(a:target, '', a:line)
+    return empty(lines) ? '' : lines[-1]
+  endif
+  return ''
 endfunction
 
 function! themis#util#error_info(stacktrace)
@@ -74,6 +95,10 @@ function! themis#util#error_info(stacktrace)
     let tracelines += [error_line]
   endif
   return join(tracelines, "\n")
+endfunction
+
+function! themis#util#is_funcname(name)
+  return a:name =~# '\v^%(\d+|%(\u|g:|s:|\<SNR\>\d+_)?\w+%(#\w+)*)$'
 endfunction
 
 
