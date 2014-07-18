@@ -59,11 +59,8 @@ function! s:runner.run(scripts, options)
 endfunction
 
 function! s:runner.add_new_bundle(title)
-  let bundle = self.current_bundle.get_child(a:title)
-  if empty(bundle)
-    let bundle = themis#bundle#new(a:title)
-    call self.current_bundle.add_child(bundle)
-  endif
+  let bundle = themis#bundle#new(a:title)
+  call self.current_bundle.add_child(bundle)
   return bundle
 endfunction
 

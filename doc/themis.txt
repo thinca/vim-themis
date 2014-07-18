@@ -134,7 +134,6 @@ Following functions are utilities for test script.
 
 themis#suite([{name}])				*themis#suite()*
 	Creates and returns a new test suite.
-	If a suite named {name} already exists, just returns it.
 
 themis#helper({name})				*themis#helper()*
 	Use a helper.
