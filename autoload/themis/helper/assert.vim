@@ -203,8 +203,7 @@ endfunction
 function! s:helper.exists(expr)
   if !exists(a:expr)
     throw s:failure([
-    \   printf('expected: exists(%s)', string(a:expect)),
-    \          '     got: ' . string(a:actual),
+    \   printf('expected: exists(%s)', string(a:expr)),
     \ ])
   endif
   return 1
