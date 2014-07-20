@@ -9,20 +9,20 @@ set cpo&vim
 let s:helper = {}
 
 function! s:helper.skip(mes)
-  throw 'themis: report: SKIP:' . s:message(a:mes)
+  throw 'themis: report: SKIP:' . themis#message(a:mes)
 endfunction
 
 function! s:helper.todo(mes)
-  throw 'themis: report: todo:' . s:message(a:mes)
+  throw 'themis: report: todo:' . themis#message(a:mes)
 endfunction
 
 function! s:helper.fail(...)
-  throw s:failure(a:0 ? a:1 : '')
+  throw themis#failure(a:0 ? a:1 : '')
 endfunction
 
 function! s:helper.true(value)
   if a:value isnot 1
-    throw s:failure([
+    throw themis#failure([
     \   'The true value was expected, but it was not the case.',
     \   'expected: true',
     \   '     got: ' . string(a:value),
@@ -33,7 +33,7 @@ endfunction
 
 function! s:helper.false(value)
   if a:value isnot 0
-    throw s:failure([
+    throw themis#failure([
     \   'The false value was expected, but it was not the case.',
     \   'expected: false',
     \   '     got: ' . string(a:value),
@@ -45,7 +45,7 @@ endfunction
 function! s:helper.truthy(value)
   let t = type(a:value)
   if !(t == type(0) || t == type('')) || !a:value
-    throw s:failure([
+    throw themis#failure([
     \   'The truthy value was expected, but it was not the case.',
     \   'expected: truthy',
     \   '     got: ' . string(a:value),
@@ -57,7 +57,7 @@ endfunction
 function! s:helper.falsy(value)
   let t = type(a:value)
   if !(t != type(0) || t != type('') || !a:value)
-    throw s:failure([
+    throw themis#failure([
     \   'The falsy value was expected, but it was not the case.',
     \   'expected: falsy',
     \   '     got: ' . string(a:value),
@@ -73,13 +73,13 @@ function! s:helper.compare(left, expr, right)
   catch /^Vim(let):E691:/
     let result = 0
   catch
-    throw s:failure([
+    throw themis#failure([
     \   'comparison failed: ' . expr_str,
     \   v:exception,
     \ ])
   endtry
   if !result
-    throw s:failure([
+    throw themis#failure([
     \   'not matched: ' . expr_str,
     \ ])
   endif
@@ -88,7 +88,7 @@ endfunction
 
 function! s:helper.equals(actual, expect)
   if !s:equals(a:expect, a:actual)
-    throw s:failure([
+    throw themis#failure([
     \   'The equivalent values were expected, but it was not the case.',
     \   'expected: ' . string(a:expect),
     \   '     got: ' . string(a:actual),
@@ -99,7 +99,7 @@ endfunction
 
 function! s:helper.not_equals(actual, expect)
   if s:equals(a:expect, a:actual)
-    throw s:failure([
+    throw themis#failure([
     \   'Not the equivalent values were expected, but it was not the case.',
     \   'expected: ' . string(a:expect),
     \   '     got: ' . string(a:actual),
@@ -110,7 +110,7 @@ endfunction
 
 function! s:helper.same(actual, expect)
   if a:expect isnot# a:actual
-    throw s:failure([
+    throw themis#failure([
     \   'The same values were expected, but it was not the case.',
     \   'expected: ' . string(a:expect),
     \   '     got: ' . string(a:actual),
@@ -121,7 +121,7 @@ endfunction
 
 function! s:helper.not_same(actual, expect)
   if a:expect is# a:actual
-    throw s:failure([
+    throw themis#failure([
     \   'Not the same values were expected, but it was not the case.',
     \   'expected: ' . string(a:expect),
     \   '     got: ' . string(a:actual),
@@ -132,7 +132,7 @@ endfunction
 
 function! s:helper.match(actual, pattern)
   if !s:match(a:actual, a:pattern)
-    throw s:failure([
+    throw themis#failure([
     \   "Match was expected, but didn't match: ",
     \   'target: ' . string(a:actual),
     \   'pattern: ' . string(a:pattern),
@@ -143,7 +143,7 @@ endfunction
 
 function! s:helper.not_match(actual, pattern)
   if s:match(a:actual, a:pattern)
-    throw s:failure([
+    throw themis#failure([
     \   "Not match was expected, but matched: ",
     \   'target: ' . string(a:actual),
     \   'pattern: ' . string(a:pattern),
@@ -202,7 +202,7 @@ endfunction
 
 function! s:helper.exists(expr)
   if !exists(a:expr)
-    throw s:failure([
+    throw themis#failure([
     \   printf('expected: exists(%s)', string(a:expr)),
     \ ])
   endif
@@ -213,7 +213,7 @@ endfunction
 function! s:helper.validate(expr, rule)
   let result = s:validate(a:expr, a:rule)
   if !empty(result)
-    throw s:failure([
+    throw themis#failure([
     \   'expected rule: ' . string(a:rule),
     \   '    got value: ' . string(a:expr),
     \ ])
@@ -250,16 +250,6 @@ function! s:validate(expr, rule)
 endfunction
 
 
-function! s:message(m)
-  let t = type(a:m)
-  return t == type([]) ? join(a:m, "\n") :
-  \      t == type('') ? a:m : string(a:m)
-endfunction
-
-function! s:failure(m)
-  return 'themis: report: failure:' . s:message(a:m)
-endfunction
-
 function! s:equals(a, b)
   return type(a:a) == type(a:b) && a:a ==# a:b
 endfunction
@@ -289,7 +279,7 @@ function! s:check_type(value, expect_type, not)
     let success = !success
   endif
   if !success
-    throw s:failure([
+    throw themis#failure([
     \   'expect type: ' . a:expect_type,
     \   '   got type: ' . got_type,
     \   '  got value: ' . string(a:value),
