@@ -59,9 +59,7 @@ function! s:runner.run(scripts, options)
 endfunction
 
 function! s:runner.add_new_bundle(title)
-  let bundle = themis#bundle#new(a:title)
-  call self.current_bundle.add_child(bundle)
-  return bundle
+  return self.add_bundle(themis#bundle#new(a:title))
 endfunction
 
 function! s:runner.add_bundle(bundle)
@@ -69,6 +67,7 @@ function! s:runner.add_bundle(bundle)
     let a:bundle.filename = self._filename
   endif
   call self.current_bundle.add_child(a:bundle)
+  return a:bundle
 endfunction
 
 function! s:runner.load_scripts(scripts)
