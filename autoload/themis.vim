@@ -61,8 +61,8 @@ endfunction
 
 function! themis#helper(name)
   let runner = s:runner()
-  let helper = themis#helper#{a:name}#new(runner)
-  return helper
+  let Helper = themis#helper#{a:name}#new(runner)
+  return Helper
 endfunction
 
 function! themis#exception(type, message)
