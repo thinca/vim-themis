@@ -24,8 +24,9 @@ function! s:helper.true(value)
   if a:value isnot 1
     throw themis#failure([
     \   'The true value was expected, but it was not the case.',
-    \   'expected: true',
-    \   '     got: ' . string(a:value),
+    \   '',
+    \   '    expected: true',
+    \   '         got: ' . string(a:value),
     \ ])
   endif
   return 1
@@ -35,8 +36,9 @@ function! s:helper.false(value)
   if a:value isnot 0
     throw themis#failure([
     \   'The false value was expected, but it was not the case.',
-    \   'expected: false',
-    \   '     got: ' . string(a:value),
+    \   '',
+    \   '    expected: false',
+    \   '         got: ' . string(a:value),
     \ ])
   endif
   return 1
@@ -47,8 +49,9 @@ function! s:helper.truthy(value)
   if !(t == type(0) || t == type('')) || !a:value
     throw themis#failure([
     \   'The truthy value was expected, but it was not the case.',
-    \   'expected: truthy',
-    \   '     got: ' . string(a:value),
+    \   '',
+    \   '    expected: truthy',
+    \   '         got: ' . string(a:value),
     \ ])
   endif
   return 1
@@ -59,8 +62,9 @@ function! s:helper.falsy(value)
   if !(t != type(0) || t != type('') || !a:value)
     throw themis#failure([
     \   'The falsy value was expected, but it was not the case.',
-    \   'expected: falsy',
-    \   '     got: ' . string(a:value),
+    \   '',
+    \   '    expected: falsy',
+    \   '         got: ' . string(a:value),
     \ ])
   endif
   return 1
@@ -74,13 +78,17 @@ function! s:helper.compare(left, expr, right)
     let result = 0
   catch
     throw themis#failure([
-    \   'comparison failed: ' . expr_str,
-    \   v:exception,
+    \   'Unexpected error occurred while evaluating the comparing:',
+    \   '',
+    \   '    expression: ' . expr_str,
+    \   '    error: ' . v:exception,
     \ ])
   endtry
   if !result
     throw themis#failure([
-    \   'not matched: ' . expr_str,
+    \   'The right expression was expected, but it was not the case.',
+    \   '',
+    \   '    expression: ' . expr_str,
     \ ])
   endif
   return 1
@@ -90,8 +98,9 @@ function! s:helper.equals(actual, expect)
   if !s:equals(a:expect, a:actual)
     throw themis#failure([
     \   'The equivalent values were expected, but it was not the case.',
-    \   'expected: ' . string(a:expect),
-    \   '     got: ' . string(a:actual),
+    \   '',
+    \   '    expected: ' . string(a:expect),
+    \   '         got: ' . string(a:actual),
     \ ])
   endif
   return 1
@@ -101,8 +110,9 @@ function! s:helper.not_equals(actual, expect)
   if s:equals(a:expect, a:actual)
     throw themis#failure([
     \   'Not the equivalent values were expected, but it was not the case.',
-    \   'expected: ' . string(a:expect),
-    \   '     got: ' . string(a:actual),
+    \   '',
+    \   '    expected: ' . string(a:expect),
+    \   '         got: ' . string(a:actual),
     \ ])
   endif
   return 1
@@ -112,8 +122,9 @@ function! s:helper.same(actual, expect)
   if a:expect isnot# a:actual
     throw themis#failure([
     \   'The same values were expected, but it was not the case.',
-    \   'expected: ' . string(a:expect),
-    \   '     got: ' . string(a:actual),
+    \   '',
+    \   '    expected: ' . string(a:expect),
+    \   '         got: ' . string(a:actual),
     \ ])
   endif
   return 1
@@ -123,8 +134,9 @@ function! s:helper.not_same(actual, expect)
   if a:expect is# a:actual
     throw themis#failure([
     \   'Not the same values were expected, but it was not the case.',
-    \   'expected: ' . string(a:expect),
-    \   '     got: ' . string(a:actual),
+    \   '',
+    \   '    expected: ' . string(a:expect),
+    \   '         got: ' . string(a:actual),
     \ ])
   endif
   return 1
@@ -133,9 +145,10 @@ endfunction
 function! s:helper.match(actual, pattern)
   if !s:match(a:actual, a:pattern)
     throw themis#failure([
-    \   "Match was expected, but didn't match: ",
-    \   'target: ' . string(a:actual),
-    \   'pattern: ' . string(a:pattern),
+    \   'Match was expected, but did not match.',
+    \   '',
+    \   '    target: ' . string(a:actual),
+    \   '    pattern: ' . string(a:pattern),
     \ ])
   endif
   return 1
@@ -144,9 +157,10 @@ endfunction
 function! s:helper.not_match(actual, pattern)
   if s:match(a:actual, a:pattern)
     throw themis#failure([
-    \   "Not match was expected, but matched: ",
-    \   'target: ' . string(a:actual),
-    \   'pattern: ' . string(a:pattern),
+    \   'Not match was expected, but matched.',
+    \   '',
+    \   '    target: ' . string(a:actual),
+    \   '    pattern: ' . string(a:pattern),
     \ ])
   endif
   return 1
@@ -203,7 +217,9 @@ endfunction
 function! s:helper.exists(expr)
   if !exists(a:expr)
     throw themis#failure([
-    \   printf('expected: exists(%s)', string(a:expr)),
+    \   'The target was expected to exist, but it did not exist.',
+    \   '',
+    \   '    target: ' . string(a:expr),
     \ ])
   endif
   return 1
@@ -272,17 +288,19 @@ function! s:type(value)
   return s:type_names[type(a:value)]
 endfunction
 
-function! s:check_type(value, expect_type, not)
+function! s:check_type(value, expected_type, not)
   let got_type = s:type(a:value)
-  let success = got_type == a:expect_type
+  let success = got_type == a:expected_type
   if a:not
     let success = !success
   endif
   if !success
     throw themis#failure([
-    \   'expect type: ' . a:expect_type,
-    \   '   got type: ' . got_type,
-    \   '  got value: ' . string(a:value),
+    \   printf('The type of the value was expected to be %s, but it was not the case.', a:expected_type),
+    \   '',
+    \   '    expected type: ' . a:expected_type,
+    \   '         got type: ' . got_type,
+    \   '        got value: ' . string(a:value),
     \ ])
   endif
   return 1
