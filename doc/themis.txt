@@ -406,6 +406,7 @@ CHANGELOG					*themis-changelog*
 1.1	Roadmap
 	- [yet] Add tests to themis.vim itself.
 	- [yet] Add |themis-helper-command|.
+	- Improve |themis-helper-assert|.
 	- Improve the output of error.
 
 1.0	2014-06-30
