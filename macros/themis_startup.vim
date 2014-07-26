@@ -50,6 +50,12 @@ function! s:dump_error(throwpoint, exception)
 endfunction
 
 function! s:main()
+  " This :visual is needed for 2 purpose.
+  " 1. To Start test in Normal mode.
+  " 2. Exit code is set to 1, whenever it ends Vim from Ex mode after an error
+  "    output is performed.
+  visual
+
   let error_count = 0
   try
     let error_count = s:start()
@@ -57,6 +63,9 @@ function! s:main()
     let error_count = 1
     call s:dump_error(v:throwpoint, v:exception)
   finally
+    if mode(1) ==# 'ce'
+      visual
+    endif
     if error_count == 0
       qall!
     else
