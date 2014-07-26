@@ -76,7 +76,7 @@ endfunction
 
 augroup plugin-themis-startup
   autocmd!
-  autocmd VimEnter * call s:main()
+  autocmd VimEnter * nested call s:main()
 augroup END
 
 call s:append_rtp(getcwd())
