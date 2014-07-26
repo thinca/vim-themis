@@ -214,6 +214,38 @@ function! s:helper.is_not_float(value)
   return s:check_type(a:value, 'Float', 1)
 endfunction
 
+function! s:helper.has_key(value, key)
+  let t = type(a:value)
+  if t == type({})
+    if !has_key(a:value, a:key)
+      throw themis#failure([
+      \   'The dictionary was expected to have a key, but it did not have.',
+      \   '',
+      \   '      dictionary: ' . string(a:value),
+      \   '    expected key: ' . string(a:key),
+      \ ])
+    endif
+  elseif t == type([])
+    if (a:key < 0 || len(a:value) <= a:key)
+      throw themis#failure([
+      \   'The array was expected to have a index, but it did not have.',
+      \   '',
+      \   '             array: ' . string(a:value),
+      \   '      array length: ' . len(a:value),
+      \   '    expected index: ' . string(a:key),
+      \ ])
+    endif
+  else
+    throw themis#failure([
+    \   'The first argument was expected to an array or a dict, but it did not have.',
+    \   '',
+    \   '    value: ' . string(a:value),
+    \   '     type: ' . s:type(a:value),
+    \ ])
+  endif
+  return 1
+endfunction
+
 function! s:helper.exists(expr)
   if !exists(a:expr)
     throw themis#failure([

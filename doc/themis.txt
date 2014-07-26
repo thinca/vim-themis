@@ -210,6 +210,7 @@ Check types
 |themis-helper-assert-is_dict()| / |themis-helper-assert-is_not_dict()|
 |themis-helper-assert-is_float()| / |themis-helper-assert-is_not_float()|
 Others
+|themis-helper-assert-has_key()|
 |themis-helper-assert-exists()|
 
 
@@ -303,6 +304,11 @@ assert.is_float({value})		*themis-helper-assert-is_float()*
 
 assert.is_not_float({value})		*themis-helper-assert-is_not_float()*
 	Checks type of {value} is not |Float|.
+
+assert.has_key({dict}, {key})		*themis-helper-assert-has_key()*
+assert.has_key({array}, {index})
+	If the first argument is a dictionary, check {key} exists in {dict}.
+	If the first argument is an array, check {index} exists in {array}.
 
 assert.exists({expr})			*themis-helper-assert-exists()*
 	Checks {expr} by |exists()|.
