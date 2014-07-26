@@ -312,6 +312,11 @@ assert.type_of({value}, {names})	*themis-helper-assert-type_of()*
 	"Number", "String", "Funcref", "List", "Dict", "Dictionary", "Float"
 	Type name is case insensitive.
 
+assert.length_of({value}, {length})	*themis-helper-assert-length_of()*
+	Checks length of {value} is {length}.
+	{value} is a String, a List, or a Dictionary.
+	|len()| is used for length of {value}.
+
 assert.has_key({dict}, {key})		*themis-helper-assert-has_key()*
 assert.has_key({array}, {index})
 	If the first argument is a dictionary, check {key} exists in {dict}.

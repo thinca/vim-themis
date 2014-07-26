@@ -218,6 +218,20 @@ function! s:helper.type_of(value, names)
   return s:check_type(a:value, a:names, 0)
 endfunction
 
+function! s:helper.length_of(value, length)
+  call self.type_of(a:value, ['String', 'List', 'Dictionary'])
+  let got_length = len(a:value)
+  if got_length != a:length
+    throw themis#failure([
+    \   'The length of value was expected to the specified length, but it was not the case.',
+    \   '',
+    \   '    expected length: ' . a:length,
+    \   '         got length: ' . got_length,
+    \   '          got value: ' . string(a:value),
+    \ ])
+  endif
+endfunction
+
 function! s:helper.has_key(value, key)
   let t = type(a:value)
   if t == type({})
