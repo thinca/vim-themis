@@ -214,6 +214,10 @@ function! s:helper.is_not_float(value)
   return s:check_type(a:value, 'Float', 1)
 endfunction
 
+function! s:helper.type_of(value, names)
+  return s:check_type(a:value, a:names, 0)
+endfunction
+
 function! s:helper.has_key(value, key)
   let t = type(a:value)
   if t == type({})
@@ -309,28 +313,39 @@ function! s:match(str, pattern)
 endfunction
 
 let s:type_names = {
-\   type(0): 'Number',
-\   type(''): 'String',
-\   type(function('type')): 'Funcref',
-\   type([]): 'List',
-\   type({}): 'Dictionary',
-\   type(0.0): 'Float',
+\   type(0): 'number',
+\   type(''): 'string',
+\   type(function('type')): 'funcref',
+\   type([]): 'list',
+\   type({}): 'dictionary',
+\   type(0.0): 'float',
 \ }
 function! s:type(value)
   return s:type_names[type(a:value)]
 endfunction
 
-function! s:check_type(value, expected_type, not)
+function! s:check_type(value, expected_types, not)
   let got_type = s:type(a:value)
-  let success = got_type == a:expected_type
+  let expected_types = s:type(a:expected_types) ==# 'list' ?
+  \                    copy(a:expected_types) : [a:expected_types]
+  call map(expected_types, 'tolower(v:val)')
+  call map(expected_types, 'v:val ==# "dict" ? "dictionary" : v:val')
+  let success = 0 <= index(expected_types, got_type)
   if a:not
     let success = !success
   endif
   if !success
+    if 2 <= len(expected_types)
+      let msg = 'The type of value was expected to be one of %s'
+      let arg = join(expected_types[: -2], ', ') . ' or ' . expected_types[-1]
+    else
+      let msg = 'The type of value was expected to be %s'
+      let arg = expected_types[0]
+    endif
     throw themis#failure([
-    \   printf('The type of the value was expected to be %s, but it was not the case.', a:expected_type),
+    \   printf(msg, arg) . ', but it was not the case.',
     \   '',
-    \   '    expected type: ' . a:expected_type,
+    \   '    expected type: ' . arg,
     \   '         got type: ' . got_type,
     \   '        got value: ' . string(a:value),
     \ ])

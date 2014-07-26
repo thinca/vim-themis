@@ -305,6 +305,13 @@ assert.is_float({value})		*themis-helper-assert-is_float()*
 assert.is_not_float({value})		*themis-helper-assert-is_not_float()*
 	Checks type of {value} is not |Float|.
 
+assert.type_of({value}, {names})	*themis-helper-assert-type_of()*
+	Checks the type of {value} is one of {names}.
+	{names} is a List of type names or a String of type name.
+	Type name is one of the following:
+	"Number", "String", "Funcref", "List", "Dict", "Dictionary", "Float"
+	Type name is case insensitive.
+
 assert.has_key({dict}, {key})		*themis-helper-assert-has_key()*
 assert.has_key({array}, {index})
 	If the first argument is a dictionary, check {key} exists in {dict}.
