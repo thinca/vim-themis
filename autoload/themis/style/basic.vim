@@ -23,10 +23,9 @@ endfunction
 
 function! s:load_nested_bundle(runner, bundle)
   let a:runner.current_bundle = a:bundle
-  let suite = a:bundle.suite
-  let sub_suites = filter(copy(suite), 'v:key =~# s:describe_pattern')
-  let names = sort(keys(sub_suites), 's:test_compare', sub_suites)
-  for name in names
+  let suite = copy(a:bundle.suite)
+  call filter(suite, 'v:key =~# s:describe_pattern')
+  for name in s:names_by_defined_order(suite)
     call suite[name]()
   endfor
 
@@ -71,10 +70,15 @@ let s:style = {
 \ }
 
 function! s:style.get_test_names(bundle)
-  let suite = keys(filter(copy(a:bundle.suite), 'type(v:val) == s:func_t'))
-  call filter(suite, 'index(s:special_names, v:val) < 0')
-  call filter(suite, 'v:val !~# s:describe_pattern')
-  return sort(suite, 's:test_compare', a:bundle.suite)
+  let suite = copy(a:bundle.suite)
+  call filter(suite, 'type(v:val) == s:func_t')
+  call filter(suite, 'index(s:special_names, v:key) < 0')
+  call filter(suite, 'v:key !~# s:describe_pattern')
+  return s:names_by_defined_order(suite)
+endfunction
+
+function! s:names_by_defined_order(suite)
+  return sort(keys(a:suite), 's:test_compare', a:suite)
 endfunction
 
 function! s:test_compare(a, b) dict
