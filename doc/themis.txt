@@ -382,10 +382,10 @@ Some test names have a special meaning.  They are called in special situation.
 
 - before()
   - This is called before a first test of this suite.
-- before_each(name)
+- before_each()
   - This is called before each test of this suite.
-- after_each(name)
-  - This is called before each test of this suite.
+- after_each()
+  - This is called after each test of this suite.
 - after()
   - This is called after a last test of this suite.
 - __XXX__()
