@@ -24,7 +24,9 @@ endfunction
 function! s:load_nested_bundle(runner, bundle)
   let a:runner.current_bundle = a:bundle
   let suite = a:bundle.suite
-  for name in filter(keys(suite), 'v:val =~# s:describe_pattern')
+  let sub_suites = filter(copy(suite), 'v:key =~# s:describe_pattern')
+  let names = sort(keys(sub_suites), 's:test_compare', sub_suites)
+  for name in names
     call suite[name]()
   endfor
 
