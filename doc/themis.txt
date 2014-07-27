@@ -209,7 +209,9 @@ Check types
 |themis-helper-assert-is_list()| / |themis-helper-assert-is_not_list()|
 |themis-helper-assert-is_dict()| / |themis-helper-assert-is_not_dict()|
 |themis-helper-assert-is_float()| / |themis-helper-assert-is_not_float()|
+|themis-helper-assert-type_of()|
 Others
+|themis-helper-assert-length_of()|
 |themis-helper-assert-has_key()|
 |themis-helper-assert-exists()|
 
