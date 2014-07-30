@@ -16,8 +16,8 @@ function! s:helper.todo(...)
   throw 'themis: report: todo:' . themis#message(a:0 ? a:1 : '')
 endfunction
 
-function! s:helper.fail(...)
-  throw themis#failure(a:0 ? a:1 : '')
+function! s:helper.fail(mes)
+  throw themis#failure(a:mes)
 endfunction
 
 function! s:helper.true(value)
