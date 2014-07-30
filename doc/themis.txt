@@ -194,7 +194,8 @@ Assert Helper >
 	let s:assert = themis#helper('assert')
 
 Force fail and skip
-|themis-helper-assert-fail()| / |themis-helper-assert-skip()|
+|themis-helper-assert-fail()| / |themis-helper-assert-todo()|
+|themis-helper-assert-skip()|
 Check values
 |themis-helper-assert-true()| / |themis-helper-assert-false()|
 |themis-helper-assert-truthy()| / |themis-helper-assert-falsy()|
@@ -233,6 +234,9 @@ Check |themis-rule-exception| if you want to know the detail of exception.
 
 assert.fail({message})			*themis-helper-assert-fail()*
 	Fails a test with {message}.
+
+assert.todo({message})			*themis-helper-assert-todo()*
+	Fails a test as todo with {message}.
 
 assert.skip({message})			*themis-helper-assert-skip()*
 	Pass a test as SKIP with {message}.
