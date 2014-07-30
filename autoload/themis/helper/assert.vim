@@ -12,8 +12,8 @@ function! s:helper.skip(mes)
   throw 'themis: report: SKIP:' . themis#message(a:mes)
 endfunction
 
-function! s:helper.todo(mes)
-  throw 'themis: report: todo:' . themis#message(a:mes)
+function! s:helper.todo(...)
+  throw 'themis: report: todo:' . themis#message(a:0 ? a:1 : '')
 endfunction
 
 function! s:helper.fail(...)

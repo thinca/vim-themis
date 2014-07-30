@@ -235,7 +235,7 @@ Check |themis-rule-exception| if you want to know the detail of exception.
 assert.fail({message})			*themis-helper-assert-fail()*
 	Fails a test with {message}.
 
-assert.todo({message})			*themis-helper-assert-todo()*
+assert.todo([{message}])		*themis-helper-assert-todo()*
 	Fails a test as todo with {message}.
 
 assert.skip({message})			*themis-helper-assert-skip()*
