@@ -8,16 +8,16 @@ set cpo&vim
 
 let s:helper = {}
 
-function! s:helper.skip(mes)
-  throw 'themis: report: SKIP:' . themis#message(a:mes)
+function! s:helper.fail(mes)
+  throw themis#failure(a:mes)
 endfunction
 
 function! s:helper.todo(...)
   throw 'themis: report: todo:' . themis#message(a:0 ? a:1 : '')
 endfunction
 
-function! s:helper.fail(mes)
-  throw themis#failure(a:mes)
+function! s:helper.skip(mes)
+  throw 'themis: report: SKIP:' . themis#message(a:mes)
 endfunction
 
 function! s:helper.true(value)
