@@ -8,19 +8,19 @@ set cpo&vim
 
 let s:helper = {}
 
-function! s:helper.fail(mes)
+function! s:assert_fail(mes)
   throw themis#failure(a:mes)
 endfunction
 
-function! s:helper.todo(...)
+function! s:assert_todo(...)
   throw 'themis: report: todo:' . themis#message(a:0 ? a:1 : '')
 endfunction
 
-function! s:helper.skip(mes)
+function! s:assert_skip(mes)
   throw 'themis: report: SKIP:' . themis#message(a:mes)
 endfunction
 
-function! s:helper.true(value)
+function! s:assert_true(value)
   if a:value isnot 1
     throw themis#failure([
     \   'The true value was expected, but it was not the case.',
@@ -32,7 +32,7 @@ function! s:helper.true(value)
   return 1
 endfunction
 
-function! s:helper.false(value)
+function! s:assert_false(value)
   if a:value isnot 0
     throw themis#failure([
     \   'The false value was expected, but it was not the case.',
@@ -44,7 +44,7 @@ function! s:helper.false(value)
   return 1
 endfunction
 
-function! s:helper.truthy(value)
+function! s:assert_truthy(value)
   let t = type(a:value)
   if !(t == type(0) || t == type('')) || !a:value
     throw themis#failure([
@@ -57,7 +57,7 @@ function! s:helper.truthy(value)
   return 1
 endfunction
 
-function! s:helper.falsy(value)
+function! s:assert_falsy(value)
   let t = type(a:value)
   if !(t != type(0) || t != type('') || !a:value)
     throw themis#failure([
@@ -70,7 +70,7 @@ function! s:helper.falsy(value)
   return 1
 endfunction
 
-function! s:helper.compare(left, expr, right)
+function! s:assert_compare(left, expr, right)
   let expr_str = join([string(a:left), a:expr, string(a:right)])
   try
     let result = eval(join(['a:left', a:expr, 'a:right']))
@@ -94,7 +94,7 @@ function! s:helper.compare(left, expr, right)
   return 1
 endfunction
 
-function! s:helper.equals(actual, expect)
+function! s:assert_equals(actual, expect)
   if !s:equals(a:expect, a:actual)
     throw themis#failure([
     \   'The equivalent values were expected, but it was not the case.',
@@ -106,7 +106,7 @@ function! s:helper.equals(actual, expect)
   return 1
 endfunction
 
-function! s:helper.not_equals(actual, expect)
+function! s:assert_not_equals(actual, expect)
   if s:equals(a:expect, a:actual)
     throw themis#failure([
     \   'Not the equivalent values were expected, but it was not the case.',
@@ -118,7 +118,7 @@ function! s:helper.not_equals(actual, expect)
   return 1
 endfunction
 
-function! s:helper.same(actual, expect)
+function! s:assert_same(actual, expect)
   if a:expect isnot# a:actual
     throw themis#failure([
     \   'The same values were expected, but it was not the case.',
@@ -130,7 +130,7 @@ function! s:helper.same(actual, expect)
   return 1
 endfunction
 
-function! s:helper.not_same(actual, expect)
+function! s:assert_not_same(actual, expect)
   if a:expect is# a:actual
     throw themis#failure([
     \   'Not the same values were expected, but it was not the case.',
@@ -142,7 +142,7 @@ function! s:helper.not_same(actual, expect)
   return 1
 endfunction
 
-function! s:helper.match(actual, pattern)
+function! s:assert_match(actual, pattern)
   if !s:match(a:actual, a:pattern)
     throw themis#failure([
     \   'Match was expected, but did not match.',
@@ -154,7 +154,7 @@ function! s:helper.match(actual, pattern)
   return 1
 endfunction
 
-function! s:helper.not_match(actual, pattern)
+function! s:assert_not_match(actual, pattern)
   if s:match(a:actual, a:pattern)
     throw themis#failure([
     \   'Not match was expected, but matched.',
@@ -166,60 +166,60 @@ function! s:helper.not_match(actual, pattern)
   return 1
 endfunction
 
-function! s:helper.is_number(value)
+function! s:assert_is_number(value)
   return s:check_type(a:value, 'Number', 0)
 endfunction
 
-function! s:helper.is_not_number(value)
+function! s:assert_is_not_number(value)
   return s:check_type(a:value, 'Number', 1)
 endfunction
 
-function! s:helper.is_string(value)
+function! s:assert_is_string(value)
   return s:check_type(a:value, 'String', 0)
 endfunction
 
-function! s:helper.is_not_string(value)
+function! s:assert_is_not_string(value)
   return s:check_type(a:value, 'String', 1)
 endfunction
 
-function! s:helper.is_func(value)
+function! s:assert_is_func(value)
   return s:check_type(a:value, 'Funcref', 0)
 endfunction
 
-function! s:helper.is_not_func(value)
+function! s:assert_is_not_func(value)
   return s:check_type(a:value, 'Funcref', 1)
 endfunction
 
-function! s:helper.is_list(value)
+function! s:assert_is_list(value)
   return s:check_type(a:value, 'List', 0)
 endfunction
 
-function! s:helper.is_not_list(value)
+function! s:assert_is_not_list(value)
   return s:check_type(a:value, 'List', 1)
 endfunction
 
-function! s:helper.is_dict(value)
+function! s:assert_is_dict(value)
   return s:check_type(a:value, 'Dictionary', 0)
 endfunction
 
-function! s:helper.is_not_dict(value)
+function! s:assert_is_not_dict(value)
   return s:check_type(a:value, 'Dictionary', 1)
 endfunction
 
-function! s:helper.is_float(value)
+function! s:assert_is_float(value)
   return s:check_type(a:value, 'Float', 0)
 endfunction
 
-function! s:helper.is_not_float(value)
+function! s:assert_is_not_float(value)
   return s:check_type(a:value, 'Float', 1)
 endfunction
 
-function! s:helper.type_of(value, names)
+function! s:assert_type_of(value, names)
   return s:check_type(a:value, a:names, 0)
 endfunction
 
-function! s:helper.length_of(value, length)
-  call self.type_of(a:value, ['String', 'List', 'Dictionary'])
+function! s:assert_length_of(value, length)
+  call s:assert_type_of(a:value, ['String', 'List', 'Dictionary'])
   let got_length = len(a:value)
   if got_length != a:length
     throw themis#failure([
@@ -232,7 +232,7 @@ function! s:helper.length_of(value, length)
   endif
 endfunction
 
-function! s:helper.has_key(value, key)
+function! s:assert_has_key(value, key)
   let t = type(a:value)
   if t == type({})
     if !has_key(a:value, a:key)
@@ -264,7 +264,7 @@ function! s:helper.has_key(value, key)
   return 1
 endfunction
 
-function! s:helper.exists(expr)
+function! s:assert_exists(expr)
   if !exists(a:expr)
     throw themis#failure([
     \   'The target was expected to exist, but it did not exist.',
@@ -276,7 +276,7 @@ function! s:helper.exists(expr)
 endfunction
 
 " TODO: validate()
-function! s:helper.validate(expr, rule)
+function! s:assert_validate(expr, rule)
   let result = s:validate(a:expr, a:rule)
   if !empty(result)
     throw themis#failure([
@@ -366,6 +366,44 @@ function! s:check_type(value, expected_types, not)
   endif
   return 1
 endfunction
+
+function! s:redir(cmd)
+  let [save_verbose, save_verbosefile] = [&verbose, &verbosefile]
+  set verbose=0 verbosefile=
+  redir => res
+    silent! execute a:cmd
+  redir END
+  let [&verbose, &verbosefile] = [save_verbose, save_verbosefile]
+  return res
+endfunction
+
+function! s:get_functions(sid)
+  let prefix = '<SNR>' . a:sid . '_'
+  let funcs = s:redir('function')
+  let filter_pat = '^\s*function ' . prefix
+  let map_pat = prefix . '\w\+'
+  return map(filter(split(funcs, "\n"),
+  \          '0 <= stridx(v:val, prefix) && v:val =~# filter_pat'),
+  \          'matchstr(v:val, map_pat)')
+endfunction
+
+function! s:sid()
+  return matchstr(expand('<sfile>'), '<SNR>\zs\d\+\ze_\w\+$')
+endfunction
+
+function! s:make_helper()
+  let functions = s:get_functions(s:sid())
+  let assert_pat = '^<SNR>\d\+_assert_'
+  call filter(functions, 'v:val =~# assert_pat')
+  let helper = {}
+  for func in functions
+    let name = matchstr(func, '<SNR>\d\+_assert_\zs\w\+')
+    let helper[name] = function(func)
+  endfor
+  return helper
+endfunction
+
+let s:helper = s:make_helper()
 
 function! themis#helper#assert#new(runner)
   return deepcopy(s:helper)
