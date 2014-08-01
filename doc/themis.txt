@@ -17,6 +17,7 @@ WRITE TEST			|themis-write-test|
   QUICKREF			  |themis-quickref|
 HELPER				|themis-helper|
   ASSERT			  |themis-helper-assert|
+  COMMAND			  |themis-helper-command|
 REPORTER			|themis-reporter|
 TEST RULE			|themis-test-rule|
   EXCEPTION			  |themis-rule-exception|
@@ -190,6 +191,7 @@ QUICKREF					*themis-quickref*
 
 There is a quick reference for writing test.
 
+
 Assert Helper >
 	let s:assert = themis#helper('assert')
 
@@ -215,6 +217,18 @@ Others
 |themis-helper-assert-length_of()|
 |themis-helper-assert-has_key()|
 |themis-helper-assert-exists()|
+
+
+Command Helper >
+	call themis#helper('command')
+	call themis#helper('command').with(s:assert)
+
+Available commands
+|themis-helper-command-:Assert|	Checks a value.
+|themis-helper-command-:Throws|	Checks an exception thrown.
+|themis-helper-command-:Fail|	Fail.
+|themis-helper-command-:TODO|	Fail as TODO.
+|themis-helper-command-:Skip|	Skip.
 
 
 
@@ -332,6 +346,61 @@ assert.exists({expr})			*themis-helper-assert-exists()*
 	Checks {expr} by |exists()|.
 	Note that this can not use for |local-variable| and |script-variable|.
 
+
+------------------------------------------------------------------------------
+COMMAND						*themis-helper-command*
+
+command.prefix({prefix})		*themis-helper-command-prefix()*
+	Use prefix to commands.
+	The prefix must start with an uppercase letter.
+>
+	call themis#helper('command').prefix('Themis')
+
+	function! s:suite.test()
+	  ThemisExpect 1 + 1 == 2
+	endfunction
+<
+command.with({scope})			*themis-helper-command-with()*
+	Add scope to command area.  {scope} is a Dictionary.
+	In the command, you can access to function local variables, but can
+	not access to script local variables.
+	You can access the member of a {scope} Dictionary like a function
+	local variable.
+>
+	let s:assert = themis#helper('assert')
+	call themis#helper('command').with(s:)
+
+	function! s:suite.test()
+	  Assert assert.equals(1 + 1, 2)
+	endfunction
+<
+	If a value of {scope} is a |Funcref|, the first character of variable
+	name changes to an uppercase.
+>
+	let s:assert = themis#helper('assert')
+	call themis#helper('command').with(s:assert)
+
+	function! s:suite.test()
+	  Assert Equals(1 + 1, 2)
+	endfunction
+<
+
+:Assert {value}				*themis-helper-command-:Assert*
+	Checks {value} is truthy value.
+
+:Throws [/{pattern}/] {expr}		*themis-helper-command-:Throws*
+:Throws [/{pattern}/] :{command}
+	Checks {expr} or {command} throws an exception.
+	If {pattern} is given, checks the exception matches the {pattern}.
+
+:Fail {message}				*themis-helper-command-:Fail*
+	Fails a test with {message}.
+
+:TODO [{message}]			*themis-helper-command-:TODO*
+	Fails a test as TODO with {message}.
+
+:Skip {message}				*themis-helper-command-:Skip*
+	Passes a test as SKIP with {message}.
 
 
 ==============================================================================
