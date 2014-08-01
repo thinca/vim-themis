@@ -480,7 +480,7 @@ CHANGELOG					*themis-changelog*
 
 1.1	Roadmap
 	- [yet] Add tests to themis.vim itself.
-	- [yet] Add |themis-helper-command|.
+	- Add |themis-helper-command|.
 	- Improve |themis-helper-assert|.
 	- Improve the output of error.
 
