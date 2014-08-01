@@ -10,7 +10,8 @@ let s:reporter = {}
 
 function! s:reporter.init(runner)
   let self.stats = a:runner.supporter('stats')
-  let self.fails = []
+  let self.pending_list = []
+  let self.failure_list = []
 endfunction
 
 function! s:reporter.pass(report)
@@ -18,25 +19,20 @@ function! s:reporter.pass(report)
 endfunction
 
 function! s:reporter.fail(report)
-  let self.fails += [a:report]
+  let self.failure_list += [a:report]
   call themis#logn('F')
 endfunction
 
 function! s:reporter.pending(report)
+  let self.pending_list += [a:report]
   call themis#logn('P')
 endfunction
 
 function! s:reporter.end(runner)
   call themis#log("\n")
 
-  if !empty(self.fails)
-    let n = 1
-    for report in self.fails
-      call s:print_report(n, report)
-      let n += 1
-      call themis#log('')
-    endfor
-  endif
+  call s:print_reports('Pending', self.pending_list)
+  call s:print_reports('Failures', self.failure_list)
 
   call themis#log(self.stats.stat())
 endfunction
@@ -47,6 +43,19 @@ function! s:reporter.error(phase, info)
     call themis#log(themis#util#error_info(a:info.stacktrace))
   endif
   call themis#log(a:info.exception)
+endfunction
+
+function! s:print_reports(title, reports)
+  if empty(a:reports)
+    return
+  endif
+  call themis#log(a:title . ':')
+  let n = 1
+  for report in a:reports
+    call s:print_report(n, report)
+    let n += 1
+    call themis#log('')
+  endfor
 endfunction
 
 function! s:print_report(n, report)
