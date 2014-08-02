@@ -65,7 +65,9 @@ function! themis#util#funcinfo(func)
 endfunction
 
 function! themis#util#funcbody(func, verbose)
-  let fname = a:func =~# '^\d\+' ? '{' . a:func . '}' : a:func
+  let func = type(a:func) == type(function('type')) ?
+  \          matchstr(string(a:func), 'function(''\zs.*\ze'')') : a:func
+  let fname = func =~# '^\d\+' ? '{' . func . '}' : func
   let verbose = a:verbose ? 'verbose' : ''
   redir => body
   silent execute verbose 'function' fname
