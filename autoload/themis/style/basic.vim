@@ -56,11 +56,11 @@ function! s:receiver.after_suite(bundle)
 endfunction
 
 function! s:receiver.after_test(bundle, name)
-  if has_key(a:bundle, 'parent')
-    call self.after_test(a:bundle.parent, a:name)
-  endif
   if has_key(a:bundle.suite, 'after_each')
     call a:bundle.suite.after_each()
+  endif
+  if has_key(a:bundle, 'parent')
+    call self.after_test(a:bundle.parent, a:name)
   endif
 endfunction
 
