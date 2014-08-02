@@ -38,6 +38,7 @@ function! s:reporter.end(runner)
 endfunction
 
 function! s:reporter.error(phase, info)
+  call themis#log('')
   call themis#log(printf('Error occurred in %s.', a:phase))
   if has_key(a:info, 'stacktrace')
     call themis#log(themis#util#error_info(a:info.stacktrace))
