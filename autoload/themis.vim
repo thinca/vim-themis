@@ -90,9 +90,10 @@ endfunction
 
 function! themis#message(expr)
   let t = type(a:expr)
-  return t == type('') ? a:expr :
-  \      t == type([]) ? join(map(a:expr, 'themis#message(v:val)'), "\n") :
-  \                      string(a:expr)
+  return
+  \  t == type('') ? a:expr :
+  \  t == type([]) ? join(map(copy(a:expr), 'themis#message(v:val)'), "\n") :
+  \                  string(a:expr)
 endfunction
 
 function! themis#failure(expr)
