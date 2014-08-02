@@ -75,14 +75,18 @@ function! themis#util#funcbody(func, verbose)
   return split(body, "\n")
 endfunction
 
-function! themis#util#funcline(target, line)
+function! themis#util#funcline(target, lnum)
   if themis#util#is_funcname(a:target)
     let body = themis#util#funcbody(a:target, 0)
-    let line = body[a:line]
-    let num_width = a:line < 1000 ? 3 : len(a:line)
-    return line[num_width :]
+    " XXX: More improve speed
+    for line in body[1 : -2]
+      if line =~# '^' . a:lnum
+        let num_width = a:lnum < 1000 ? 3 : len(a:lnum)
+        return line[num_width :]
+      endif
+    endfor
   elseif filereadable(a:target)
-    let lines = readfile(a:target, '', a:line)
+    let lines = readfile(a:target, '', a:lnum)
     return empty(lines) ? '' : lines[-1]
   endif
   return ''
