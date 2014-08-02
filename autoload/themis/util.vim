@@ -98,7 +98,7 @@ function! themis#util#error_info(stacktrace)
 endfunction
 
 function! themis#util#is_funcname(name)
-  return a:name =~# '\v^%(\d+|%(\u|g:|s:|\<SNR\>\d+_)?\w+%(#\w+)*)$'
+  return a:name =~# '\v^%(\d+|%(\u|g:\u|s:|\<SNR\>\d+_)\w+|\h\w*%(#\w+)+)$'
 endfunction
 
 
