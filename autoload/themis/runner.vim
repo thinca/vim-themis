@@ -27,15 +27,14 @@ function! s:runner.run(scripts, options)
     \   . ',' . &runtimepath
   endif
   let stats = self.supporter('stats')
-  let self.bundle = themis#bundle#new()
-  let self.current_bundle = self.bundle
+  call self.init_bundle()
   let reporter = themis#module#reporter(a:options.reporter)
   call self.add_event(reporter)
   try
     call self.load_scripts(a:scripts)
     call self.emit('script_loaded', self)
     call self.emit('start', self)
-    call self.run_bundle(self.bundle)
+    call self.run_all()
     call self.emit('end', self)
     let error_count = stats.fail()
   catch
@@ -56,6 +55,11 @@ function! s:runner.run(scripts, options)
     let &runtimepath = save_runtimepath
   endtry
   return error_count
+endfunction
+
+function! s:runner.init_bundle()
+  let self.bundle = themis#bundle#new()
+  let self.current_bundle = self.bundle
 endfunction
 
 function! s:runner.add_new_bundle(title)
@@ -80,6 +84,10 @@ function! s:runner.load_scripts(scripts)
     call self.style.load_script(script)
   endfor
   unlet self.phase
+endfunction
+
+function! s:runner.run_all()
+  call self.run_bundle(self.bundle)
 endfunction
 
 function! s:runner.run_bundle(bundle)
