@@ -374,14 +374,14 @@ command.with({scope})			*themis-helper-command-with()*
 	  Assert assert.equals(1 + 1, 2)
 	endfunction
 <
-	If a value of {scope} is a |Funcref|, the first character of variable
-	name changes to an uppercase.
+	If a value of {scope} is a |Funcref|, the key name becomes CamelCase.
 >
 	let s:assert = themis#helper('assert')
 	call themis#helper('command').with(s:assert)
 
 	function! s:suite.test()
 	  Assert Equals(1 + 1, 2)
+	  Assert HasKey({'foo': 0}, 'foo')
 	endfunction
 <
 

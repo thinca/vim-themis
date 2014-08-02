@@ -220,7 +220,7 @@ function! s:add_scopes(local)
   for scope in s:current_scopes
     for [name, Value] in items(scope)
       if type(Value) == s:f_type
-        let name = toupper(name[0]) . name[1 :]
+        let name = substitute(name, '\%(^\|_\)\(\w\)', '\u\1', 'g')
       endif
       if !has_key(a:local, name)
         let a:local[name] = Value
