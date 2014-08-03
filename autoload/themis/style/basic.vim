@@ -82,13 +82,9 @@ function! s:names_by_defined_order(suite)
 endfunction
 
 function! s:test_compare(a, b) dict
-  let a_order = s:to_i(s:funcname(self[a:a]))
-  let b_order = s:to_i(s:funcname(self[a:b]))
+  let a_order = s:to_i(themis#util#funcname(self[a:a]))
+  let b_order = s:to_i(themis#util#funcname(self[a:b]))
   return a_order ==# b_order ? 0 : b_order < a_order ? 1 : -1
-endfunction
-
-function! s:funcname(funcref)
-  return matchstr(string(a:funcref), '^function(''\zs.*\ze'')$')
 endfunction
 
 function! s:to_i(value)

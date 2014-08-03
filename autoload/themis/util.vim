@@ -66,7 +66,7 @@ endfunction
 
 function! themis#util#funcbody(func, verbose)
   let func = type(a:func) == type(function('type')) ?
-  \          matchstr(string(a:func), 'function(''\zs.*\ze'')') : a:func
+  \          themis#util#funcname(a:func) : a:func
   let fname = func =~# '^\d\+' ? '{' . func . '}' : func
   let verbose = a:verbose ? 'verbose' : ''
   redir => body
@@ -105,6 +105,10 @@ endfunction
 
 function! themis#util#is_funcname(name)
   return a:name =~# '\v^%(\d+|%(\u|g:\u|s:|\<SNR\>\d+_)\w+|\h\w*%(#\w+)+)$'
+endfunction
+
+function! themis#util#funcname(funcref)
+  return matchstr(string(a:funcref), '^function(''\zs.*\ze'')$')
 endfunction
 
 
