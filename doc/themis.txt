@@ -479,7 +479,8 @@ Some test names have a special meaning.  They are called in special situation.
 CHANGELOG					*themis-changelog*
 
 1.1	Roadmap
-	- [yet] Add tests to themis.vim itself.
+	- Add tests to themis.vim itself.
+	  - This is incomplete.  I will add more tests in the future.
 	- Add |themis-helper-command|.
 	- Improve |themis-helper-assert|.
 	- Improve the output of error.
