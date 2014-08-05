@@ -1,6 +1,6 @@
 *themis.txt*	A testing framework for Vim script.
 
-Version: 1.0
+Version: 1.1
 Author : thinca <thinca+vim@gmail.com>
 License: zlib License
 
@@ -17,6 +17,7 @@ WRITE TEST			|themis-write-test|
   QUICKREF			  |themis-quickref|
 HELPER				|themis-helper|
   ASSERT			  |themis-helper-assert|
+  COMMAND			  |themis-helper-command|
 REPORTER			|themis-reporter|
 TEST RULE			|themis-test-rule|
   EXCEPTION			  |themis-rule-exception|
@@ -134,7 +135,6 @@ Following functions are utilities for test script.
 
 themis#suite([{name}])				*themis#suite()*
 	Creates and returns a new test suite.
-	If a suite named {name} already exists, just returns it.
 
 themis#helper({name})				*themis#helper()*
 	Use a helper.
@@ -191,11 +191,13 @@ QUICKREF					*themis-quickref*
 
 There is a quick reference for writing test.
 
+
 Assert Helper >
 	let s:assert = themis#helper('assert')
 
 Force fail and skip
-|themis-helper-assert-fail()| / |themis-helper-assert-skip()|
+|themis-helper-assert-fail()| / |themis-helper-assert-todo()|
+|themis-helper-assert-skip()|
 Check values
 |themis-helper-assert-true()| / |themis-helper-assert-false()|
 |themis-helper-assert-truthy()| / |themis-helper-assert-falsy()|
@@ -210,8 +212,23 @@ Check types
 |themis-helper-assert-is_list()| / |themis-helper-assert-is_not_list()|
 |themis-helper-assert-is_dict()| / |themis-helper-assert-is_not_dict()|
 |themis-helper-assert-is_float()| / |themis-helper-assert-is_not_float()|
+|themis-helper-assert-type_of()|
 Others
+|themis-helper-assert-length_of()|
+|themis-helper-assert-has_key()|
 |themis-helper-assert-exists()|
+
+
+Command Helper >
+	call themis#helper('command')
+	call themis#helper('command').with(s:assert)
+
+Available commands
+|themis-helper-command-:Assert|	Checks a value.
+|themis-helper-command-:Throws|	Checks an exception thrown.
+|themis-helper-command-:Fail|	Fail.
+|themis-helper-command-:TODO|	Fail as TODO.
+|themis-helper-command-:Skip|	Skip.
 
 
 
@@ -231,6 +248,9 @@ Check |themis-rule-exception| if you want to know the detail of exception.
 
 assert.fail({message})			*themis-helper-assert-fail()*
 	Fails a test with {message}.
+
+assert.todo([{message}])		*themis-helper-assert-todo()*
+	Fails a test as todo with {message}.
 
 assert.skip({message})			*themis-helper-assert-skip()*
 	Pass a test as SKIP with {message}.
@@ -305,10 +325,82 @@ assert.is_float({value})		*themis-helper-assert-is_float()*
 assert.is_not_float({value})		*themis-helper-assert-is_not_float()*
 	Checks type of {value} is not |Float|.
 
+assert.type_of({value}, {names})	*themis-helper-assert-type_of()*
+	Checks the type of {value} is one of {names}.
+	{names} is a List of type names or a String of type name.
+	Type name is one of the following:
+	"Number", "String", "Funcref", "List", "Dict", "Dictionary", "Float"
+	Type name is case insensitive.
+
+assert.length_of({value}, {length})	*themis-helper-assert-length_of()*
+	Checks length of {value} is {length}.
+	{value} is a String, a List, or a Dictionary.
+	|len()| is used for length of {value}.
+
+assert.has_key({dict}, {key})		*themis-helper-assert-has_key()*
+assert.has_key({array}, {index})
+	If the first argument is a dictionary, check {key} exists in {dict}.
+	If the first argument is an array, check {index} exists in {array}.
+
 assert.exists({expr})			*themis-helper-assert-exists()*
 	Checks {expr} by |exists()|.
 	Note that this can not use for |local-variable| and |script-variable|.
 
+
+------------------------------------------------------------------------------
+COMMAND						*themis-helper-command*
+
+command.prefix({prefix})		*themis-helper-command-prefix()*
+	Use prefix to commands.
+	The prefix must start with an uppercase letter.
+>
+	call themis#helper('command').prefix('Themis')
+
+	function! s:suite.test()
+	  ThemisExpect 1 + 1 == 2
+	endfunction
+<
+command.with({scope})			*themis-helper-command-with()*
+	Add scope to command area.  {scope} is a Dictionary.
+	In the command, you can access to function local variables, but can
+	not access to script local variables.
+	You can access the member of a {scope} Dictionary like a function
+	local variable.
+>
+	let s:assert = themis#helper('assert')
+	call themis#helper('command').with(s:)
+
+	function! s:suite.test()
+	  Assert assert.equals(1 + 1, 2)
+	endfunction
+<
+	If a value of {scope} is a |Funcref|, the key name becomes CamelCase.
+>
+	let s:assert = themis#helper('assert')
+	call themis#helper('command').with(s:assert)
+
+	function! s:suite.test()
+	  Assert Equals(1 + 1, 2)
+	  Assert HasKey({'foo': 0}, 'foo')
+	endfunction
+<
+
+:Assert {value}				*themis-helper-command-:Assert*
+	Checks {value} is truthy value.
+
+:Throws [/{pattern}/] {expr}		*themis-helper-command-:Throws*
+:Throws [/{pattern}/] :{command}
+	Checks {expr} or {command} throws an exception.
+	If {pattern} is given, checks the exception matches the {pattern}.
+
+:Fail {message}				*themis-helper-command-:Fail*
+	Fails a test with {message}.
+
+:TODO [{message}]			*themis-helper-command-:TODO*
+	Fails a test as TODO with {message}.
+
+:Skip {message}				*themis-helper-command-:Skip*
+	Passes a test as SKIP with {message}.
 
 
 ==============================================================================
@@ -363,10 +455,10 @@ Some test names have a special meaning.  They are called in special situation.
 
 - before()
   - This is called before a first test of this suite.
-- before_each(name)
+- before_each()
   - This is called before each test of this suite.
-- after_each(name)
-  - This is called before each test of this suite.
+- after_each()
+  - This is called after each test of this suite.
 - after()
   - This is called after a last test of this suite.
 - __XXX__()
@@ -385,6 +477,13 @@ Some test names have a special meaning.  They are called in special situation.
 
 ==============================================================================
 CHANGELOG					*themis-changelog*
+
+1.1	2014-08-05
+	- Add tests to themis.vim itself.
+	  - This is incomplete.  I will add more tests in the future.
+	- Add |themis-helper-command|.
+	- Improve |themis-helper-assert|.
+	- Improve the output of error.
 
 1.0	2014-06-30
 	- Initial version.

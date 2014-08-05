@@ -1,5 +1,5 @@
 " themis: reporter: Report with TAP(Test Anything Protocol).
-" Version: 1.0
+" Version: 1.1
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
@@ -14,10 +14,6 @@ endfunction
 
 function! s:reporter.start(runner)
   call themis#log('1..' . a:runner.total_test_count())
-endfunction
-
-function! s:reporter.before_suite(bundle)
-  " call themis#log('# ' . a:bundle.filename)
 endfunction
 
 function! s:reporter.pass(report)
@@ -40,12 +36,12 @@ function! s:reporter.pending(report)
   call s:print_message(a:report.message)
 endfunction
 
-function! s:reporter.error(phase, stacktrace, error_line, exception)
+function! s:reporter.error(phase, info)
   call themis#log(printf('Bail out!  Error occurred in %s.', a:phase))
-  let tracelines = map(a:stacktrace, 'themis#util#funcinfo_format(v:val)')
-  call s:print_message(tracelines)
-  call s:print_message(a:error_line)
-  call s:print_message(a:exception)
+  if has_key(a:info, 'stacktrace')
+    call s:print_message(themis#util#error_info(a:info.stacktrace))
+  endif
+  call s:print_message(a:info.exception)
 endfunction
 
 function! s:reporter.end(runner)

@@ -1,5 +1,5 @@
 " themis: Test runner
-" Version: 1.0
+" Version: 1.1
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
@@ -13,6 +13,8 @@ let s:runner = {
 
 function! s:runner.run(scripts, options)
   let scripts = type(a:scripts) == type([]) ? a:scripts : [a:scripts]
+  let self.style = themis#module#style(a:options.style, self)
+  call filter(scripts, 'self.style.can_handle(v:val)')
   if empty(scripts)
     throw 'themis: Target file not found.'
   endif
@@ -25,25 +27,29 @@ function! s:runner.run(scripts, options)
     \   . ',' . &runtimepath
   endif
   let stats = self.supporter('stats')
-  let self.bundle = themis#bundle#new()
-  let self.current_bundle = self.bundle
-  let self.style = themis#module#style(a:options.style, self)
+  call self.init_bundle()
   let reporter = themis#module#reporter(a:options.reporter)
   call self.add_event(reporter)
   try
     call self.load_scripts(a:scripts)
     call self.emit('script_loaded', self)
     call self.emit('start', self)
-    call self.run_bundle(self.bundle)
+    call self.run_all()
     call self.emit('end', self)
     let error_count = stats.fail()
   catch
     let phase = get(self,  'phase', 'core')
-    let stacktrace = themis#util#callstack(v:throwpoint, -1)
-    let tail = stacktrace[-1]
-    let line_str = themis#util#funcline(tail.funcname, tail.line)
-    let error_line = printf('%d: %s', tail.line, line_str)
-    call self.emit('error', phase, stacktrace, error_line, v:exception)
+    if v:exception =~# '^themis:'
+      let info = {
+      \   'exception': matchstr(v:exception, '\C^themis:\s*\zs.*'),
+      \ }
+    else
+      let info = {
+      \   'exception': v:exception,
+      \   'stacktrace': themis#util#callstack(v:throwpoint, -1),
+      \ }
+    endif
+    call self.emit('error', phase, info)
     let error_count = 1
   finally
     let &runtimepath = save_runtimepath
@@ -51,13 +57,13 @@ function! s:runner.run(scripts, options)
   return error_count
 endfunction
 
+function! s:runner.init_bundle()
+  let self.bundle = themis#bundle#new()
+  let self.current_bundle = self.bundle
+endfunction
+
 function! s:runner.add_new_bundle(title)
-  let bundle = self.current_bundle.get_child(a:title)
-  if empty(bundle)
-    let bundle = themis#bundle#new(a:title)
-    call self.current_bundle.add_child(bundle)
-  endif
-  return bundle
+  return self.add_bundle(themis#bundle#new(a:title))
 endfunction
 
 function! s:runner.add_bundle(bundle)
@@ -65,6 +71,7 @@ function! s:runner.add_bundle(bundle)
     let a:bundle.filename = self._filename
   endif
   call self.current_bundle.add_child(a:bundle)
+  return a:bundle
 endfunction
 
 function! s:runner.load_scripts(scripts)
@@ -77,6 +84,10 @@ function! s:runner.load_scripts(scripts)
     call self.style.load_script(script)
   endfor
   unlet self.phase
+endfunction
+
+function! s:runner.run_all()
+  call self.run_bundle(self.bundle)
 endfunction
 
 function! s:runner.run_bundle(bundle)

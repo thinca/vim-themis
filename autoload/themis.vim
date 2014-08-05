@@ -1,5 +1,5 @@
 " A testing framework for Vim script.
-" Version: 1.0
+" Version: 1.1
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
@@ -66,16 +66,16 @@ function! themis#helper(name)
 endfunction
 
 function! themis#exception(type, message)
-  return printf('themis: %s: %s', a:type, s:to_string(a:message))
+  return printf('themis: %s: %s', a:type, themis#message(a:message))
 endfunction
 
 function! themis#log(expr, ...)
-  let mes = s:to_string(a:expr) . "\n"
+  let mes = themis#message(a:expr) . "\n"
   call call('themis#logn', [mes] + a:000)
 endfunction
 
 function! themis#logn(expr, ...)
-  let string = s:to_string(a:expr)
+  let string = themis#message(a:expr)
   if !empty(a:000)
     let string = call('printf', [string] + a:000)
   endif
@@ -88,11 +88,16 @@ function! themis#logn(expr, ...)
   endif
 endfunction
 
-function! s:to_string(expr)
+function! themis#message(expr)
   let t = type(a:expr)
-  return t == type('') ? a:expr :
-  \      t == type([]) ? join(map(a:expr, 's:to_string(v:val)'), "\n") :
-  \                      string(a:expr)
+  return
+  \  t == type('') ? a:expr :
+  \  t == type([]) ? join(map(copy(a:expr), 'themis#message(v:val)'), "\n") :
+  \                  string(a:expr)
+endfunction
+
+function! themis#failure(expr)
+  return 'themis: report: failure: ' . themis#message(a:expr)
 endfunction
 
 

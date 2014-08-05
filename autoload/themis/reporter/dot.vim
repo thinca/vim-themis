@@ -1,5 +1,5 @@
 " themis: reporter: Report with xUnit style.
-" Version: 1.0
+" Version: 1.1
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
@@ -10,6 +10,8 @@ let s:reporter = {}
 
 function! s:reporter.init(runner)
   let self.stats = a:runner.supporter('stats')
+  let self.pending_list = []
+  let self.failure_list = []
 endfunction
 
 function! s:reporter.pass(report)
@@ -17,30 +19,49 @@ function! s:reporter.pass(report)
 endfunction
 
 function! s:reporter.fail(report)
+  let self.failure_list += [a:report]
   call themis#logn('F')
 endfunction
 
 function! s:reporter.pending(report)
+  let self.pending_list += [a:report]
   call themis#logn('P')
 endfunction
 
 function! s:reporter.end(runner)
   call themis#log("\n")
+
+  call s:print_reports('Pending', self.pending_list)
+  call s:print_reports('Failures', self.failure_list)
+
   call themis#log(self.stats.stat())
 endfunction
 
-function! s:reporter.error(phase, stacktrace, error_line, exception)
+function! s:reporter.error(phase, info)
+  call themis#log('')
   call themis#log(printf('Error occurred in %s.', a:phase))
-  let tracelines = map(a:stacktrace, 'themis#util#funcinfo_format(v:val)')
-  call themis#log(tracelines)
-  call themis#log(a:error_line)
-  call themis#log(a:exception)
+  if has_key(a:info, 'stacktrace')
+    call themis#log(themis#util#error_info(a:info.stacktrace))
+  endif
+  call themis#log(a:info.exception)
 endfunction
 
-function! s:print_message(message)
-  for line in split(a:message, "\n")
-    call themis#log('# ' . line)
+function! s:print_reports(title, reports)
+  if empty(a:reports)
+    return
+  endif
+  call themis#log(a:title . ':')
+  let n = 1
+  for report in a:reports
+    call s:print_report(n, report)
+    let n += 1
+    call themis#log('')
   endfor
+endfunction
+
+function! s:print_report(n, report)
+  call themis#log(printf('%3d) %s', a:n, a:report.get_full_title()))
+  call themis#log(map(split(a:report.message, "\n"), '"     " . v:val'))
 endfunction
 
 function! themis#reporter#dot#new()

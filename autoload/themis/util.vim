@@ -1,5 +1,5 @@
 " themis: Utility functions.
-" Version: 1.0
+" Version: 1.1
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
@@ -12,18 +12,36 @@ function! themis#util#callstacklines(throwpoint, ...)
 endfunction
 
 function! themis#util#callstack(throwpoint, ...)
-  let this_callstack = split(expand('<sfile>'), '\.\.')[: -2]
-  let throwpoint_stack = split(a:throwpoint, '\.\.')
-  let start = a:0 ? len(this_callstack) + a:1 : 0
-  if len(throwpoint_stack) <= start ||
-  \  this_callstack[0] isnot throwpoint_stack[0]
+  let this_stacks = themis#util#parse_callstack(expand('<sfile>'))[: -2]
+  let throwpoint_stacks = themis#util#parse_callstack(a:throwpoint)
+  let start = a:0 ? len(this_stacks) + a:1 : 0
+  if len(throwpoint_stacks) <= start ||
+  \  this_stacks[0] != throwpoint_stacks[0]
     let start = 0
   endif
-  let error_stack = throwpoint_stack[start :]
+  let error_stack = throwpoint_stacks[start :]
   return map(error_stack, 'themis#util#funcinfo(v:val)')
 endfunction
 
+function! themis#util#parse_callstack(callstack)
+  let callstack_line = matchstr(a:callstack, '^\%(function\s\+\)\?\zs.*')
+  if callstack_line =~# ',.*\d'
+    let pat = '^\(.\+\),.\{-}\(\d\+\)'
+    let [callstack_line, line] = matchlist(callstack_line, pat)[1 : 2]
+  else
+    let line = 0
+  endif
+  let stack_info = split(callstack_line, '\.\.')
+  call map(stack_info, '{"function": v:val, "line": 0}')
+  let stack_info[-1].line = line - 0
+  return stack_info
+endfunction
+
 function! themis#util#funcinfo_format(funcinfo)
+  if a:funcinfo.signature ==# ''
+    " This is a file.
+    return printf('%s Line:%d', a:funcinfo.file, a:funcinfo.line)
+  endif
   let result = a:funcinfo.signature
   if a:funcinfo.line
     let result .= '  Line:' . a:funcinfo.line
@@ -31,26 +49,36 @@ function! themis#util#funcinfo_format(funcinfo)
   return result . '  (' . a:funcinfo.file . ')'
 endfunction
 
-function! themis#util#funcinfo(func)
-  let f = matchstr(a:func, '^\%(function\s\+\)\?\zs.*')
-  let line = 0
-  if f =~# ',.*\d'
-    let [f, line] = matchlist(f, '^\(.\+\),.\{-}\(\d\+\)')[1 : 2]
+function! themis#util#funcinfo(stack)
+  let f = a:stack.function
+  let line = a:stack.line
+  if themis#util#is_funcname(f)
+    let body = themis#util#funcbody(f, 1)
+    let signature = matchstr(body[0], '^\s*\zs.*')
+    let file = matchstr(body[1], '^\s*Last set from\s*\zs.*$')
+    let file = substitute(file, '[/\\]\+', '/', 'g')
+    return {
+    \   'funcname': f,
+    \   'signature': signature,
+    \   'file': file,
+    \   'line': line,
+    \ }
+  elseif filereadable(f)
+    return {
+    \   'funcname': f,
+    \   'signature': '',
+    \   'file': f,
+    \   'line': line,
+    \ }
+  else
+    return {}
   endif
-  let body = themis#util#funcbody(f, 1)
-  let signature = matchstr(body[0], '^\s*\zs.*')
-  let file = matchstr(body[1], '^\s*Last set from\s*\zs.*$')
-  let file = substitute(file, '[/\\]\+', '/', 'g')
-  return {
-  \   'funcname': f,
-  \   'signature': signature,
-  \   'file': file,
-  \   'line': line,
-  \ }
 endfunction
 
 function! themis#util#funcbody(func, verbose)
-  let fname = a:func =~# '^\d\+' ? '{' . a:func . '}' : a:func
+  let func = type(a:func) == type(function('type')) ?
+  \          themis#util#funcname(a:func) : a:func
+  let fname = func =~# '^\d\+' ? '{' . func . '}' : func
   let verbose = a:verbose ? 'verbose' : ''
   redir => body
   silent execute verbose 'function' fname
@@ -58,11 +86,40 @@ function! themis#util#funcbody(func, verbose)
   return split(body, "\n")
 endfunction
 
-function! themis#util#funcline(func, line)
-  let body = themis#util#funcbody(a:func, 0)
-  let line = body[a:line]
-  let num_width = a:line < 1000 ? 3 : len(a:line)
-  return line[num_width :]
+function! themis#util#funcline(target, lnum)
+  if themis#util#is_funcname(a:target)
+    let body = themis#util#funcbody(a:target, 0)
+    " XXX: More improve speed
+    for line in body[1 : -2]
+      if line =~# '^' . a:lnum
+        let num_width = a:lnum < 1000 ? 3 : len(a:lnum)
+        return line[num_width :]
+      endif
+    endfor
+  elseif filereadable(a:target)
+    let lines = readfile(a:target, '', a:lnum)
+    return empty(lines) ? '' : lines[-1]
+  endif
+  return ''
+endfunction
+
+function! themis#util#error_info(stacktrace)
+  let tracelines = map(copy(a:stacktrace), 'themis#util#funcinfo_format(v:val)')
+  let tail = a:stacktrace[-1]
+  if has_key(tail, 'funcname')
+    let line_str = themis#util#funcline(tail.funcname, tail.line)
+    let error_line = printf('%d: %s', tail.line, line_str)
+    let tracelines += [error_line]
+  endif
+  return join(tracelines, "\n")
+endfunction
+
+function! themis#util#is_funcname(name)
+  return a:name =~# '\v^%(\d+|%(\u|g:\u|s:|\<SNR\>\d+_)\w+|\h\w*%(#\w+)+)$'
+endfunction
+
+function! themis#util#funcname(funcref)
+  return matchstr(string(a:funcref), '^function(''\zs.*\ze'')$')
 endfunction
 
 
