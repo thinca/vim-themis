@@ -14,7 +14,7 @@ if exists('s:version')
   finish
 endif
 
-let s:version = '1.0'
+let s:version = '1.1'
 
 let s:default_options = {
 \   'recursive': 0,
