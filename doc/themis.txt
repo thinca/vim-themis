@@ -594,6 +594,13 @@ Some test names have a special meaning.  They are called in special situation.
 ==============================================================================
 CHANGELOG					*themis-changelog*
 
+1.2	Roadmap
+	- [Yet] Add |.themisrc| file feature.
+	- [Yet] Add --reporter-list option(|themis-option-reporter-list|).
+	- [Yet] Add --target option(|themis-option-target|).
+	- [Yet] Assert-helpers take optional argument {message}.
+	- [Yet] Do not load all plugins.
+
 1.1	2014-08-05
 	- Add tests to themis.vim itself.
 	  - This is incomplete.  I will add more tests in the future.
