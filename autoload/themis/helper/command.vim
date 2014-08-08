@@ -78,12 +78,9 @@ function! s:define_assert(prefix)
   let command = a:prefix . 'Assert'
   execute 'command! -nargs=+' command
   \ '  try'
-  \ '|   call s:add_scopes(l:)'
-  \ '|   let s:c.result = <args>'
+  \ '|   let s:c.result = s:eval(<q-args>, s:current_scopes + [l:])'
   \ '| catch /^themis:\s*report:/'
   \ '|   call s:wrap_exception(v:exception, expand("<slnum>"))'
-  \ '| finally'
-  \ '|   call s:restore_scopes(l:)'
   \ '| endtry'
   \ '| if !s:check_truthy(s:c.result)'
   \ '|   call s:fail(expand("<slnum>"), "", <q-args>, s:c.result)'
@@ -95,28 +92,12 @@ function! s:define_throws(prefix)
   execute 'command! -nargs=+' command
   \ '  let s:c.not_thrown = 0'
   \ '| let [s:c.expect_exception, s:c.expr] = s:get_throws_args(<q-args>)'
-  \ '| if s:c.expr[0] == ":"'
-  \ '|   try'
-  \ '|     call s:add_scopes(l:)'
-  \ '|     execute s:c.expr'
-  \ '|     let s:c.result = 0'
-  \ '|     let s:c.not_thrown = 1'
-  \ '|   catch'
-  \ '|     call s:check_exception(expand("<slnum>"), v:exception, s:c.expect_exception)'
-  \ '|   finally'
-  \ '|     call s:restore_scopes(l:)'
-  \ '|   endtry'
-  \ '| else'
-  \ '|   try'
-  \ '|     call s:add_scopes(l:)'
-  \ '|     let s:c.result = eval(s:c.expr)'
-  \ '|     let s:c.not_thrown = 1'
-  \ '|   catch'
-  \ '|     call s:check_exception(expand("<slnum>"), v:exception, s:c.expect_exception)'
-  \ '|   finally'
-  \ '|     call s:restore_scopes(l:)'
-  \ '|   endtry'
-  \ '| endif'
+  \ '| try'
+  \ '|   let s:c.result = s:eval(s:c.expr, s:current_scopes + [l:])'
+  \ '|   let s:c.not_thrown = 1'
+  \ '| catch'
+  \ '|   call s:check_exception(expand("<slnum>"), v:exception, s:c.expect_exception)'
+  \ '| endtry'
   \ '| if s:c.not_thrown'
   \ '|   call s:not_thrown(expand("<slnum>"), s:c.expect_exception, s:c.expr, s:c.result)'
   \ '| endif'
@@ -212,33 +193,38 @@ function! s:delcommand(cmd)
   endif
 endfunction
 
-function! s:add_scopes(local)
-  if !exists('s:current_scopes')
-    return
-  endif
-  let s:expanded = []
-  for scope in s:current_scopes
-    for [name, Value] in items(scope)
-      if type(Value) == s:f_type
-        let name = substitute(name, '\%(^\|_\)\(\w\)', '\u\1', 'g')
-      endif
-      if !has_key(a:local, name)
-        let a:local[name] = Value
-        let s:expanded += [name]
-      endif
-      unlet! Value
+function! s:eval(expr, scopes)
+  let s:__ = {}
+  for s:__.scope in a:scopes
+    for [s:__.name, s:__.value] in items(s:to_scope(s:__.scope))
+      let l:{s:__.name} = s:__.value
     endfor
   endfor
+  unlet! s:__
+  if a:expr[0] ==# ':'
+    execute a:expr
+  else
+    return eval(a:expr)
+  endif
+  return 0
 endfunction
 
-function! s:restore_scopes(local)
-  if !exists('s:expanded')
-    return
-  endif
-  for name in s:expanded
-    call remove(a:local, name)
+function! s:to_scope(dict)
+  let scope = {}
+  for [name, Value] in items(a:dict)
+    if type(Value) == s:f_type
+      let name = s:to_camel_case(name)
+    endif
+    if !has_key(scope, name)
+      let scope[name] = Value
+    endif
+    unlet! Value
   endfor
-  unlet s:expanded
+  return scope
+endfunction
+
+function! s:to_camel_case(str)
+  return substitute(a:str, '\%(^\|_\)\(\w\)', '\u\1', 'g')
 endfunction
 
 function! themis#helper#command#new(runner)
