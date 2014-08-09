@@ -79,7 +79,7 @@ function! s:options.reporter(args, options)
 endfunction
 
 function! s:options.reporters(args, options)
-  let reporters = s:get_reporters()
+  let reporters = themis#module#list('reporter')
   call themis#log(join(reporters, "\n"))
   let a:options.exit = 1
 endfunction
@@ -122,13 +122,6 @@ function! s:process_option(name, args, options)
     " FIXME: wrong error for short option
     throw 'themis: Unknown option: --' . a:name
   endif
-endfunction
-
-function! s:get_reporters()
-  let pat = 'autoload/themis/reporter/*.vim'
-  " TODO uniq
-  return sort(map(split(globpath(&runtimepath, pat), "\n"),
-  \                     'fnamemodify(v:val, ":t:r")'))
 endfunction
 
 function! s:paths2files(paths, recursive)
