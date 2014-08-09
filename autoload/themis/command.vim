@@ -78,7 +78,7 @@ function! s:options.reporter(args, options)
   let a:options.reporter = remove(a:args, 0)
 endfunction
 
-function! s:options.reporters(args, options)
+function! s:options.reporter_list(args, options)
   let reporters = themis#module#list('reporter')
   call themis#log(join(reporters, "\n"))
   let a:options.exit = 1
@@ -104,6 +104,7 @@ function! s:options.help(args, options)
   \   '   --exclude {pattern}      Exclude files',
   \   '-r --recursive              Include sub directories',
   \   '   --reporter {name}        Select a reporter',
+  \   '   --reporter-list          Show available reporters',
   \   '   --runtimepath {path}     Add runtimepath',
   \   '-h --help                   Show this help',
   \ ], "\n"))
