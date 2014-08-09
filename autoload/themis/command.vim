@@ -116,8 +116,9 @@ function! s:options.version(args, options)
 endfunction
 
 function! s:process_option(name, args, options)
-  if has_key(s:options, a:name)
-    call s:options[a:name](a:args, a:options)
+  let name = substitute(a:name, '-', '_', 'g')
+  if has_key(s:options, name)
+    call s:options[name](a:args, a:options)
   else
     " FIXME: wrong error for short option
     throw 'themis: Unknown option: --' . a:name
