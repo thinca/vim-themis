@@ -7,8 +7,9 @@ let s:themis_home = expand('<sfile>:h:h')
 
 function! s:append_rtp(path)
   if isdirectory(a:path)
-    let path = escape(a:path, '\,')
-    let &runtimepath = path . ',' . &runtimepath
+    let path = substitute(a:path, '\\\+', '/', 'g')
+    let path = substitute(path, '/$', '', 'g')
+    let &runtimepath = escape(path, '\,') . ',' . &runtimepath
     let after = path . '/after'
     if isdirectory(after)
       let &runtimepath .= ',' . after
