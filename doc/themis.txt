@@ -125,6 +125,9 @@ bin/themis [options] [script]...
 	--reporter {reporter}			*themis-option-reporter*
 		Specifies a reporter(|themis-reporter|).
 
+	--reporter-list				*themis-option-reporter-list*
+		Show the list of available reporters.
+
 	--runtimepath {runtimepath}		*themis-option-runtimepath*
 		Add 'runtimepath'.  Two or more specification is possible.
 
