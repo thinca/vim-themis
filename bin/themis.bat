@@ -16,5 +16,5 @@ if not exist "%STARTUP_SCRIPT%" (
 )
 
 rem FIXME: Some wrong case exists in passing the argument list.
-%THEMIS_VIM% -u NORC -i NONE -N -e -s --cmd "source %STARTUP_SCRIPT%" -- %* 2>&1
+%THEMIS_VIM% -u NONE -i NONE -N -e -s --cmd "source %STARTUP_SCRIPT%" -- %* 2>&1
 exit /b %ERRORLEVEL%

@@ -21,11 +21,19 @@ function! s:runner.run(scripts, options)
 
   let error_count = 0
   let save_runtimepath = &runtimepath
+
+  let appended = [getcwd()]
   if !empty(a:options.runtimepath)
-    let &runtimepath =
-    \   join(map(copy(a:options.runtimepath), 'escape(v:val, "\\,")'), ',')
-    \   . ',' . &runtimepath
+    for rtp in a:options.runtimepath
+      let appended += s:append_rtp(rtp)
+    endfor
   endif
+
+  let plugins = globpath(join(appended, ','), 'plugin/**/*.vim', 1)
+  for plugin in split(plugins, "\n")
+    execute 'source' fnameescape(plugin)
+  endfor
+
   let stats = self.supporter('stats')
   call self.init_bundle()
   let reporter = themis#module#reporter(a:options.reporter)
@@ -168,6 +176,22 @@ function! s:test_fail(report, exception, throwpoint)
   else
     let a:report.result = 'fail'
   endif
+endfunction
+
+function! s:append_rtp(path)
+  let appended = []
+  if isdirectory(a:path)
+    let path = substitute(a:path, '\\\+', '/', 'g')
+    let path = substitute(path, '/$', '', 'g')
+    let &runtimepath = escape(path, '\,') . ',' . &runtimepath
+    let appended += [path]
+    let after = path . '/after'
+    if isdirectory(after)
+      let &runtimepath .= ',' . after
+      let appended += [after]
+    endif
+  endif
+  return appended
 endfunction
 
 function! s:sum(list)

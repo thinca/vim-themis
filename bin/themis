@@ -20,4 +20,4 @@ if [ ! -f "${STARTUP_SCRIPT}" ]; then
 	exit 2
 fi
 
-${THEMIS_VIM} -u NORC -i NONE -N -e -s --cmd "source ${STARTUP_SCRIPT}" -- "$@" 3>&1 1>&2 2>&3 3>&-
+${THEMIS_VIM} -u NONE -i NONE -N -e -s --cmd "source ${STARTUP_SCRIPT}" -- "$@" 3>&1 1>&2 2>&3 3>&-
