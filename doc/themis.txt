@@ -599,7 +599,8 @@ CHANGELOG					*themis-changelog*
 	- [Yet] Add --reporter-list option(|themis-option-reporter-list|).
 	- [Yet] Add --target option(|themis-option-target|).
 	- [Yet] Assert-helpers take optional argument {message}.
-	- [Yet] Do not load all plugins.
+	- Do not load all plugins.
+	  - Use "-u NONE" instead of "-u NORC" and load plugins by themis.
 
 1.1	2014-08-05
 	- Add tests to themis.vim itself.
