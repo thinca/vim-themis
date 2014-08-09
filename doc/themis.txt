@@ -599,7 +599,7 @@ CHANGELOG					*themis-changelog*
 
 1.2	Roadmap
 	- [Yet] Add |.themisrc| file feature.
-	- [Yet] Add --reporter-list option(|themis-option-reporter-list|).
+	- Add --reporter-list option(|themis-option-reporter-list|).
 	- [Yet] Add --target option(|themis-option-target|).
 	- [Yet] Assert-helpers take optional argument {message}.
 	- Do not load all plugins.
