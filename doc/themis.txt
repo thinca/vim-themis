@@ -32,7 +32,7 @@ INTRODUCTION					*themis-introduction*
 *themis.vim* is a testing framework for Vim script.
 
 - Run tests by command line.
-- A result can be outputted in the some formats.
+- A result can be outputted in some formats.
 - Simply a test fails when an exception is thrown.
 - You can write tests in some styles. (in future)
 
@@ -287,7 +287,7 @@ assert.match({value}, {pattern})	*themis-helper-assert-match()*
 	Checks {value} matches to {pattern}.  (|=~#|)
 
 assert.not_match({value}, {pattern})	*themis-helper-assert-not_match()*
-	Checks {value} doesn't matches to {pattern}.  (|!~#|)
+	Checks {value} doesn't match to {pattern}.  (|!~#|)
 
 assert.is_number({value})		*themis-helper-assert-is_number()*
 	Checks type of {value} is |Number|.
@@ -330,7 +330,7 @@ assert.type_of({value}, {names})	*themis-helper-assert-type_of()*
 	{names} is a List of type names or a String of type name.
 	Type name is one of the following:
 	"Number", "String", "Funcref", "List", "Dict", "Dictionary", "Float"
-	Type name is case insensitive.
+	Type name is case-insensitive.
 
 assert.length_of({value}, {length})	*themis-helper-assert-length_of()*
 	Checks length of {value} is {length}.
@@ -407,7 +407,7 @@ command.with({scope})			*themis-helper-command-with()*
 REPORTER					*themis-reporter*
 
 Reporter reports the result of tests by each format.
-You can specifies a reporter by |themis-option-reporter|.
+You can specify a reporter by |themis-option-reporter|.
 
 ------------------------------------------------------------------------------
 
@@ -425,7 +425,7 @@ Report by spec style.
 ==============================================================================
 TEST RULE					*themis-test-rule*
 
-An unit of a test is a function with no argument.
+A unit of a test is a function with no argument.
 A result of a test becomes either of following.
 
 - pass
