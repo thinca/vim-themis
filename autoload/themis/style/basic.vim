@@ -26,7 +26,9 @@ function! s:load_nested_bundle(runner, bundle)
   let suite = copy(a:bundle.suite)
   call filter(suite, 'v:key =~# s:describe_pattern')
   for name in s:names_by_defined_order(suite)
-    call suite[name]()
+    " call suite[name]()
+    " Above code doesn't work on old Vim
+    call call(suite[name], [], suite)
   endfor
 
   for child in a:bundle.children
