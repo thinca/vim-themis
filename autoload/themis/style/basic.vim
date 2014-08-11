@@ -78,12 +78,15 @@ function! s:style.get_test_names(bundle)
 endfunction
 
 function! s:names_by_defined_order(suite)
-  return sort(keys(a:suite), 's:test_compare', a:suite)
+  let s:suite_for_sort = a:suite
+  let result = sort(keys(a:suite), 's:test_compare')
+  unlet s:suite_for_sort
+  return result
 endfunction
 
-function! s:test_compare(a, b) dict
-  let a_order = s:to_i(themis#util#funcname(self[a:a]))
-  let b_order = s:to_i(themis#util#funcname(self[a:b]))
+function! s:test_compare(a, b)
+  let a_order = s:to_i(themis#util#funcname(s:suite_for_sort[a:a]))
+  let b_order = s:to_i(themis#util#funcname(s:suite_for_sort[a:b]))
   return a_order ==# b_order ? 0 : b_order < a_order ? 1 : -1
 endfunction
 
