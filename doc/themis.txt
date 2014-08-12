@@ -347,6 +347,7 @@ assert.exists({expr})			*themis-helper-assert-exists()*
 	Checks {expr} by |exists()|.
 	Note that this can not use for |local-variable| and |script-variable|.
 
+
 ------------------------------------------------------------------------------
 COMMAND						*themis-helper-command*
 
@@ -534,6 +535,8 @@ Report by dot style.
 
 spec						*themis-reporter-spec*
 Report by spec style.
+
+
 
 ==============================================================================
 TEST RULE					*themis-test-rule*
