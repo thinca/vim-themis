@@ -18,6 +18,7 @@ WRITE TEST			|themis-write-test|
 HELPER				|themis-helper|
   ASSERT			  |themis-helper-assert|
   COMMAND			  |themis-helper-command|
+  EXPECT			  |themis-helper-expect|
 REPORTER			|themis-reporter|
 TEST RULE			|themis-test-rule|
   EXCEPTION			  |themis-rule-exception|
@@ -401,6 +402,121 @@ command.with({scope})			*themis-helper-command-with()*
 
 :Skip {message}				*themis-helper-command-:Skip*
 	Passes a test as SKIP with {message}.
+
+------------------------------------------------------------------------------
+EXPECT						*themis-helper-expect*
+
+Expect-helper provides a natural-language-flavored testing style.
+First, you should create an expect object by following.
+>
+	let s:expect = themis#helper('expect')
+<
+Then, we can use expect-helper like below.
+>
+	call s:expect(40 + 2).to_equal(42)
+<
+						*themis-helper-expect-not*
+Expect-helper also provides not object.
+It is useful to invert the result of the test.
+>
+	call s:expect(2 + 3).not.to_equal(42)
+
+Of course you can easily make a custom matcher.
+See |themis#helper#expect#define_matcher()|
+
+expect({value}).to_be_true()		*hemis-helper-expect-to_be_true()*
+	Checks {value} is 1.
+
+expect({value}).to_be_false()		*themis-helper-expect-to_be_false()*
+	Checks {value} is 0.
+
+expect({value}).to_be_truthy()		*themis-helper-expect-to_be_truthy()*
+	Checks {value} is truthy value.
+
+expect({value}).to_be_falsy()		*themis-helper-expect-to_be_falsy()*
+	Checks {value} is falsy value.
+
+				*themis-helper-expect-to_be_greater_than()*
+expect({left}).to_be_greater_than({right})
+	Compares by |>#|
+
+			*themis-helper-expect-to_be_greater_than_or_equal()*
+expect({left}).to_be_greater_than({right})
+	Compares by |>=#|
+
+				*themis-helper-expect-to_be_less_than()*
+expect({left}).to_be_less_than({right})
+	Compares by |<#|
+
+			*themis-helper-expect-to_be_less_than_or_equal()*
+expect({left}).to_be_less_than({right})
+	Compares by |<=#|
+
+expect({actual}).to_equal({expect})	*themis-helper-expect-to_equal()*
+	Checks an {actual} equals to an {expect}.  (|==#|)
+
+expect({actual}).to_be_same({expect})	*themis-helper-expect-to_be_same()*
+	Checks an {actual} sames to an {expect}.  (|is#|)
+
+expect({value}).to_match({pattern})	*themis-helper-expect-to_match()*
+	Checks {value} matches to {pattern}.  (|=~#|)
+
+expect({value}).to_be_number()		*themis-helper-expect-to_be_number()*
+	Checks type of {value} is |Number|.
+
+expect({value}).to_be_string()		*themis-helper-expect-to_be_string()*
+	Checks type of {value} is String.
+
+expect({value}).to_be_func()		*themis-helper-expect-to_be_func()*
+	Checks type of {value} is |Funcref|.
+
+expect({value}).to_be_list()		*themis-helper-expect-to_be_list()*
+	Checks type of {value} is |List|.
+
+expect({value}).to_be_dict()		*themis-helper-expect-to_be_dict()*
+	Checks type of {value} is |Dictionary|.
+
+expect({value}).to_be_float()		*themis-helper-expect-to_be_float()*
+	Checks type of {value} is |Float|.
+
+expect({expr}).to_have_length()		*themis-helper-expect-to_exist()*
+	Checks {expr} by |exists()|.
+	Note that this can not use for |local-variable| and |script-variable|.
+
+expect({expr}).to_exist()		*themis-helper-expect-to_exist()*
+	Checks length of {value} is {length}.
+	{value} is a String, a List, or a Dictionary.
+	|len()| is used for length of {value}.
+
+expect({dict}).to_have_key({key})	*themis-helper-expect-to_have_key()*
+expect({list}).to_have_key({index})
+	When argument of expect() is dictionary, check {key} exists in
+	{dict}.
+	When argument of expect() is list, check {key} exists in {list}.
+
+
+					*themis#helper#expect#define_matcher()*
+themis#helper#expect#define_matcher({name}, {predicate})
+	Defines a matcher which name is {name}.
+	{predicate} decides how a test result to be success.
+	When {predicate} is |Funcref|, it should take one argument at least
+	and should return 1 or 0 as a test result. The first argument will be
+	consumed by expect function and extra arguments will be used for
+	matcher arguments.
+	For example,
+>
+	function s:close_to(actual, value)
+	  return a:value - 0.1 < a:actual && a:actual < a:value + 0.1
+	endfunction
+	call themis#helper#expect#define_matcher('to_be_close_to', function('s:close_to'))
+
+	call s:expect(1 / 100.0).to_be_close_to(0.0)
+	" => Success
+<
+	When {predicate} is String, it will be evaluated as a Funcref body.
+	Inside this string, |a:1|, a:2, ... can be used as arguments.
+>
+	call themis#helper#expect#define_matcher('to_be_similar_to, 'a:1 ==? a:2')
 
 
 ==============================================================================
