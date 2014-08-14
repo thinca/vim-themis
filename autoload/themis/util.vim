@@ -126,7 +126,7 @@ function! themis#util#get_full_title(obj)
   let title = ''
   if has_key(a:obj, 'parent')
     let t = themis#util#get_full_title(a:obj.parent)
-    if !empty(t)
+    if t !=# ''
       let title = t . ' '
     endif
   endif

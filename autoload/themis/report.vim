@@ -20,7 +20,7 @@ endfunction
 
 function! s:report.get_title()
   let description = self.parent.get_description(self.name)
-  return empty(description) ? get(self, 'name', '') : description
+  return description !=# '' ? description : get(self, 'name', '')
 endfunction
 
 function! s:report.get_message()

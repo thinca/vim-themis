@@ -8,7 +8,7 @@ set cpo&vim
 
 function! themis#module#exists(type, name)
   let path = printf('autoload/themis/%s/%s.vim', a:type, a:name)
-  return !empty(globpath(&runtimepath, path, 1))
+  return globpath(&runtimepath, path, 1) !=# ''
 endfunction
 
 function! themis#module#list(type)

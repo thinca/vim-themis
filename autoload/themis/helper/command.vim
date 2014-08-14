@@ -21,7 +21,7 @@ endfunction
 function! s:wrap_exception(exception, line)
   " TODO: Duplicate code
   let result = matchstr(a:exception, '\c^themis:\_s*report:\_s*\zs.*')
-  if empty(result)
+  if result ==# ''
     let [type, message] = ['failure', a:exception]
   else
     let [type, message] =

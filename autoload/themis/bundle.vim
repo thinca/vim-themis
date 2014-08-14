@@ -15,9 +15,9 @@ let s:bundle = {
 
 function! s:bundle.get_title()
   let title = get(self, 'title', '')
-  if empty(title)
+  if title ==# ''
     let filename = get(self, 'filename', '')
-    if !empty(filename)
+    if filename !=# ''
       let title = fnamemodify(filename, ':t')
     endif
   endif
