@@ -122,6 +122,17 @@ function! themis#util#funcname(funcref)
   return matchstr(string(a:funcref), '^function(''\zs.*\ze'')$')
 endfunction
 
+function! themis#util#get_full_title(obj)
+  let title = ''
+  if has_key(a:obj, 'parent')
+    let t = themis#util#get_full_title(a:obj.parent)
+    if !empty(t)
+      let title = t . ' '
+    endif
+  endif
+  return title . a:obj.get_title()
+endfunction
+
 
 let &cpo = s:save_cpo
 unlet s:save_cpo

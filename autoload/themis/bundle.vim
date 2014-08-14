@@ -13,18 +13,6 @@ let s:bundle = {
 \   'children': [],
 \ }
 
-" FIXME: Duplicate function in rerport
-function! s:bundle.get_full_title()
-  let title = ''
-  if has_key(self, 'parent')
-    let t = self.parent.get_full_title()
-    if !empty(t)
-      let title = t . ' '
-    endif
-  endif
-  return title . self.get_title()
-endfunction
-
 function! s:bundle.get_title()
   let title = get(self, 'title', '')
   if empty(title)

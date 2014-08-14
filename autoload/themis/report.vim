@@ -14,16 +14,8 @@ function! s:report.is_success()
   return self.result ==# 'pass'
 endfunction
 
-" FIXME: Duplicate function in bundle
 function! s:report.get_full_title()
-  let title = ''
-  if has_key(self, 'parent')
-    let t = self.parent.get_full_title()
-    if !empty(t)
-      let title = t . ' '
-    endif
-  endif
-  return title . self.get_title()
+  return themis#util#get_full_title(self)
 endfunction
 
 function! s:report.get_title()
