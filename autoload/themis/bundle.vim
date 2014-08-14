@@ -15,13 +15,14 @@ let s:bundle = {
 
 function! s:bundle.get_title()
   let title = get(self, 'title', '')
-  if title ==# ''
-    let filename = get(self, 'filename', '')
-    if filename !=# ''
-      let title = fnamemodify(filename, ':t')
-    endif
+  if title !=# ''
+    return title
   endif
-  return title
+  let filename = get(self, 'filename', '')
+  if filename !=# ''
+    return fnamemodify(filename, ':t')
+  endif
+  return ''
 endfunction
 
 function! s:bundle.get_description(name)
