@@ -119,6 +119,10 @@ bin/themis [options] [script]...
 		Exclude script files which matched the {pattern}.
 		{pattern} is a |regular-expression|.
 
+	--target {pattern}			*themis-option-target*
+		Run tests whose full title matches to {pattern}.
+		{pattern} is a |regular-expression|.
+
 	-r, --recursive				*themis-option-recursive*
 		Include sub directories.
 
