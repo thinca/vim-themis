@@ -34,6 +34,8 @@ function! s:runner.run(scripts, options)
     execute 'source' fnameescape(plugin)
   endfor
 
+  let self.target_pattern = join(a:options.target, '\m\|')
+
   let stats = self.supporter('stats')
   call self.init_bundle()
   let reporter = themis#module#reporter(a:options.reporter)
@@ -109,7 +111,7 @@ function! s:runner.run_bundle(bundle)
 endfunction
 
 function! s:runner.run_suite(bundle)
-  for name in self.style.get_test_names(a:bundle)
+  for name in self.get_test_names(a:bundle)
     let report = themis#report#new(a:bundle, name)
     call self.emit('before_test', a:bundle, name)
     try
@@ -127,6 +129,15 @@ function! s:runner.run_suite(bundle)
   endfor
 endfunction
 
+function! s:runner.get_test_names(bundle)
+  let names = self.style.get_test_names(a:bundle)
+  if get(self, 'target_pattern', '') !=# ''
+    let pat = self.target_pattern
+    call filter(names, 'a:bundle.get_test_full_title(v:val) =~# pat')
+  endif
+  return names
+endfunction
+
 function! s:runner.supporter(name)
   if !has_key(self._suppporters, a:name)
     let self._suppporters[a:name] = themis#module#supporter(a:name, self)
@@ -141,7 +152,7 @@ endfunction
 
 function! s:runner.total_test_count(...)
   let bundle = a:0 ? a:1 : self.bundle
-  return len(self.style.get_test_names(bundle))
+  return len(self.get_test_names(bundle))
   \    + s:sum(map(copy(bundle.children), 'self.total_test_count(v:val)'))
 endfunction
 

@@ -60,6 +60,13 @@ function! s:options.exclude(args, options)
   let a:options.exclude += [remove(a:args, 0)]
 endfunction
 
+function! s:options.target(args, options)
+  if empty(a:args)
+    throw 'themis: --target option requires {pattern}'
+  endif
+  let a:options.target += [remove(a:args, 0)]
+endfunction
+
 function! s:options.recursive(args, options)
   let a:options.recursive = 1
 endfunction
@@ -102,6 +109,7 @@ function! s:options.help(args, options)
   \   'Usage: themis [option]... [path]...',
   \   '',
   \   '   --exclude {pattern}      Exclude files',
+  \   '   --target {pattern}       Run tests whose full title matches to {pattern}',
   \   '-r --recursive              Include sub directories',
   \   '   --reporter {name}        Select a reporter',
   \   '   --reporter-list          Show available reporters',

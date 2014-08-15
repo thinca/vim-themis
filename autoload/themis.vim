@@ -17,6 +17,7 @@ endif
 let s:version = '1.1'
 
 let s:default_options = {
+\   'target': [],
 \   'recursive': 0,
 \   'style': 'basic',
 \   'reporter': 'tap',
