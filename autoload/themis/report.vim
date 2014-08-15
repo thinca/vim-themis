@@ -19,8 +19,7 @@ function! s:report.get_full_title()
 endfunction
 
 function! s:report.get_title()
-  let description = self.parent.get_description(self.name)
-  return description !=# '' ? description : get(self, 'name', '')
+  return self.parent.get_test_title(self.name)
 endfunction
 
 function! s:report.get_message()

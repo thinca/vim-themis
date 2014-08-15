@@ -25,6 +25,15 @@ function! s:bundle.get_title()
   return ''
 endfunction
 
+function! s:bundle.get_test_full_title(name)
+  return themis#util#get_full_title(self, [self.get_test_title(a:name)])
+endfunction
+
+function! s:bundle.get_test_title(name)
+  let description = self.get_description(a:name)
+  return description !=# '' ? description : a:name
+endfunction
+
 function! s:bundle.get_description(name)
   return get(self.suite.title, a:name, '')
 endfunction

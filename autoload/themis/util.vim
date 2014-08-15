@@ -122,9 +122,10 @@ function! themis#util#funcname(funcref)
   return matchstr(string(a:funcref), '^function(''\zs.*\ze'')$')
 endfunction
 
-function! themis#util#get_full_title(obj)
+function! themis#util#get_full_title(obj, ...)
   let obj = a:obj
-  let titles = [obj.get_title()]
+  let titles = a:0 ? a:1 : []
+  call insert(titles, obj.get_title())
   while has_key(obj, 'parent')
     let obj = obj.parent
     call insert(titles, obj.get_title())
