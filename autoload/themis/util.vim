@@ -123,14 +123,13 @@ function! themis#util#funcname(funcref)
 endfunction
 
 function! themis#util#get_full_title(obj)
-  let title = ''
-  if has_key(a:obj, 'parent')
-    let t = themis#util#get_full_title(a:obj.parent)
-    if t !=# ''
-      let title = t . ' '
-    endif
-  endif
-  return title . a:obj.get_title()
+  let obj = a:obj
+  let titles = [obj.get_title()]
+  while has_key(obj, 'parent')
+    let obj = obj.parent
+    call insert(titles, obj.get_title())
+  endwhile
+  return join(filter(titles, 'v:val !=# ""'), ' ')
 endfunction
 
 

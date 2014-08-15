@@ -87,9 +87,15 @@ function! s:util.get_full_title()
 
   let obj3 = {'parent': obj2}
   function! obj3.get_title()
+    return ''
+  endfunction
+  Assert Equals(themis#util#get_full_title(obj3), 'foo bar')
+
+  let obj4 = {'parent': obj3}
+  function! obj4.get_title()
     return 'buz'
   endfunction
-  Assert Equals(themis#util#get_full_title(obj3), 'foo bar buz')
+  Assert Equals(themis#util#get_full_title(obj4), 'foo bar buz')
 endfunction
 
 function! SampleFuncForUtil()
