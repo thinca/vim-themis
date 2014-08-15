@@ -118,10 +118,12 @@ bin/themis [options] [script]...
 	--exclude {pattern}			*themis-option-exclude*
 		Exclude script files which matched the {pattern}.
 		{pattern} is a |regular-expression|.
+		Two or more specification is possible.
 
 	--target {pattern}			*themis-option-target*
 		Run tests whose full title matches to {pattern}.
 		{pattern} is a |regular-expression|.
+		Two or more specification is possible.
 
 	-r, --recursive				*themis-option-recursive*
 		Include sub directories.
