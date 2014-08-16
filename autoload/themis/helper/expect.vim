@@ -2,10 +2,11 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 let s:expect = {
-\ '_negate' : 0,
-\ 'not' : {
-\   '_negate' : 1
-\ }}
+\   '_negate' : 0,
+\   'not' : {
+\     '_negate' : 1
+\   }
+\ }
 
 function! themis#helper#expect#_create_expect(actual)
   let expect = deepcopy(s:expect)
