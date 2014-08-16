@@ -31,20 +31,19 @@ function! s:matcher_impl(name, f, ...) dict
   endif
 endfunction
 
-let s:fid = 0
-function! s:expr_to_func(pred, ...)
-  let s:fid += 1
+function! s:expr_to_func(name, pred, ...)
+  let func_name = 's:_matcher_' . a:name
   execute join([
-  \ 'function! s:' . s:fid . '(...)',
+  \ 'function! ' . func_name . '(...)',
   \ '  return ' . a:pred,
   \ 'endfunction'], "\n")
-  return function('s:' . s:fid)
+  return function(func_name)
 endfunction
 
 let s:matchers = {}
 function! themis#helper#expect#define_matcher(name, predicate)
   if type(a:predicate) ==# type('')
-    let s:matchers[a:name] = s:expr_to_func(a:predicate)
+    let s:matchers[a:name] = s:expr_to_func(a:name, a:predicate)
   elseif type(a:predicate) ==# type(function('function'))
     let s:matchers[a:name] = a:predicate
   endif
