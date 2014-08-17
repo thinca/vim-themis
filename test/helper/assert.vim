@@ -76,6 +76,24 @@ function! s:helper.__assert__()
     endfunction
   endfunction
 
+  function! assert.__falsy__()
+    let falsy = themis#suite('.falsy()')
+    function! falsy.checks_value_is_zero()
+      call s:assert.falsy(0)
+      call s:assert.falsy('')
+      call s:assert.falsy('0')
+    endfunction
+    function! falsy.throws_a_report_when_value_is_not_zero_or_not_a_number()
+      call s:check_throw('falsy', [1])
+      call s:check_throw('falsy', [0.0])
+      call s:check_throw('falsy', ['100falsy'])
+    endfunction
+    function! falsy.accepts_an_optional_message()
+      call s:assert.falsy(0, 'error message')
+      call s:check_throw('falsy', [1, 'error message'], 'error message')
+    endfunction
+  endfunction
+
   function! assert.__compare__()
     let compare = themis#suite('.compare()')
     function! compare.does_not_throw_a_report_when_comparing_succeeded()
@@ -95,6 +113,275 @@ function! s:helper.__assert__()
       call s:assert.compare(10, '==', 10, 'error message')
       call s:check_throw('compare', [3, '<', 0, 'error message'], 'error message')
       call s:check_throw('compare', [0, '?', 0, 'error message'], 'error message')
+    endfunction
+  endfunction
+
+  function! assert.__equals__()
+    let equals = themis#suite('.equals()')
+    function! equals.checks_actual_equals_to_expect()
+      call s:assert.equals(5 + 5, 10)
+      call s:assert.equals(2.0 + 5.0, 7)
+      call s:assert.equals('hoge' . 'huga', 'hogehuga')
+      call s:assert.equals('10', 10)
+      call s:assert.equals(range(3), [0, 1, 2])
+    endfunction
+    function! equals.throws_a_report_when_values_are_not_equivalent()
+      call s:check_throw('equals', [1 + 1, 11], 'The equivalent values were expected')
+      call s:check_throw('equals', ['hoge', 'HOGE'], 'The equivalent values were expected')
+    endfunction
+    function! equals.accepts_an_optional_message()
+      call s:assert.equals(5 + 5, 10, 'error message')
+      call s:check_throw('equals', [1 + 1, 11, 'error message'], 'error message')
+    endfunction
+  endfunction
+
+  function! assert.__not_equals__()
+    let not_equals = themis#suite('.not_equals()')
+    function! not_equals.checks_actual_not_equals_to_expect()
+      call s:assert.not_equals(5 + 5, 55)
+      call s:assert.not_equals('hoge' . 'huga', 'hugahoge')
+      call s:assert.not_equals(1.2, 12)
+    endfunction
+    function! not_equals.throws_a_report_when_values_are_equivalent()
+      call s:check_throw('not_equals', [1 + 1, 2], 'Not the equivalent values were expected')
+      call s:check_throw('not_equals', ['hoge', 'hoge'], 'Not the equivalent values were expected')
+    endfunction
+    function! not_equals.accepts_an_optional_message()
+      call s:assert.not_equals(5 + 5, 55, 'error message')
+      call s:check_throw('not_equals', [1 + 1, 2, 'error message'], 'error message')
+    endfunction
+  endfunction
+
+  function! assert.__same__()
+    let same = themis#suite('.same()')
+    function! same.checks_actual_value_and_expected_value_are_same()
+      call s:assert.same(5 + 5, 10)
+      call s:assert.same('hoge' . 'huga', 'hogehuga')
+      let array = [1]
+      call s:assert.same(array, array)
+    endfunction
+    function! same.throws_a_report_when_values_are_not_same()
+      call s:check_throw('same', [10, '10'], 'The same values were expected')
+      call s:check_throw('same', [{}, {}], 'The same values were expected')
+    endfunction
+    function! same.accepts_an_optional_message()
+      call s:assert.same(5 + 5, 10, 'error message')
+      call s:check_throw('same', [10, '10', 'error message'], 'error message')
+    endfunction
+  endfunction
+
+  function! assert.__not_same__()
+    let not_same = themis#suite('.not_same()')
+    function! not_same.checks_actual_value_and_expected_value_are_not_same()
+      call s:assert.not_same(10.0, 10)
+      call s:assert.not_same(10, '10')
+      call s:assert.not_same({}, {})
+    endfunction
+    function! not_same.throws_a_report_when_values_are_same()
+      call s:check_throw('not_same', [10, 10], 'Not the same values were expected')
+      let array = [1]
+      call s:check_throw('not_same', [array, array], 'Not the same values were expected')
+    endfunction
+    function! not_same.accepts_an_optional_message()
+      call s:assert.not_same(10.0, 10, 'error message')
+      call s:check_throw('not_same', [10, 10, 'error message'], 'error message')
+    endfunction
+  endfunction
+
+  function! assert.__match__()
+    let match = themis#suite('.match()')
+    function! match.checks_actual_value_matches_to_pattern()
+      call s:assert.match('hoge', '^hoge$')
+      call s:assert.match('101010', '^\%(\d\d\)*$')
+    endfunction
+    function! match.throws_a_report_when_value_does_not_match_to_pattern()
+      call s:check_throw('match', ['hoge', 'huga'], 'Match was expected')
+    endfunction
+    function! match.accepts_an_optional_message()
+      call s:assert.match('hoge', '^hoge$', 'error message')
+      call s:check_throw('match', ['hoge', 'huga', 'error message'], 'error message')
+    endfunction
+  endfunction
+
+  function! assert.__not_match__()
+    let not_match = themis#suite('.not_match()')
+    function! not_match.checks_actual_value_does_not_match_to_pattern()
+      call s:assert.not_match('hoge', '^huga$')
+    endfunction
+    function! not_match.throws_a_report_when_value_matches_to_pattern()
+      call s:check_throw('not_match', ['hoge', '^hoge$'], 'Not match was expected')
+    endfunction
+    function! not_match.accepts_an_optional_message()
+      call s:assert.not_match('hoge', '^huga$', 'error message')
+      call s:check_throw('not_match', ['hoge', '^hoge$', 'error message'], 'error message')
+    endfunction
+  endfunction
+
+  function! assert.__is_number__()
+    let is_number = themis#suite('.is_number()')
+    function! is_number.checks_type_of_value_is_number()
+      call s:assert.is_number(1)
+    endfunction
+    function! is_number.throws_a_report_when_type_of_value_is_not_number()
+      call s:check_throw('is_number', [1.0], 'The type of value was expected to be number')
+    endfunction
+    function! is_number.accepts_an_optional_message()
+      call s:assert.is_number(1, 'error message')
+      call s:check_throw('is_number', [1.0, 'error message'], 'error message')
+    endfunction
+  endfunction
+
+  function! assert.__is_not_number__()
+    let is_not_number = themis#suite('.is_not_number()')
+    function! is_not_number.checks_type_of_value_is_not_number()
+      call s:assert.is_not_number(1.0)
+    endfunction
+    function! is_not_number.throws_a_report_when_type_of_value_is_number()
+      call s:check_throw('is_not_number', [1], 'The type of value was not expected to be number')
+    endfunction
+    function! is_not_number.accepts_an_optional_message()
+      call s:assert.is_not_number(1.0, 'error message')
+      call s:check_throw('is_not_number', [1, 'error message'], 'error message')
+    endfunction
+  endfunction
+
+  function! assert.__is_string__()
+    let is_string = themis#suite('.is_string()')
+    function! is_string.checks_type_of_value_is_string()
+      call s:assert.is_string('str')
+    endfunction
+    function! is_string.throws_a_report_when_type_of_value_is_not_string()
+      call s:check_throw('is_string', [0], 'The type of value was expected to be string')
+    endfunction
+    function! is_string.accepts_an_optional_message()
+      call s:assert.is_string('str', 'error message')
+      call s:check_throw('is_string', [0, 'error message'], 'error message')
+    endfunction
+  endfunction
+
+  function! assert.__is_not_string__()
+    let is_not_string = themis#suite('.is_not_string()')
+    function! is_not_string.checks_type_of_value_is_not_string()
+      call s:assert.is_not_string(0)
+    endfunction
+    function! is_not_string.throws_a_report_when_type_of_value_is_string()
+      call s:check_throw('is_not_string', ['str'], 'The type of value was not expected to be string')
+    endfunction
+    function! is_not_string.accepts_an_optional_message()
+      call s:assert.is_not_string(0, 'error message')
+      call s:check_throw('is_not_string', ['str', 'error message'], 'error message')
+    endfunction
+  endfunction
+
+  function! assert.__is_func__()
+    let is_func = themis#suite('.is_func()')
+    function! is_func.checks_type_of_value_is_func()
+      call s:assert.is_func(function('function'))
+    endfunction
+    function! is_func.throws_a_report_when_type_of_value_is_not_func()
+      call s:check_throw('is_func', [0], 'The type of value was expected to be func')
+    endfunction
+    function! is_func.accepts_an_optional_message()
+      call s:assert.is_func(function('function'), 'error message')
+      call s:check_throw('is_func', [0, 'error message'], 'error message')
+    endfunction
+  endfunction
+
+  function! assert.__is_not_func__()
+    let is_not_func = themis#suite('.is_not_func()')
+    function! is_not_func.checks_type_of_value_is_not_func()
+      call s:assert.is_not_func(0)
+    endfunction
+    function! is_not_func.throws_a_report_when_type_of_value_is_func()
+      call s:check_throw('is_not_func', [function('function')], 'The type of value was not expected to be func')
+    endfunction
+    function! is_not_func.accepts_an_optional_message()
+      call s:assert.is_not_func(0, 'error message')
+      call s:check_throw('is_not_func', [function('function'), 'error message'], 'error message')
+    endfunction
+  endfunction
+
+  function! assert.__is_list__()
+    let is_list = themis#suite('.is_list()')
+    function! is_list.checks_type_of_value_is_list()
+      call s:assert.is_list([])
+    endfunction
+    function! is_list.throws_a_report_when_type_of_value_is_not_list()
+      call s:check_throw('is_list', [0], 'The type of value was expected to be list')
+    endfunction
+    function! is_list.accepts_an_optional_message()
+      call s:assert.is_list([], 'error message')
+      call s:check_throw('is_list', [0, 'error message'], 'error message')
+    endfunction
+  endfunction
+
+  function! assert.__is_not_list__()
+    let is_not_list = themis#suite('.is_not_list()')
+    function! is_not_list.checks_type_of_value_is_not_list()
+      call s:assert.is_not_list(0)
+    endfunction
+    function! is_not_list.throws_a_report_when_type_of_value_is_list()
+      call s:check_throw('is_not_list', [[]], 'The type of value was not expected to be list')
+    endfunction
+    function! is_not_list.accepts_an_optional_message()
+      call s:assert.is_not_list(0, 'error message')
+      call s:check_throw('is_not_list', [[], 'error message'], 'error message')
+    endfunction
+  endfunction
+
+  function! assert.__is_dict__()
+    let is_dict = themis#suite('.is_dict()')
+    function! is_dict.checks_type_of_value_is_dict()
+      call s:assert.is_dict({})
+    endfunction
+    function! is_dict.throws_a_report_when_type_of_value_is_not_dict()
+      call s:check_throw('is_dict', [0], 'The type of value was expected to be dict')
+    endfunction
+    function! is_dict.accepts_an_optional_message()
+      call s:assert.is_dict({}, 'error message')
+      call s:check_throw('is_dict', [0, 'error message'], 'error message')
+    endfunction
+  endfunction
+
+  function! assert.__is_not_dict__()
+    let is_not_dict = themis#suite('.is_not_dict()')
+    function! is_not_dict.checks_type_of_value_is_not_dict()
+      call s:assert.is_not_dict(0)
+    endfunction
+    function! is_not_dict.throws_a_report_when_type_of_value_is_dict()
+      call s:check_throw('is_not_dict', [{}], 'The type of value was not expected to be dict')
+    endfunction
+    function! is_not_dict.accepts_an_optional_message()
+      call s:assert.is_not_dict(0, 'error message')
+      call s:check_throw('is_not_dict', [{}, 'error message'], 'error message')
+    endfunction
+  endfunction
+
+  function! assert.__is_float__()
+    let is_float = themis#suite('.is_float()')
+    function! is_float.checks_type_of_value_is_float()
+      call s:assert.is_float(1.0)
+    endfunction
+    function! is_float.throws_a_report_when_type_of_value_is_not_float()
+      call s:check_throw('is_float', [0], 'The type of value was expected to be float')
+    endfunction
+    function! is_float.accepts_an_optional_message()
+      call s:assert.is_float(1.0, 'error message')
+      call s:check_throw('is_float', [0, 'error message'], 'error message')
+    endfunction
+  endfunction
+
+  function! assert.__is_not_float__()
+    let is_not_float = themis#suite('.is_not_float()')
+    function! is_not_float.checks_type_of_value_is_not_float()
+      call s:assert.is_not_float(0)
+    endfunction
+    function! is_not_float.throws_a_report_when_type_of_value_is_float()
+      call s:check_throw('is_not_float', [1.0], 'The type of value was not expected to be float')
+    endfunction
+    function! is_not_float.accepts_an_optional_message()
+      call s:assert.is_not_float(0, 'error message')
+      call s:check_throw('is_not_float', [1.0, 'error message'], 'error message')
     endfunction
   endfunction
 
