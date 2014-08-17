@@ -292,11 +292,11 @@ assert.not_equals({actual}, {expect} [, {message}])
 
 					*themis-helper-assert-same()*
 assert.same({actual}, {expect} [, {message}])
-	Checks an {actual} sames to an {expect}.  (|is#|)
+	Checks an {actual} and an {expect} are same.  (|is#|)
 
 					*themis-helper-assert-not_same()*
 assert.not_same({actual}, {expect} [, {message}])
-	Checks an {actual} not sames to an {expect}.  (|isnot#|)
+	Checks an {actual} and an {expect} are not same.  (|isnot#|)
 
 					*themis-helper-assert-match()*
 assert.match({value}, {pattern} [, {message}])
