@@ -265,94 +265,110 @@ assert.todo([{message}])		*themis-helper-assert-todo()*
 assert.skip({message})			*themis-helper-assert-skip()*
 	Pass a test as SKIP with {message}.
 
-assert.true({value})			*themis-helper-assert-true()*
+assert.true({value} [, {message}])	*themis-helper-assert-true()*
 	Checks {value} is 1.
 
-assert.false({value})			*themis-helper-assert-false()*
+assert.false({value} [, {message}])	*themis-helper-assert-false()*
 	Checks {value} is 0.
 
-assert.truthy({value})			*themis-helper-assert-truthy()*
+assert.truthy({value} [, {message}])	*themis-helper-assert-truthy()*
 	Checks {value} is truthy value.
 
-assert.falsy({value})			*themis-helper-assert-falsy()*
+assert.falsy({value} [, {message}])	*themis-helper-assert-falsy()*
 	Checks {value} is falsy value.
 
-assert.compare({left}, {op}, {right})	*themis-helper-assert-compare()*
+					*themis-helper-assert-compare()*
+assert.compare({left}, {op}, {right} [, {message}])
 	Compares {left} value and {right} value by {op}. >
 	assert.compare(10, '<', 20)
-
-assert.equals({actual}, {expect})	*themis-helper-assert-equals()*
+<
+					*themis-helper-assert-equals()*
+assert.equals({actual}, {expect} [, {message}])
 	Checks an {actual} equals to an {expect}.  (|==#|)
 
-assert.not_equals({actual}, {expect})	*themis-helper-assert-not_equals()*
+					*themis-helper-assert-not_equals()*
+assert.not_equals({actual}, {expect} [, {message}])
 	Checks an {actual} not equals to an {expect}.  (|!=#|)
 
-assert.same({actual}, {expect})		*themis-helper-assert-same()*
+					*themis-helper-assert-same()*
+assert.same({actual}, {expect} [, {message}])
 	Checks an {actual} sames to an {expect}.  (|is#|)
 
-assert.not_same({actual}, {expect})	*themis-helper-assert-not_same()*
+					*themis-helper-assert-not_same()*
+assert.not_same({actual}, {expect} [, {message}])
 	Checks an {actual} not sames to an {expect}.  (|isnot#|)
 
-assert.match({value}, {pattern})	*themis-helper-assert-match()*
+					*themis-helper-assert-match()*
+assert.match({value}, {pattern} [, {message}])
 	Checks {value} matches to {pattern}.  (|=~#|)
 
-assert.not_match({value}, {pattern})	*themis-helper-assert-not_match()*
+					*themis-helper-assert-not_match()*
+assert.not_match({value}, {pattern} [, {message}])
 	Checks {value} doesn't match to {pattern}.  (|!~#|)
 
-assert.is_number({value})		*themis-helper-assert-is_number()*
+assert.is_number({value} [, {message}])	*themis-helper-assert-is_number()*
 	Checks type of {value} is |Number|.
 
-assert.is_not_number({value})		*themis-helper-assert-is_not_number()*
+					*themis-helper-assert-is_not_number()*
+assert.is_not_number({value} [, {message}])
 	Checks type of {value} is not |Number|.
 
-assert.is_string({value})		*themis-helper-assert-is_string()*
+assert.is_string({value} [, {message}])	*themis-helper-assert-is_string()*
 	Checks type of {value} is String.
 
-assert.is_not_string({value})		*themis-helper-assert-is_not_string()*
+					*themis-helper-assert-is_not_string()*
+assert.is_not_string({value} [, {message}])
 	Checks type of {value} is not String.
 
-assert.is_func({value})			*themis-helper-assert-is_func()*
+assert.is_func({value} [, {message}])	*themis-helper-assert-is_func()*
 	Checks type of {value} is |Funcref|.
 
-assert.is_not_func({value})		*themis-helper-assert-is_not_func()*
+					*themis-helper-assert-is_not_func()*
+assert.is_not_func({value} [, {message}])
 	Checks type of {value} is not |Funcref|.
 
-assert.is_list({value})			*themis-helper-assert-is_list()*
+assert.is_list({value} [, {message}])	*themis-helper-assert-is_list()*
 	Checks type of {value} is |List|.
 
-assert.is_not_list({value})		*themis-helper-assert-is_not_list()*
+					*themis-helper-assert-is_not_list()*
+assert.is_not_list({value} [, {message}])
 	Checks type of {value} is not |List|.
 
-assert.is_dict({value})			*themis-helper-assert-is_dict()*
+assert.is_dict({value} [, {message}])	*themis-helper-assert-is_dict()*
 	Checks type of {value} is |Dictionary|.
 
-assert.is_not_dict({value})		*themis-helper-assert-is_not_dict()*
+					*themis-helper-assert-is_not_dict()*
+assert.is_not_dict({value} [, {message}])
 	Checks type of {value} is not |Dictionary|.
 
-assert.is_float({value})		*themis-helper-assert-is_float()*
+assert.is_float({value} [, {message}])	*themis-helper-assert-is_float()*
 	Checks type of {value} is |Float|.
 
-assert.is_not_float({value})		*themis-helper-assert-is_not_float()*
+					*themis-helper-assert-is_not_float()*
+assert.is_not_float({value} [, {message}])
 	Checks type of {value} is not |Float|.
 
-assert.type_of({value}, {names})	*themis-helper-assert-type_of()*
+					*themis-helper-assert-type_of()*
+assert.type_of({value}, {names} [, {message}])
 	Checks the type of {value} is one of {names}.
 	{names} is a List of type names or a String of type name.
 	Type name is one of the following:
 	"Number", "String", "Funcref", "List", "Dict", "Dictionary", "Float"
 	Type name is case-insensitive.
 
-assert.length_of({value}, {length})	*themis-helper-assert-length_of()*
+					*themis-helper-assert-length_of()*
+assert.length_of({value}, {length} [, {message}])
 	Checks length of {value} is {length}.
 	{value} is a String, a List, or a Dictionary.
 	|len()| is used for length of {value}.
 
-assert.has_key({dict}, {key})		*themis-helper-assert-has_key()*
+					*themis-helper-assert-has_key()*
+assert.has_key({dict}, {key} [, {message}])
 assert.has_key({list}, {index})
 	If the first argument is a dictionary, check {key} exists in {dict}.
 	If the first argument is an array, check {index} exists in {list}.
 
-assert.exists({expr})			*themis-helper-assert-exists()*
+assert.exists({expr} [, {message}])	*themis-helper-assert-exists()*
 	Checks {expr} by |exists()|.
 	Note that this can not use for |local-variable| and |script-variable|.
 

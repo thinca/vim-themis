@@ -34,6 +34,10 @@ function! s:helper.__assert__()
       call s:check_throw('true', ['true'])
       call s:check_throw('true', [[1]])
     endfunction
+    function! true.accepts_an_optional_message()
+      call s:assert.true(1, 'error message')
+      call s:check_throw('true', [0, 'error message'], 'error message')
+    endfunction
   endfunction
 
   function! assert.__false__()
@@ -46,6 +50,10 @@ function! s:helper.__assert__()
       call s:check_throw('false', [0.0])
       call s:check_throw('false', [[]])
       call s:check_throw('false', ['false'])
+    endfunction
+    function! false.accepts_an_optional_message()
+      call s:assert.false(0, 'error message')
+      call s:check_throw('false', [1, 'error message'], 'error message')
     endfunction
   endfunction
 
@@ -61,6 +69,10 @@ function! s:helper.__assert__()
       call s:check_throw('truthy', [1.0])
       call s:check_throw('truthy', ['truthy'])
       call s:check_throw('truthy', ['0'])
+    endfunction
+    function! truthy.accepts_an_optional_message()
+      call s:assert.truthy(1, 'error message')
+      call s:check_throw('truthy', [0, 'error message'], 'error message')
     endfunction
   endfunction
 
@@ -78,6 +90,11 @@ function! s:helper.__assert__()
     function! compare.throws_a_report_when_error_occurred()
       call s:check_throw('compare', [0, '?', 0], 'Unexpected error occurred while evaluating the comparing')
       call s:check_throw('compare', [3, '===', []], 'Unexpected error occurred while evaluating the comparing')
+    endfunction
+    function! compare.accepts_an_optional_message()
+      call s:assert.compare(10, '==', 10, 'error message')
+      call s:check_throw('compare', [3, '<', 0, 'error message'], 'error message')
+      call s:check_throw('compare', [0, '?', 0, 'error message'], 'error message')
     endfunction
   endfunction
 
@@ -106,6 +123,10 @@ function! s:helper.__assert__()
       call s:check_throw('type_of', [0.0, 'Number'], 'The type of value was expected to be number')
       call s:check_throw('type_of', ['0', ['Number', 'Float']], 'The type of value was expected to be one of number or float')
     endfunction
+    function! type_of.accepts_an_optional_message()
+      call s:assert.type_of(0, 'Number', 'error message')
+      call s:check_throw('type_of', [0.0, 'Number', 'error message'], 'error message')
+    endfunction
   endfunction
 
   function! assert.__length_of__()
@@ -127,6 +148,10 @@ function! s:helper.__assert__()
     function! length_of.throws_a_report_when_first_argument_is_not_valid()
       call s:check_throw('length_of', [0, 1], 'The type of value was expected to be one of string, list or dictionary')
     endfunction
+    function! length_of.accepts_an_optional_message()
+      call s:assert.length_of('12345', 5, 'error message')
+      call s:check_throw('length_of', ['', 1, 'error message'], 'error message')
+    endfunction
   endfunction
 
   function! assert.__has_key__()
@@ -146,6 +171,12 @@ function! s:helper.__assert__()
     function! has_key.throws_a_report_when_first_argumentis_not_dict_or_array()
       call s:check_throw('has_key', ['foo', 0], 'The first argument was expected to an array or a dict')
     endfunction
+    function! has_key.accepts_an_optional_message()
+      call s:assert.has_key({'foo': 0}, 'foo', 'error message')
+      call s:check_throw('has_key', [{}, 'foo', 'error message'], 'error message')
+      call s:check_throw('has_key', [[], 0, 'error message'], 'error message')
+      call s:check_throw('has_key', ['foo', 0, 'error message'], 'error message')
+    endfunction
   endfunction
 
   function! assert.__exists__()
@@ -157,6 +188,12 @@ function! s:helper.__assert__()
       let g:the_value_which_exists = 1
       call s:assert.exists('g:the_value_which_exists')
       unlet g:the_value_which_exists
+    endfunction
+    function! exists.accepts_an_optional_message()
+      let g:the_value_which_exists = 1
+      call s:assert.exists('g:the_value_which_exists', 'error message')
+      unlet g:the_value_which_exists
+      call s:check_throw('exists', ['g:the_value_which_does_not_exist', 'error message'], 'error message')
     endfunction
   endfunction
 
