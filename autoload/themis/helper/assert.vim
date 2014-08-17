@@ -345,21 +345,26 @@ function! s:check_type(value, expected_types, not, additional_message)
   call map(expected_types, 'tolower(v:val)')
   call map(expected_types, 'v:val ==# "dict" ? "dictionary" : v:val')
   let success = 0 <= index(expected_types, got_type)
+
+  let [expect, but] = ['', ' not']
   if a:not
     let success = !success
+    let [expect, but] = [' not', '']
   endif
+
   if !success
     if 2 <= len(expected_types)
-      let msg = 'The type of value was expected to be one of %s'
-      let arg = join(expected_types[: -2], ', ') . ' or ' . expected_types[-1]
+      let msg = 'The type of value was%s expected to be one of %s'
+      let type_names =
+      \     join(expected_types[: -2], ', ') . ' or ' . expected_types[-1]
     else
-      let msg = 'The type of value was expected to be %s'
-      let arg = expected_types[0]
+      let msg = 'The type of value was%s expected to be %s'
+      let type_names = expected_types[0]
     endif
     throw s:failure([
-    \   printf(msg, arg) . ', but it was not the case.',
+    \   printf(msg . ', but it was%s the case.', expect, type_names, but),
     \   '',
-    \   '    expected type: ' . arg,
+    \   '    expected type: ' . type_names,
     \   '         got type: ' . got_type,
     \   '        got value: ' . string(a:value),
     \ ], a:additional_message)
