@@ -317,7 +317,7 @@ endfunction
 
 
 function! s:equals(a, b)
-  return type(a:a) == type(a:b) && a:a ==# a:b
+  return a:a ==# a:b
 endfunction
 
 function! s:match(str, pattern)
