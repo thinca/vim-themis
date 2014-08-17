@@ -101,17 +101,22 @@ function! s:runner.run_all()
 endfunction
 
 function! s:runner.run_bundle(bundle)
+  let test_names = self.get_test_names(a:bundle)
+  if empty(a:bundle.children) && empty(test_names)
+    " skip: empty bundle
+    return
+  endif
   let self.current_bundle = a:bundle
   call self.emit('before_suite', a:bundle)
-  call self.run_suite(a:bundle)
+  call self.run_suite(a:bundle, test_names)
   for child in a:bundle.children
     call self.run_bundle(child)
   endfor
   call self.emit('after_suite', a:bundle)
 endfunction
 
-function! s:runner.run_suite(bundle)
-  for name in self.get_test_names(a:bundle)
+function! s:runner.run_suite(bundle, test_names)
+  for name in a:test_names
     let report = themis#report#new(a:bundle, name)
     call self.emit('before_test', a:bundle, name)
     try
