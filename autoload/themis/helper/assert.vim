@@ -59,7 +59,7 @@ endfunction
 
 function! s:assert_falsy(value, ...)
   let t = type(a:value)
-  if !(t != type(0) || t != type('') || !a:value)
+  if (t != type(0) && t != type('')) || a:value
     throw s:failure([
     \   'The falsy value was expected, but it was not the case.',
     \   '',
