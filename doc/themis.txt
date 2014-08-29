@@ -150,10 +150,17 @@ themis#helper({name})				*themis#helper()*
 	Use a helper.
 	This creates or enables the {name} helper.  See also |themis-helper|.
 
+themis#option()					*themis#option()*
+	Gets a dictionary that contains default options.
+	This is only available in |.themisrc|.
+
 
 
 ==============================================================================
 CUSTOMIZING					*themis-customizing*
+
+------------------------------------------------------------------------------
+ENVIRONMENT VARIABLE				*themis-environment-variable*
 
 $THEMIS_HOME					*$THEMIS_HOME*
 	The home directory of themis.  The home directory is a base of
@@ -164,6 +171,94 @@ $THEMIS_HOME					*$THEMIS_HOME*
 $THEMIS_VIM					*$THEMIS_VIM*
 	The path to vim command.  "vim" is used when this is empty.
 
+------------------------------------------------------------------------------
+THEMISRC					*themis-themisrc*
+
+Themis loads *.themisrc* file before loading of test scripts for user setup.
+".themisrc" file is just a Vim script.
+
+Loading Rule
+------------
+The ".themisrc" file is searched from test target file or directory to upper
+layer.
+
+When two or more files exist, it is sequentially loaded from a shallow
+hierarchy.
+
+For example, you run: >
+	$ themis ~/path/to/project/test/
+will look in the following dirs for a config file: >
+	/path/to/project/test/.themisrc
+	/path/to/project/.themisrc
+	/path/to/.themisrc
+	/path/.themisrc
+	... # up until root of filesystem
+These files are sorted by alphabetical sequence and loaded in the order. >
+	/path/.themisrc
+	/path/to/.themisrc
+	/path/to/project/.themisrc
+	/path/to/project/test/.themisrc
+
+Another example: >
+	$ themis ~/project/test/foo/test.vim ~/project/test/dir
+will look in the following dirs for a config file: >
+	/project/test/foo/.themisrc
+	/project/test/.themisrc
+	/project/.themisrc
+	/.themisrc
+	/project/test/dir/.themisrc
+	/project/test/.themisrc
+	/project/.themisrc
+	/.themisrc
+These are sorted, and duplicated items are removed. >
+	/.themisrc
+	/project/.themisrc
+	/project/test/.themisrc
+	/project/test/dir/.themisrc
+	/project/test/foo/.themisrc
+
+Note: You should not place the ".themisrc" file in the subdirectory of test
+directory.  The file is not loaded when the test directory was specified and a
+test is run.
+
+Command line Options
+--------------------
+You can access and change the default value of command-line options.
+You can get a dictionary from |themis#option()| that contains the following
+elements.
+
+option.exclude
+	Value of |themis-option-exclude|.  This is a List.
+option.target
+	Value of |themis-option-target|.  This is a List.
+option.recursive
+	Value of |themis-option-recursive|.  This is 1 or 0.
+option.reporter
+	Value of |themis-option-reporter|.
+option.runtimepath
+	Value of |themis-option-runtimepath|.  This is a List.
+
+Note that these values may be changed from upper stream of ".themisrc".
+You can overwrite these options from command line.
+
+Example of Usage
+----------------
+You can put helpers in global scope, and use all test scripts.
+>
+	let g:assert = themis#helper('assert')
+<
+You can define helper functions or commands used only in this project.
+>
+	function! InitBuffer()
+	  tabonly!
+	  only!
+	  enew!
+	  put =['aaa', 'bbb', 'ccc']
+	endfunction
+	command! InitBuffer call InitBuffer
+<
+You can define a new matcher for expect-helper.
+See |themis#helper#expect#define_matcher()| for detail.
 
 
 ==============================================================================
