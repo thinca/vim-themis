@@ -1,5 +1,4 @@
 let s:util = themis#suite('util')
-call themis#helper('command').with(themis#helper('assert'))
 
 function! s:util.__parse_callstack__()
   let parse_callstack = themis#suite('parse_callstack()')
