@@ -74,9 +74,8 @@ function! s:check_exception(line, thrown_expection, expected_exception)
   endif
 endfunction
 
-function! s:define_assert(prefix)
-  let command = a:prefix . 'Assert'
-  execute 'command! -nargs=+' command
+function! s:define_assert(command)
+  execute 'command! -nargs=+' a:command
   \ '  try'
   \ '|   let s:c.result = s:eval(<q-args>, s:current_scopes + [l:])'
   \ '| catch /^themis:\s*report:/'
@@ -87,9 +86,8 @@ function! s:define_assert(prefix)
   \ '| endif'
 endfunction
 
-function! s:define_throws(prefix)
-  let command = a:prefix . 'Throws'
-  execute 'command! -nargs=+' command
+function! s:define_throws(command)
+  execute 'command! -nargs=+' a:command
   \ '  let s:c.not_thrown = 0'
   \ '| let [s:c.expect_exception, s:c.expr] = s:get_throws_args(<q-args>)'
   \ '| try'
@@ -103,9 +101,8 @@ function! s:define_throws(prefix)
   \ '| endif'
 endfunction
 
-function! s:define_fail(prefix)
-  let command = a:prefix . 'Fail'
-  execute 'command! -nargs=*' command
+function! s:define_fail(command)
+  execute 'command! -nargs=*' a:command
   \ '  if <q-args> !=# ""'
   \ '|   throw themis#failure(<q-args>)'
   \ '| else'
@@ -113,15 +110,13 @@ function! s:define_fail(prefix)
   \ '| endif'
 endfunction
 
-function! s:define_todo(prefix)
-  let command = a:prefix . 'TODO'
-  execute 'command! -nargs=*' command
+function! s:define_todo(command)
+  execute 'command! -nargs=*' a:command
   \ 'throw "themis: report: todo:" . <q-args>'
 endfunction
 
-function! s:define_skip(prefix)
-  let command = a:prefix . 'Skip'
-  execute 'command! -nargs=*' command
+function! s:define_skip(command)
+  execute 'command! -nargs=*' a:command
   \ '  if <q-args> !=# ""'
   \ '|   throw "themis: report: SKIP:" . <q-args>'
   \ '| else'
@@ -140,11 +135,11 @@ function! s:helper.with(...)
 endfunction
 
 function! s:helper.define()
-  call s:define_assert(self._prefix)
-  call s:define_throws(self._prefix)
-  call s:define_fail(self._prefix)
-  call s:define_todo(self._prefix)
-  call s:define_skip(self._prefix)
+  call s:define_assert(self._prefix . 'Assert')
+  call s:define_throws(self._prefix . 'Throws')
+  call s:define_fail(self._prefix . 'Fail')
+  call s:define_todo(self._prefix . 'TODO')
+  call s:define_skip(self._prefix . 'Skip')
   let s:current_scopes = self._scopes
 endfunction
 
