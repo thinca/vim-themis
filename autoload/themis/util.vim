@@ -133,6 +133,18 @@ function! themis#util#get_full_title(obj, ...)
   return join(filter(titles, 'v:val !=# ""'), ' ')
 endfunction
 
+function! themis#util#sortuniq(list)
+  call sort(a:list)
+  let i = len(a:list) - 1
+  while 0 < i
+    if a:list[i] == a:list[i - 1]
+      call remove(a:list, i)
+    endif
+    let i -= 1
+  endwhile
+  return a:list
+endfunction
+
 
 let &cpo = s:save_cpo
 unlet s:save_cpo

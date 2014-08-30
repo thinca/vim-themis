@@ -13,7 +13,7 @@ endfunction
 
 function! themis#module#list(type)
   let pat = 'autoload/themis/' . a:type . '/*.vim'
-  return s:sortuniq(map(split(globpath(&runtimepath, pat, 1), "\n"),
+  return themis#util#sortuniq(map(split(globpath(&runtimepath, pat, 1), "\n"),
   \                     'fnamemodify(v:val, ":t:r")'))
 endfunction
 
@@ -38,18 +38,6 @@ endfunction
 
 function! themis#module#supporter(name, runner)
   return themis#module#load('supporter', a:name, [a:runner])
-endfunction
-
-function! s:sortuniq(list)
-  call sort(a:list)
-  let i = len(a:list) - 1
-  while 0 < i
-    if a:list[i] == a:list[i - 1]
-      call remove(a:list, i)
-    endif
-    let i -= 1
-  endwhile
-  return a:list
 endfunction
 
 
