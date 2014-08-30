@@ -54,11 +54,18 @@ function! themis#helper(name)
   return Helper
 endfunction
 
-function! themis#option()
+function! themis#option(...)
   if !exists('s:custom_options')
     let s:custom_options = themis#option#default()
   endif
-  return s:custom_options
+  if a:0 == 0
+    return s:custom_options
+  endif
+  let name = a:1
+  if a:0 == 1
+    return get(s:custom_options, name, '')
+  endif
+  let s:custom_options[name] = a:2
 endfunction
 
 function! themis#exception(type, message)

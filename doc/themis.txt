@@ -150,9 +150,12 @@ themis#helper({name})				*themis#helper()*
 	Use a helper.
 	This creates or enables the {name} helper.  See also |themis-helper|.
 
-themis#option()					*themis#option()*
+themis#option([{name} [, {value}]])		*themis#option()*
 	Gets a dictionary that contains default options.
 	This is only available in |.themisrc|.
+	If {name} is specified, returns the value of specified option.
+	If {name} and {value} is specified, updates the value of specified
+	option.
 
 
 
