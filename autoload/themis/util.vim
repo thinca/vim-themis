@@ -145,6 +145,15 @@ function! themis#util#sortuniq(list)
   return a:list
 endfunction
 
+function! themis#util#find_files(paths, filename)
+  let todir =  'isdirectory(v:val) ? v:val : fnamemodify(v:val, ":h")'
+  let dirs = map(copy(a:paths), todir)
+  let mod = ':p:gs?\\\+?/?:s?/$??'
+  call map(dirs, 'fnamemodify(v:val, mod)')
+  let files = findfile(a:filename, join(map(dirs, 'v:val . ";"'), ''), -1)
+  return themis#util#sortuniq(files)
+endfunction
+
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
