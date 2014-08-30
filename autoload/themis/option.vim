@@ -27,5 +27,18 @@ function! themis#option#empty_options()
   return options
 endfunction
 
+function! themis#option#merge(base, overwriter)
+  let merged = copy(a:base)
+  for [name, value] in items(a:overwriter)
+    if type(value) == type([]) && has_key(merged, name)
+      let merged[name] += value
+    else
+      let merged[name] = value
+    endif
+    unlet value
+  endfor
+  return merged
+endfunction
+
 let &cpo = s:save_cpo
 unlet s:save_cpo

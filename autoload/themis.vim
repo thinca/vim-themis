@@ -23,7 +23,7 @@ endfunction
 function! themis#run(paths, ...)
   let s:current_runner = themis#runner#new()
   try
-    let options = get(a:000, 0, themis#option#default())
+    let options = get(a:000, 0, themis#option#empty_options())
     return s:current_runner.run(a:paths, options)
   finally
     unlet! s:current_runner
@@ -52,6 +52,13 @@ function! themis#helper(name)
   let runner = s:runner()
   let Helper = themis#helper#{a:name}#new(runner)
   return Helper
+endfunction
+
+function! themis#option()
+  if !exists('s:custom_options')
+    let s:custom_options = themis#option#default()
+  endif
+  return s:custom_options
 endfunction
 
 function! themis#exception(type, message)

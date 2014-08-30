@@ -16,14 +16,16 @@ function! s:runner.run(paths, options)
 
   call s:load_themisrc(paths)
 
-  let files = s:paths2files(paths, a:options.recursive)
+  let options = themis#option#merge(themis#option(), a:options)
 
-  let excludes = join(filter(copy(a:options.exclude), '!empty(v:val)'), '\|\m')
+  let files = s:paths2files(paths, options.recursive)
+
+  let excludes = join(filter(copy(options.exclude), '!empty(v:val)'), '\|\m')
   if !empty(excludes)
     call filter(files, 'v:val !~# excludes')
   endif
 
-  let self.style = themis#module#style(a:options.style, self)
+  let self.style = themis#module#style(options.style, self)
   call filter(files, 'self.style.can_handle(v:val)')
   if empty(files)
     throw 'themis: Target file not found.'
@@ -33,8 +35,8 @@ function! s:runner.run(paths, options)
   let save_runtimepath = &runtimepath
 
   let appended = [getcwd()]
-  if !empty(a:options.runtimepath)
-    for rtp in a:options.runtimepath
+  if !empty(options.runtimepath)
+    for rtp in options.runtimepath
       let appended += s:append_rtp(rtp)
     endfor
   endif
@@ -44,11 +46,11 @@ function! s:runner.run(paths, options)
     execute 'source' fnameescape(plugin)
   endfor
 
-  let self.target_pattern = join(a:options.target, '\m\|')
+  let self.target_pattern = join(options.target, '\m\|')
 
   let stats = self.supporter('stats')
   call self.init_bundle()
-  let reporter = themis#module#reporter(a:options.reporter)
+  let reporter = themis#module#reporter(options.reporter)
   call self.add_event(reporter)
   try
     call self.load_scripts(files)
