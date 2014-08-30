@@ -156,13 +156,20 @@ function! s:helper.undef()
   call s:delcommand(self._prefix . 'Skip')
   unlet! s:current_scopes
 endfunction
+function! s:helper.defined()
+  return exists(':' . self._prefix . 'Assert') == 2
+endfunction
 
 
-let s:events = {'helper': s:helper, 'nest': 0}
+let s:events = {'helper': s:helper, 'nest': 0, 'skip': 0}
 function! s:events.before_suite(bundle)
   if self.is_target(a:bundle)
     if self.nest == 0
-      call self.helper.define()
+      if self.helper.defined()
+        let self.skip = 1
+      else
+        call self.helper.define()
+      endif
     endif
     let self.nest += 1
   endif
@@ -171,7 +178,7 @@ endfunction
 function! s:events.after_suite(bundle)
   if self.is_target(a:bundle)
     let self.nest -= 1
-    if self.nest == 0
+    if self.nest == 0 && !self.skip
       call self.helper.undef()
     endif
   endif
