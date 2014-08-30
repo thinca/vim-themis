@@ -19,5 +19,13 @@ function! themis#option#default()
   return deepcopy(s:default_options)
 endfunction
 
+function! themis#option#empty_options()
+  let options = deepcopy(s:default_options)
+  let list_t = type([])
+  call filter(options, 'type(v:val) == list_t')
+  call map(options, '[]')
+  return options
+endfunction
+
 let &cpo = s:save_cpo
 unlet s:save_cpo
