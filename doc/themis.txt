@@ -155,7 +155,7 @@ themis#option([{name} [, {value}]])		*themis#option()*
 	This is only available in |.themisrc|.
 	If {name} is specified, returns the value of specified option.
 	If {name} and {value} is specified, updates the value of specified
-	option.
+	option.  When the option is List, {value} is appended to the List.
 
 
 

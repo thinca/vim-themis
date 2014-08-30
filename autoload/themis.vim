@@ -65,7 +65,14 @@ function! themis#option(...)
   if a:0 == 1
     return get(s:custom_options, name, '')
   endif
-  let s:custom_options[name] = a:2
+  if has_key(s:custom_options, name)
+    if type(s:custom_options[name]) == type([])
+      let value = type(a:2) == type([]) ? a:2 : [a:2]
+      let s:custom_options[name] += value
+    else
+      let s:custom_options[name] = a:2
+    endif
+  endif
 endfunction
 
 function! themis#exception(type, message)
