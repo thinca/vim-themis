@@ -32,11 +32,11 @@ function! themis#version()
   return s:version
 endfunction
 
-function! themis#run(scripts, ...)
+function! themis#run(paths, ...)
   let s:current_runner = themis#runner#new()
   try
     let options = get(a:000, 0, themis#default_options())
-    return s:current_runner.run(a:scripts, options)
+    return s:current_runner.run(a:paths, options)
   finally
     unlet! s:current_runner
   endtry

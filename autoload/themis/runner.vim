@@ -11,11 +11,18 @@ let s:runner = {
 \   '_suppporters': {},
 \ }
 
-function! s:runner.run(scripts, options)
-  let scripts = type(a:scripts) == type([]) ? a:scripts : [a:scripts]
+function! s:runner.run(paths, options)
+  let paths = type(a:paths) == type([]) ? a:paths : [a:paths]
+  let files = s:paths2files(paths, a:options.recursive)
+
+  let excludes = join(filter(copy(a:options.exclude), '!empty(v:val)'), '\|\m')
+  if !empty(excludes)
+    call filter(files, 'v:val !~# excludes')
+  endif
+
   let self.style = themis#module#style(a:options.style, self)
-  call filter(scripts, 'self.style.can_handle(v:val)')
-  if empty(scripts)
+  call filter(files, 'self.style.can_handle(v:val)')
+  if empty(files)
     throw 'themis: Target file not found.'
   endif
 
@@ -41,7 +48,7 @@ function! s:runner.run(scripts, options)
   let reporter = themis#module#reporter(a:options.reporter)
   call self.add_event(reporter)
   try
-    call self.load_scripts(a:scripts)
+    call self.load_scripts(files)
     call self.emit('script_loaded', self)
     call self.emit('start', self)
     call self.run_all()
@@ -208,6 +215,20 @@ function! s:append_rtp(path)
     endif
   endif
   return appended
+endfunction
+
+function! s:paths2files(paths, recursive)
+  let files = []
+  let target_pattern = a:recursive ? '**/*' : '*'
+  for path in a:paths
+    if isdirectory(path)
+      let files += split(globpath(path, target_pattern, 1), "\n")
+    else
+      let files += [path]
+    endif
+  endfor
+  let mods =  ':p:gs?\\?/?'
+  return filter(map(files, 'fnamemodify(v:val, mods)'), '!isdirectory(v:val)')
 endfunction
 
 function! s:sum(list)

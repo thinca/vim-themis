@@ -16,12 +16,7 @@ function! themis#command#start(args)
     let paths = filter(['./test', './t', './spec'], 'isdirectory(v:val)')[: 0]
   endif
 
-  let files = s:paths2files(paths, options.recursive)
-  let excludes = join(filter(copy(options.exclude), '!empty(v:val)'), '\|\m')
-  if !empty(excludes)
-    call filter(files, 'v:val !~# excludes')
-  endif
-  return themis#run(files, options)
+  return themis#run(paths, options)
 endfunction
 
 " Command line option processer
@@ -132,20 +127,6 @@ function! s:process_option(name, args, options)
     " FIXME: wrong error for short option
     throw 'themis: Unknown option: --' . a:name
   endif
-endfunction
-
-function! s:paths2files(paths, recursive)
-  let files = []
-  let target_pattern = a:recursive ? '**/*' : '*'
-  for path in a:paths
-    if isdirectory(path)
-      let files += split(globpath(path, target_pattern, 1), "\n")
-    else
-      let files += [path]
-    endif
-  endfor
-  let mods =  ':p:gs?\\?/?'
-  return filter(map(files, 'fnamemodify(v:val, mods)'), '!isdirectory(v:val)')
 endfunction
 
 let &cpo = s:save_cpo
