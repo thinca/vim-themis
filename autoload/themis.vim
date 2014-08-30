@@ -16,18 +16,6 @@ endif
 
 let s:version = '1.1'
 
-let s:default_options = {
-\   'target': [],
-\   'recursive': 0,
-\   'style': 'basic',
-\   'reporter': 'tap',
-\   'runtimepath': [],
-\   'exclude': [],
-\ }
-function! themis#default_options()
-  return deepcopy(s:default_options)
-endfunction
-
 function! themis#version()
   return s:version
 endfunction
@@ -35,7 +23,7 @@ endfunction
 function! themis#run(paths, ...)
   let s:current_runner = themis#runner#new()
   try
-    let options = get(a:000, 0, themis#default_options())
+    let options = get(a:000, 0, themis#option#default())
     return s:current_runner.run(a:paths, options)
   finally
     unlet! s:current_runner

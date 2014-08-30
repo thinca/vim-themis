@@ -27,7 +27,7 @@ let s:short_options = {
 \ }
 function! s:parse_args(args)
   let paths = []
-  let options = themis#default_options()
+  let options = themis#option#default()
   let args = copy(a:args)
   while !empty(args)
     let arg = remove(args, 0)
