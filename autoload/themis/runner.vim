@@ -13,6 +13,9 @@ let s:runner = {
 
 function! s:runner.run(paths, options)
   let paths = type(a:paths) == type([]) ? a:paths : [a:paths]
+
+  call s:load_themisrc(paths)
+
   let files = s:paths2files(paths, a:options.recursive)
 
   let excludes = join(filter(copy(a:options.exclude), '!empty(v:val)'), '\|\m')
@@ -215,6 +218,13 @@ function! s:append_rtp(path)
     endif
   endif
   return appended
+endfunction
+
+function! s:load_themisrc(paths)
+  let themisrcs = themis#util#find_files(a:paths, '.themisrc')
+  for themisrc in themisrcs
+    execute 'source' fnameescape(themisrc)
+  endfor
 endfunction
 
 function! s:paths2files(paths, recursive)
