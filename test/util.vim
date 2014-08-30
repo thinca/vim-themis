@@ -98,6 +98,12 @@ function! s:util.get_full_title()
   Assert Equals(themis#util#get_full_title(obj4), 'foo bar buz')
 endfunction
 
+function! s:util.sortuniq()
+  let original = ['foo', 'bar', 'foo', 'buz']
+  let expect = ['bar', 'buz', 'foo']
+  Assert Equals(themis#util#sortuniq(original), expect)
+endfunction
+
 function! SampleFuncForUtil()
   echo "line1"
   echo "line2"
