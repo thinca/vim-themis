@@ -718,7 +718,7 @@ Some test names have a special meaning.  They are called in special situation.
 CHANGELOG					*themis-changelog*
 
 1.2	Roadmap
-	- [Yet] Add |.themisrc| file feature.
+	- Add |.themisrc| file feature.
 	- Add --reporter-list option(|themis-option-reporter-list|).
 	- Add --target option(|themis-option-target|).
 	- Assert-helpers take optional argument {message}.
