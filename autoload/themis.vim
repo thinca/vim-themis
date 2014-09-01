@@ -49,9 +49,7 @@ function! themis#suite(...)
 endfunction
 
 function! themis#helper(name)
-  let runner = s:runner()
-  let Helper = themis#helper#{a:name}#new(runner)
-  return Helper
+  return themis#helper#{a:name}#new(s:runner())
 endfunction
 
 function! themis#option(...)
