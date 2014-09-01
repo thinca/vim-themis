@@ -109,6 +109,7 @@ function! s:options.help(args, options)
   \   '   --reporter {name}        Select a reporter',
   \   '   --reporter-list          Show available reporters',
   \   '   --runtimepath {path}     Add runtimepath',
+  \   '-v --version                Print version',
   \   '-h --help                   Show this help',
   \ ], "\n"))
   let a:options.exit = 1
