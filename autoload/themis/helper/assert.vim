@@ -230,6 +230,7 @@ function! s:assert_length_of(value, length, ...)
     \   '          got value: ' . string(a:value),
     \ ], a:000)
   endif
+  return 1
 endfunction
 
 function! s:assert_has_key(value, key, ...)
