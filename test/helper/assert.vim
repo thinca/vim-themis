@@ -34,6 +34,9 @@ function! s:helper.__assert__()
       call s:check_throw('true', ['true'])
       call s:check_throw('true', [[1]])
     endfunction
+    function! true.returns_truthy_value_when_check_was_successful()
+      call s:assert.truthy(s:assert.true(1))
+    endfunction
     function! true.accepts_an_optional_message()
       call s:assert.true(1, 'error message')
       call s:check_throw('true', [0, 'error message'], 'error message')
@@ -50,6 +53,9 @@ function! s:helper.__assert__()
       call s:check_throw('false', [0.0])
       call s:check_throw('false', [[]])
       call s:check_throw('false', ['false'])
+    endfunction
+    function! false.returns_truthy_value_when_check_was_successful()
+      call s:assert.truthy(s:assert.false(0))
     endfunction
     function! false.accepts_an_optional_message()
       call s:assert.false(0, 'error message')
@@ -70,6 +76,9 @@ function! s:helper.__assert__()
       call s:check_throw('truthy', ['truthy'])
       call s:check_throw('truthy', ['0'])
     endfunction
+    function! truthy.returns_truthy_value_when_check_was_successful()
+      call s:assert.truthy(s:assert.truthy(1))
+    endfunction
     function! truthy.accepts_an_optional_message()
       call s:assert.truthy(1, 'error message')
       call s:check_throw('truthy', [0, 'error message'], 'error message')
@@ -87,6 +96,9 @@ function! s:helper.__assert__()
       call s:check_throw('falsy', [1])
       call s:check_throw('falsy', [0.0])
       call s:check_throw('falsy', ['100falsy'])
+    endfunction
+    function! falsy.returns_truthy_value_when_check_was_successful()
+      call s:assert.truthy(s:assert.falsy(0))
     endfunction
     function! falsy.accepts_an_optional_message()
       call s:assert.falsy(0, 'error message')
@@ -109,6 +121,9 @@ function! s:helper.__assert__()
       call s:check_throw('compare', [0, '?', 0], 'Unexpected error occurred while evaluating the comparing')
       call s:check_throw('compare', [3, '===', []], 'Unexpected error occurred while evaluating the comparing')
     endfunction
+    function! compare.returns_truthy_value_when_check_was_successful()
+      call s:assert.truthy(s:assert.compare(1, '==', 1))
+    endfunction
     function! compare.accepts_an_optional_message()
       call s:assert.compare(10, '==', 10, 'error message')
       call s:check_throw('compare', [3, '<', 0, 'error message'], 'error message')
@@ -129,6 +144,9 @@ function! s:helper.__assert__()
       call s:check_throw('equals', [1 + 1, 11], 'The equivalent values were expected')
       call s:check_throw('equals', ['hoge', 'HOGE'], 'The equivalent values were expected')
     endfunction
+    function! equals.returns_truthy_value_when_check_was_successful()
+      call s:assert.truthy(s:assert.equals(1, 1))
+    endfunction
     function! equals.accepts_an_optional_message()
       call s:assert.equals(5 + 5, 10, 'error message')
       call s:check_throw('equals', [1 + 1, 11, 'error message'], 'error message')
@@ -145,6 +163,9 @@ function! s:helper.__assert__()
     function! not_equals.throws_a_report_when_values_are_equivalent()
       call s:check_throw('not_equals', [1 + 1, 2], 'Not the equivalent values were expected')
       call s:check_throw('not_equals', ['hoge', 'hoge'], 'Not the equivalent values were expected')
+    endfunction
+    function! not_equals.returns_truthy_value_when_check_was_successful()
+      call s:assert.truthy(s:assert.not_equals(0, 1))
     endfunction
     function! not_equals.accepts_an_optional_message()
       call s:assert.not_equals(5 + 5, 55, 'error message')
@@ -164,6 +185,9 @@ function! s:helper.__assert__()
       call s:check_throw('same', [10, '10'], 'The same values were expected')
       call s:check_throw('same', [{}, {}], 'The same values were expected')
     endfunction
+    function! same.returns_truthy_value_when_check_was_successful()
+      call s:assert.truthy(s:assert.same(0, 0))
+    endfunction
     function! same.accepts_an_optional_message()
       call s:assert.same(5 + 5, 10, 'error message')
       call s:check_throw('same', [10, '10', 'error message'], 'error message')
@@ -182,6 +206,9 @@ function! s:helper.__assert__()
       let array = [1]
       call s:check_throw('not_same', [array, array], 'Not the same values were expected')
     endfunction
+    function! not_same.returns_truthy_value_when_check_was_successful()
+      call s:assert.truthy(s:assert.not_same({}, {}))
+    endfunction
     function! not_same.accepts_an_optional_message()
       call s:assert.not_same(10.0, 10, 'error message')
       call s:check_throw('not_same', [10, 10, 'error message'], 'error message')
@@ -197,6 +224,9 @@ function! s:helper.__assert__()
     function! match.throws_a_report_when_value_does_not_match_to_pattern()
       call s:check_throw('match', ['hoge', 'huga'], 'Match was expected')
     endfunction
+    function! match.returns_truthy_value_when_check_was_successful()
+      call s:assert.truthy(s:assert.match('hoge', '^hoge$'))
+    endfunction
     function! match.accepts_an_optional_message()
       call s:assert.match('hoge', '^hoge$', 'error message')
       call s:check_throw('match', ['hoge', 'huga', 'error message'], 'error message')
@@ -210,6 +240,9 @@ function! s:helper.__assert__()
     endfunction
     function! not_match.throws_a_report_when_value_matches_to_pattern()
       call s:check_throw('not_match', ['hoge', '^hoge$'], 'Not match was expected')
+    endfunction
+    function! not_match.returns_truthy_value_when_check_was_successful()
+      call s:assert.truthy(s:assert.not_match('hoge', '^huga$'))
     endfunction
     function! not_match.accepts_an_optional_message()
       call s:assert.not_match('hoge', '^huga$', 'error message')
@@ -225,6 +258,9 @@ function! s:helper.__assert__()
     function! is_number.throws_a_report_when_type_of_value_is_not_number()
       call s:check_throw('is_number', [1.0], 'The type of value was expected to be number')
     endfunction
+    function! is_number.returns_truthy_value_when_check_was_successful()
+      call s:assert.truthy(s:assert.is_number(1))
+    endfunction
     function! is_number.accepts_an_optional_message()
       call s:assert.is_number(1, 'error message')
       call s:check_throw('is_number', [1.0, 'error message'], 'error message')
@@ -238,6 +274,9 @@ function! s:helper.__assert__()
     endfunction
     function! is_not_number.throws_a_report_when_type_of_value_is_number()
       call s:check_throw('is_not_number', [1], 'The type of value was not expected to be number')
+    endfunction
+    function! is_not_number.returns_truthy_value_when_check_was_successful()
+      call s:assert.truthy(s:assert.is_not_number(1.0))
     endfunction
     function! is_not_number.accepts_an_optional_message()
       call s:assert.is_not_number(1.0, 'error message')
@@ -253,6 +292,9 @@ function! s:helper.__assert__()
     function! is_string.throws_a_report_when_type_of_value_is_not_string()
       call s:check_throw('is_string', [0], 'The type of value was expected to be string')
     endfunction
+    function! is_string.returns_truthy_value_when_check_was_successful()
+      call s:assert.truthy(s:assert.is_string(''))
+    endfunction
     function! is_string.accepts_an_optional_message()
       call s:assert.is_string('str', 'error message')
       call s:check_throw('is_string', [0, 'error message'], 'error message')
@@ -266,6 +308,9 @@ function! s:helper.__assert__()
     endfunction
     function! is_not_string.throws_a_report_when_type_of_value_is_string()
       call s:check_throw('is_not_string', ['str'], 'The type of value was not expected to be string')
+    endfunction
+    function! is_not_string.returns_truthy_value_when_check_was_successful()
+      call s:assert.truthy(s:assert.is_not_string(0))
     endfunction
     function! is_not_string.accepts_an_optional_message()
       call s:assert.is_not_string(0, 'error message')
@@ -281,6 +326,9 @@ function! s:helper.__assert__()
     function! is_func.throws_a_report_when_type_of_value_is_not_func()
       call s:check_throw('is_func', [0], 'The type of value was expected to be func')
     endfunction
+    function! is_func.returns_truthy_value_when_check_was_successful()
+      call s:assert.truthy(s:assert.is_func(function('function')))
+    endfunction
     function! is_func.accepts_an_optional_message()
       call s:assert.is_func(function('function'), 'error message')
       call s:check_throw('is_func', [0, 'error message'], 'error message')
@@ -294,6 +342,9 @@ function! s:helper.__assert__()
     endfunction
     function! is_not_func.throws_a_report_when_type_of_value_is_func()
       call s:check_throw('is_not_func', [function('function')], 'The type of value was not expected to be func')
+    endfunction
+    function! is_not_func.returns_truthy_value_when_check_was_successful()
+      call s:assert.truthy(s:assert.is_not_func(0))
     endfunction
     function! is_not_func.accepts_an_optional_message()
       call s:assert.is_not_func(0, 'error message')
@@ -309,6 +360,9 @@ function! s:helper.__assert__()
     function! is_list.throws_a_report_when_type_of_value_is_not_list()
       call s:check_throw('is_list', [0], 'The type of value was expected to be list')
     endfunction
+    function! is_list.returns_truthy_value_when_check_was_successful()
+      call s:assert.truthy(s:assert.is_list([]))
+    endfunction
     function! is_list.accepts_an_optional_message()
       call s:assert.is_list([], 'error message')
       call s:check_throw('is_list', [0, 'error message'], 'error message')
@@ -322,6 +376,9 @@ function! s:helper.__assert__()
     endfunction
     function! is_not_list.throws_a_report_when_type_of_value_is_list()
       call s:check_throw('is_not_list', [[]], 'The type of value was not expected to be list')
+    endfunction
+    function! is_not_list.returns_truthy_value_when_check_was_successful()
+      call s:assert.truthy(s:assert.is_not_list(0))
     endfunction
     function! is_not_list.accepts_an_optional_message()
       call s:assert.is_not_list(0, 'error message')
@@ -337,6 +394,9 @@ function! s:helper.__assert__()
     function! is_dict.throws_a_report_when_type_of_value_is_not_dict()
       call s:check_throw('is_dict', [0], 'The type of value was expected to be dict')
     endfunction
+    function! is_dict.returns_truthy_value_when_check_was_successful()
+      call s:assert.truthy(s:assert.is_dict({}))
+    endfunction
     function! is_dict.accepts_an_optional_message()
       call s:assert.is_dict({}, 'error message')
       call s:check_throw('is_dict', [0, 'error message'], 'error message')
@@ -350,6 +410,9 @@ function! s:helper.__assert__()
     endfunction
     function! is_not_dict.throws_a_report_when_type_of_value_is_dict()
       call s:check_throw('is_not_dict', [{}], 'The type of value was not expected to be dict')
+    endfunction
+    function! is_not_dict.returns_truthy_value_when_check_was_successful()
+      call s:assert.truthy(s:assert.is_not_dict(0))
     endfunction
     function! is_not_dict.accepts_an_optional_message()
       call s:assert.is_not_dict(0, 'error message')
@@ -365,6 +428,9 @@ function! s:helper.__assert__()
     function! is_float.throws_a_report_when_type_of_value_is_not_float()
       call s:check_throw('is_float', [0], 'The type of value was expected to be float')
     endfunction
+    function! is_float.returns_truthy_value_when_check_was_successful()
+      call s:assert.truthy(s:assert.is_float(0.0))
+    endfunction
     function! is_float.accepts_an_optional_message()
       call s:assert.is_float(1.0, 'error message')
       call s:check_throw('is_float', [0, 'error message'], 'error message')
@@ -378,6 +444,9 @@ function! s:helper.__assert__()
     endfunction
     function! is_not_float.throws_a_report_when_type_of_value_is_float()
       call s:check_throw('is_not_float', [1.0], 'The type of value was not expected to be float')
+    endfunction
+    function! is_not_float.returns_truthy_value_when_check_was_successful()
+      call s:assert.truthy(s:assert.is_not_float(0))
     endfunction
     function! is_not_float.accepts_an_optional_message()
       call s:assert.is_not_float(0, 'error message')
@@ -410,6 +479,9 @@ function! s:helper.__assert__()
       call s:check_throw('type_of', [0.0, 'Number'], 'The type of value was expected to be number')
       call s:check_throw('type_of', ['0', ['Number', 'Float']], 'The type of value was expected to be one of number or float')
     endfunction
+    function! type_of.returns_truthy_value_when_check_was_successful()
+      call s:assert.truthy(s:assert.type_of('', 'string'))
+    endfunction
     function! type_of.accepts_an_optional_message()
       call s:assert.type_of(0, 'Number', 'error message')
       call s:check_throw('type_of', [0.0, 'Number', 'error message'], 'error message')
@@ -435,6 +507,9 @@ function! s:helper.__assert__()
     function! length_of.throws_a_report_when_first_argument_is_not_valid()
       call s:check_throw('length_of', [0, 1], 'The type of value was expected to be one of string, list or dictionary')
     endfunction
+    function! length_of.returns_truthy_value_when_check_was_successful()
+      call s:assert.truthy(s:assert.length_of('', 0))
+    endfunction
     function! length_of.accepts_an_optional_message()
       call s:assert.length_of('12345', 5, 'error message')
       call s:check_throw('length_of', ['', 1, 'error message'], 'error message')
@@ -458,6 +533,9 @@ function! s:helper.__assert__()
     function! has_key.throws_a_report_when_first_argumentis_not_dict_or_array()
       call s:check_throw('has_key', ['foo', 0], 'The first argument was expected to an array or a dict')
     endfunction
+    function! has_key.returns_truthy_value_when_check_was_successful()
+      call s:assert.truthy(s:assert.has_key({'foo': 0}, 'foo'))
+    endfunction
     function! has_key.accepts_an_optional_message()
       call s:assert.has_key({'foo': 0}, 'foo', 'error message')
       call s:check_throw('has_key', [{}, 'foo', 'error message'], 'error message')
@@ -475,6 +553,9 @@ function! s:helper.__assert__()
       let g:the_value_which_exists = 1
       call s:assert.exists('g:the_value_which_exists')
       unlet g:the_value_which_exists
+    endfunction
+    function! exists.returns_truthy_value_when_check_was_successful()
+      call s:assert.truthy(s:assert.exists('*function'))
     endfunction
     function! exists.accepts_an_optional_message()
       let g:the_value_which_exists = 1
