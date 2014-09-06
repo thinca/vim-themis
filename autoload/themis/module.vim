@@ -1,5 +1,5 @@
 " themis: Module loader.
-" Version: 1.1
+" Version: 1.2
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
@@ -8,7 +8,13 @@ set cpo&vim
 
 function! themis#module#exists(type, name)
   let path = printf('autoload/themis/%s/%s.vim', a:type, a:name)
-  return !empty(globpath(&runtimepath, path, 1))
+  return globpath(&runtimepath, path, 1) !=# ''
+endfunction
+
+function! themis#module#list(type)
+  let pat = 'autoload/themis/' . a:type . '/*.vim'
+  return themis#util#sortuniq(map(split(globpath(&runtimepath, pat, 1), "\n"),
+  \                     'fnamemodify(v:val, ":t:r")'))
 endfunction
 
 function! themis#module#load(type, name, args)

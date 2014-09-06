@@ -1,5 +1,5 @@
 " Themis command line processer.
-" Version: 1.1
+" Version: 1.2
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
@@ -16,12 +16,7 @@ function! themis#command#start(args)
     let paths = filter(['./test', './t', './spec'], 'isdirectory(v:val)')[: 0]
   endif
 
-  let files = s:paths2files(paths, options.recursive)
-  let excludes = join(filter(copy(options.exclude), '!empty(v:val)'), '\|\m')
-  if !empty(excludes)
-    call filter(files, 'v:val !~# excludes')
-  endif
-  return themis#run(files, options)
+  return themis#run(paths, options)
 endfunction
 
 " Command line option processer
@@ -32,7 +27,7 @@ let s:short_options = {
 \ }
 function! s:parse_args(args)
   let paths = []
-  let options = themis#default_options()
+  let options = themis#option#empty_options()
   let args = copy(a:args)
   while !empty(args)
     let arg = remove(args, 0)
@@ -60,6 +55,13 @@ function! s:options.exclude(args, options)
   let a:options.exclude += [remove(a:args, 0)]
 endfunction
 
+function! s:options.target(args, options)
+  if empty(a:args)
+    throw 'themis: --target option requires {pattern}'
+  endif
+  let a:options.target += [remove(a:args, 0)]
+endfunction
+
 function! s:options.recursive(args, options)
   let a:options.recursive = 1
 endfunction
@@ -78,8 +80,8 @@ function! s:options.reporter(args, options)
   let a:options.reporter = remove(a:args, 0)
 endfunction
 
-function! s:options.reporters(args, options)
-  let reporters = s:get_reporters()
+function! s:options.reporter_list(args, options)
+  let reporters = themis#module#list('reporter')
   call themis#log(join(reporters, "\n"))
   let a:options.exit = 1
 endfunction
@@ -102,9 +104,12 @@ function! s:options.help(args, options)
   \   'Usage: themis [option]... [path]...',
   \   '',
   \   '   --exclude {pattern}      Exclude files',
+  \   '   --target {pattern}       Run tests whose full title matches to {pattern}',
   \   '-r --recursive              Include sub directories',
   \   '   --reporter {name}        Select a reporter',
+  \   '   --reporter-list          Show available reporters',
   \   '   --runtimepath {path}     Add runtimepath',
+  \   '-v --version                Print version',
   \   '-h --help                   Show this help',
   \ ], "\n"))
   let a:options.exit = 1
@@ -116,33 +121,13 @@ function! s:options.version(args, options)
 endfunction
 
 function! s:process_option(name, args, options)
-  if has_key(s:options, a:name)
-    call s:options[a:name](a:args, a:options)
+  let name = substitute(a:name, '-', '_', 'g')
+  if has_key(s:options, name)
+    call s:options[name](a:args, a:options)
   else
     " FIXME: wrong error for short option
     throw 'themis: Unknown option: --' . a:name
   endif
-endfunction
-
-function! s:get_reporters()
-  let pat = 'autoload/themis/reporter/*.vim'
-  " TODO uniq
-  return sort(map(split(globpath(&runtimepath, pat), "\n"),
-  \                     'fnamemodify(v:val, ":t:r")'))
-endfunction
-
-function! s:paths2files(paths, recursive)
-  let files = []
-  let target_pattern = a:recursive ? '**/*' : '*'
-  for path in a:paths
-    if isdirectory(path)
-      let files += split(globpath(path, target_pattern, 1), "\n")
-    else
-      let files += [path]
-    endif
-  endfor
-  let mods =  ':p:gs?\\?/?'
-  return filter(map(files, 'fnamemodify(v:val, mods)'), '!isdirectory(v:val)')
 endfunction
 
 let &cpo = s:save_cpo

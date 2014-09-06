@@ -1,5 +1,4 @@
 let s:util = themis#suite('util')
-call themis#helper('command').with(themis#helper('assert'))
 
 function! s:util.__parse_callstack__()
   let parse_callstack = themis#suite('parse_callstack()')
@@ -70,6 +69,38 @@ endfunction
 function! s:util.funcname()
   Assert Equals(themis#util#funcname(function('SampleFuncForUtil')), 'SampleFuncForUtil')
   Assert Match(themis#util#funcname(self.funcname), '^\d\+$')
+endfunction
+
+function! s:util.get_full_title()
+  let obj1 = {}
+  function! obj1.get_title()
+    return 'foo'
+  endfunction
+  Assert Equals(themis#util#get_full_title(obj1), 'foo')
+
+  let obj2 = {'parent': obj1}
+  function! obj2.get_title()
+    return 'bar'
+  endfunction
+  Assert Equals(themis#util#get_full_title(obj2), 'foo bar')
+
+  let obj3 = {'parent': obj2}
+  function! obj3.get_title()
+    return ''
+  endfunction
+  Assert Equals(themis#util#get_full_title(obj3), 'foo bar')
+
+  let obj4 = {'parent': obj3}
+  function! obj4.get_title()
+    return 'buz'
+  endfunction
+  Assert Equals(themis#util#get_full_title(obj4), 'foo bar buz')
+endfunction
+
+function! s:util.sortuniq()
+  let original = ['foo', 'bar', 'foo', 'buz']
+  let expect = ['bar', 'buz', 'foo']
+  Assert Equals(themis#util#sortuniq(original), expect)
 endfunction
 
 function! SampleFuncForUtil()

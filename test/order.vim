@@ -1,5 +1,4 @@
 let s:order = themis#suite('order')
-call themis#helper('command').with(themis#helper('assert'))
 
 function! s:order.__test__()
   let test = themis#suite('test')

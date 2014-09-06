@@ -1,5 +1,5 @@
 " themis: helper: Assert utilities.
-" Version: 1.1
+" Version: 1.2
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
@@ -20,257 +20,258 @@ function! s:assert_skip(mes)
   throw 'themis: report: SKIP:' . themis#message(a:mes)
 endfunction
 
-function! s:assert_true(value)
+function! s:assert_true(value, ...)
   if a:value isnot 1
-    throw themis#failure([
+    throw s:failure([
     \   'The true value was expected, but it was not the case.',
     \   '',
     \   '    expected: true',
     \   '         got: ' . string(a:value),
-    \ ])
+    \ ], a:000)
   endif
   return 1
 endfunction
 
-function! s:assert_false(value)
+function! s:assert_false(value, ...)
   if a:value isnot 0
-    throw themis#failure([
+    throw s:failure([
     \   'The false value was expected, but it was not the case.',
     \   '',
     \   '    expected: false',
     \   '         got: ' . string(a:value),
-    \ ])
+    \ ], a:000)
   endif
   return 1
 endfunction
 
-function! s:assert_truthy(value)
+function! s:assert_truthy(value, ...)
   let t = type(a:value)
   if !(t == type(0) || t == type('')) || !a:value
-    throw themis#failure([
+    throw s:failure([
     \   'The truthy value was expected, but it was not the case.',
     \   '',
     \   '    expected: truthy',
     \   '         got: ' . string(a:value),
-    \ ])
+    \ ], a:000)
   endif
   return 1
 endfunction
 
-function! s:assert_falsy(value)
+function! s:assert_falsy(value, ...)
   let t = type(a:value)
-  if !(t != type(0) || t != type('') || !a:value)
-    throw themis#failure([
+  if (t != type(0) && t != type('')) || a:value
+    throw s:failure([
     \   'The falsy value was expected, but it was not the case.',
     \   '',
     \   '    expected: falsy',
     \   '         got: ' . string(a:value),
-    \ ])
+    \ ], a:000)
   endif
   return 1
 endfunction
 
-function! s:assert_compare(left, expr, right)
+function! s:assert_compare(left, expr, right, ...)
   let expr_str = join([string(a:left), a:expr, string(a:right)])
   try
     let result = eval(join(['a:left', a:expr, 'a:right']))
   catch /^Vim(let):E691:/
     let result = 0
   catch
-    throw themis#failure([
+    throw s:failure([
     \   'Unexpected error occurred while evaluating the comparing:',
     \   '',
     \   '    expression: ' . expr_str,
     \   '    error: ' . v:exception,
-    \ ])
+    \ ], a:000)
   endtry
   if !result
-    throw themis#failure([
+    throw s:failure([
     \   'The right expression was expected, but it was not the case.',
     \   '',
     \   '    expression: ' . expr_str,
-    \ ])
+    \ ], a:000)
   endif
   return 1
 endfunction
 
-function! s:assert_equals(actual, expect)
+function! s:assert_equals(actual, expect, ...)
   if !s:equals(a:expect, a:actual)
-    throw themis#failure([
+    throw s:failure([
     \   'The equivalent values were expected, but it was not the case.',
     \   '',
     \   '    expected: ' . string(a:expect),
     \   '         got: ' . string(a:actual),
-    \ ])
+    \ ], a:000)
   endif
   return 1
 endfunction
 
-function! s:assert_not_equals(actual, expect)
+function! s:assert_not_equals(actual, expect, ...)
   if s:equals(a:expect, a:actual)
-    throw themis#failure([
+    throw s:failure([
     \   'Not the equivalent values were expected, but it was not the case.',
     \   '',
     \   '    expected: ' . string(a:expect),
     \   '         got: ' . string(a:actual),
-    \ ])
+    \ ], a:000)
   endif
   return 1
 endfunction
 
-function! s:assert_same(actual, expect)
+function! s:assert_same(actual, expect, ...)
   if a:expect isnot# a:actual
-    throw themis#failure([
+    throw s:failure([
     \   'The same values were expected, but it was not the case.',
     \   '',
     \   '    expected: ' . string(a:expect),
     \   '         got: ' . string(a:actual),
-    \ ])
+    \ ], a:000)
   endif
   return 1
 endfunction
 
-function! s:assert_not_same(actual, expect)
+function! s:assert_not_same(actual, expect, ...)
   if a:expect is# a:actual
-    throw themis#failure([
+    throw s:failure([
     \   'Not the same values were expected, but it was not the case.',
     \   '',
     \   '    expected: ' . string(a:expect),
     \   '         got: ' . string(a:actual),
-    \ ])
+    \ ], a:000)
   endif
   return 1
 endfunction
 
-function! s:assert_match(actual, pattern)
+function! s:assert_match(actual, pattern, ...)
   if !s:match(a:actual, a:pattern)
-    throw themis#failure([
+    throw s:failure([
     \   'Match was expected, but did not match.',
     \   '',
     \   '    target: ' . string(a:actual),
     \   '    pattern: ' . string(a:pattern),
-    \ ])
+    \ ], a:000)
   endif
   return 1
 endfunction
 
-function! s:assert_not_match(actual, pattern)
+function! s:assert_not_match(actual, pattern, ...)
   if s:match(a:actual, a:pattern)
-    throw themis#failure([
+    throw s:failure([
     \   'Not match was expected, but matched.',
     \   '',
     \   '    target: ' . string(a:actual),
     \   '    pattern: ' . string(a:pattern),
-    \ ])
+    \ ], a:000)
   endif
   return 1
 endfunction
 
-function! s:assert_is_number(value)
-  return s:check_type(a:value, 'Number', 0)
+function! s:assert_is_number(value, ...)
+  return s:check_type(a:value, 'Number', 0, a:000)
 endfunction
 
-function! s:assert_is_not_number(value)
-  return s:check_type(a:value, 'Number', 1)
+function! s:assert_is_not_number(value, ...)
+  return s:check_type(a:value, 'Number', 1, a:000)
 endfunction
 
-function! s:assert_is_string(value)
-  return s:check_type(a:value, 'String', 0)
+function! s:assert_is_string(value, ...)
+  return s:check_type(a:value, 'String', 0, a:000)
 endfunction
 
-function! s:assert_is_not_string(value)
-  return s:check_type(a:value, 'String', 1)
+function! s:assert_is_not_string(value, ...)
+  return s:check_type(a:value, 'String', 1, a:000)
 endfunction
 
-function! s:assert_is_func(value)
-  return s:check_type(a:value, 'Funcref', 0)
+function! s:assert_is_func(value, ...)
+  return s:check_type(a:value, 'Funcref', 0, a:000)
 endfunction
 
-function! s:assert_is_not_func(value)
-  return s:check_type(a:value, 'Funcref', 1)
+function! s:assert_is_not_func(value, ...)
+  return s:check_type(a:value, 'Funcref', 1, a:000)
 endfunction
 
-function! s:assert_is_list(value)
-  return s:check_type(a:value, 'List', 0)
+function! s:assert_is_list(value, ...)
+  return s:check_type(a:value, 'List', 0, a:000)
 endfunction
 
-function! s:assert_is_not_list(value)
-  return s:check_type(a:value, 'List', 1)
+function! s:assert_is_not_list(value, ...)
+  return s:check_type(a:value, 'List', 1, a:000)
 endfunction
 
-function! s:assert_is_dict(value)
-  return s:check_type(a:value, 'Dictionary', 0)
+function! s:assert_is_dict(value, ...)
+  return s:check_type(a:value, 'Dictionary', 0, a:000)
 endfunction
 
-function! s:assert_is_not_dict(value)
-  return s:check_type(a:value, 'Dictionary', 1)
+function! s:assert_is_not_dict(value, ...)
+  return s:check_type(a:value, 'Dictionary', 1, a:000)
 endfunction
 
-function! s:assert_is_float(value)
-  return s:check_type(a:value, 'Float', 0)
+function! s:assert_is_float(value, ...)
+  return s:check_type(a:value, 'Float', 0, a:000)
 endfunction
 
-function! s:assert_is_not_float(value)
-  return s:check_type(a:value, 'Float', 1)
+function! s:assert_is_not_float(value, ...)
+  return s:check_type(a:value, 'Float', 1, a:000)
 endfunction
 
-function! s:assert_type_of(value, names)
-  return s:check_type(a:value, a:names, 0)
+function! s:assert_type_of(value, names, ...)
+  return s:check_type(a:value, a:names, 0, a:000)
 endfunction
 
-function! s:assert_length_of(value, length)
+function! s:assert_length_of(value, length, ...)
   call s:assert_type_of(a:value, ['String', 'List', 'Dictionary'])
   let got_length = len(a:value)
   if got_length != a:length
-    throw themis#failure([
+    throw s:failure([
     \   'The length of value was expected to the specified length, but it was not the case.',
     \   '',
     \   '    expected length: ' . a:length,
     \   '         got length: ' . got_length,
     \   '          got value: ' . string(a:value),
-    \ ])
+    \ ], a:000)
   endif
+  return 1
 endfunction
 
-function! s:assert_has_key(value, key)
+function! s:assert_has_key(value, key, ...)
   let t = type(a:value)
   if t == type({})
     if !has_key(a:value, a:key)
-      throw themis#failure([
+      throw s:failure([
       \   'The dictionary was expected to have a key, but it did not have.',
       \   '',
       \   '      dictionary: ' . string(a:value),
       \   '    expected key: ' . string(a:key),
-      \ ])
+      \ ], a:000)
     endif
   elseif t == type([])
     if (a:key < 0 || len(a:value) <= a:key)
-      throw themis#failure([
+      throw s:failure([
       \   'The array was expected to have a index, but it did not have.',
       \   '',
       \   '             array: ' . string(a:value),
       \   '      array length: ' . len(a:value),
       \   '    expected index: ' . string(a:key),
-      \ ])
+      \ ], a:000)
     endif
   else
-    throw themis#failure([
+    throw s:failure([
     \   'The first argument was expected to an array or a dict, but it did not have.',
     \   '',
     \   '    value: ' . string(a:value),
     \   '     type: ' . s:type(a:value),
-    \ ])
+    \ ], a:000)
   endif
   return 1
 endfunction
 
-function! s:assert_exists(expr)
+function! s:assert_exists(expr, ...)
   if !exists(a:expr)
-    throw themis#failure([
+    throw s:failure([
     \   'The target was expected to exist, but it did not exist.',
     \   '',
     \   '    target: ' . string(a:expr),
-    \ ])
+    \ ], a:000)
   endif
   return 1
 endfunction
@@ -317,7 +318,7 @@ endfunction
 
 
 function! s:equals(a, b)
-  return type(a:a) == type(a:b) && a:a ==# a:b
+  return a:a ==# a:b
 endfunction
 
 function! s:match(str, pattern)
@@ -338,33 +339,45 @@ function! s:type(value)
   return s:type_names[type(a:value)]
 endfunction
 
-function! s:check_type(value, expected_types, not)
+function! s:check_type(value, expected_types, not, additional_message)
   let got_type = s:type(a:value)
   let expected_types = s:type(a:expected_types) ==# 'list' ?
   \                    copy(a:expected_types) : [a:expected_types]
   call map(expected_types, 'tolower(v:val)')
   call map(expected_types, 'v:val ==# "dict" ? "dictionary" : v:val')
   let success = 0 <= index(expected_types, got_type)
+
+  let [expect, but] = ['', ' not']
   if a:not
     let success = !success
+    let [expect, but] = [' not', '']
   endif
+
   if !success
     if 2 <= len(expected_types)
-      let msg = 'The type of value was expected to be one of %s'
-      let arg = join(expected_types[: -2], ', ') . ' or ' . expected_types[-1]
+      let msg = 'The type of value was%s expected to be one of %s'
+      let type_names =
+      \     join(expected_types[: -2], ', ') . ' or ' . expected_types[-1]
     else
-      let msg = 'The type of value was expected to be %s'
-      let arg = expected_types[0]
+      let msg = 'The type of value was%s expected to be %s'
+      let type_names = expected_types[0]
     endif
-    throw themis#failure([
-    \   printf(msg, arg) . ', but it was not the case.',
+    throw s:failure([
+    \   printf(msg . ', but it was%s the case.', expect, type_names, but),
     \   '',
-    \   '    expected type: ' . arg,
+    \   '    expected type: ' . type_names,
     \   '         got type: ' . got_type,
     \   '        got value: ' . string(a:value),
-    \ ])
+    \ ], a:additional_message)
   endif
   return 1
+endfunction
+
+function! s:failure(mes, additional)
+  if empty(a:additional)
+    return themis#failure(a:mes)
+  endif
+  return themis#failure(a:mes + [''] + a:additional)
 endfunction
 
 function! s:redir(cmd)

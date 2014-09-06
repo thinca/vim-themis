@@ -1,5 +1,5 @@
 " A testing framework for Vim script.
-" Version: 1.1
+" Version: 1.2
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
@@ -14,28 +14,17 @@ if exists('s:version')
   finish
 endif
 
-let s:version = '1.1'
-
-let s:default_options = {
-\   'recursive': 0,
-\   'style': 'basic',
-\   'reporter': 'tap',
-\   'runtimepath': [],
-\   'exclude': [],
-\ }
-function! themis#default_options()
-  return deepcopy(s:default_options)
-endfunction
+let s:version = '1.2'
 
 function! themis#version()
   return s:version
 endfunction
 
-function! themis#run(scripts, ...)
+function! themis#run(paths, ...)
   let s:current_runner = themis#runner#new()
   try
-    let options = get(a:000, 0, themis#default_options())
-    return s:current_runner.run(a:scripts, options)
+    let options = get(a:000, 0, themis#option#empty_options())
+    return s:current_runner.run(a:paths, options)
   finally
     unlet! s:current_runner
   endtry
@@ -60,9 +49,28 @@ function! themis#suite(...)
 endfunction
 
 function! themis#helper(name)
-  let runner = s:runner()
-  let Helper = themis#helper#{a:name}#new(runner)
-  return Helper
+  return themis#helper#{a:name}#new(s:runner())
+endfunction
+
+function! themis#option(...)
+  if !exists('s:custom_options')
+    let s:custom_options = themis#option#default()
+  endif
+  if a:0 == 0
+    return s:custom_options
+  endif
+  let name = a:1
+  if a:0 == 1
+    return get(s:custom_options, name, '')
+  endif
+  if has_key(s:custom_options, name)
+    if type(s:custom_options[name]) == type([])
+      let value = type(a:2) == type([]) ? a:2 : [a:2]
+      let s:custom_options[name] += value
+    else
+      let s:custom_options[name] = a:2
+    endif
+  endif
 endfunction
 
 function! themis#exception(type, message)

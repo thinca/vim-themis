@@ -1,6 +1,6 @@
 *themis.txt*	A testing framework for Vim script.
 
-Version: 1.1
+Version: 1.2
 Author : thinca <thinca+vim@gmail.com>
 License: zlib License
 
@@ -18,6 +18,7 @@ WRITE TEST			|themis-write-test|
 HELPER				|themis-helper|
   ASSERT			  |themis-helper-assert|
   COMMAND			  |themis-helper-command|
+  EXPECT			  |themis-helper-expect|
 REPORTER			|themis-reporter|
 TEST RULE			|themis-test-rule|
   EXCEPTION			  |themis-rule-exception|
@@ -117,12 +118,21 @@ bin/themis [options] [script]...
 	--exclude {pattern}			*themis-option-exclude*
 		Exclude script files which matched the {pattern}.
 		{pattern} is a |regular-expression|.
+		Two or more specification is possible.
+
+	--target {pattern}			*themis-option-target*
+		Run tests whose full title matches to {pattern}.
+		{pattern} is a |regular-expression|.
+		Two or more specification is possible.
 
 	-r, --recursive				*themis-option-recursive*
 		Include sub directories.
 
 	--reporter {reporter}			*themis-option-reporter*
 		Specifies a reporter(|themis-reporter|).
+
+	--reporter-list				*themis-option-reporter-list*
+		Show the list of available reporters.
 
 	--runtimepath {runtimepath}		*themis-option-runtimepath*
 		Add 'runtimepath'.  Two or more specification is possible.
@@ -140,10 +150,20 @@ themis#helper({name})				*themis#helper()*
 	Use a helper.
 	This creates or enables the {name} helper.  See also |themis-helper|.
 
+themis#option([{name} [, {value}]])		*themis#option()*
+	Gets a dictionary that contains default options.
+	This is only available in |.themisrc|.
+	If {name} is specified, returns the value of specified option.
+	If {name} and {value} is specified, updates the value of specified
+	option.  When the option is List, {value} is appended to the List.
+
 
 
 ==============================================================================
 CUSTOMIZING					*themis-customizing*
+
+------------------------------------------------------------------------------
+ENVIRONMENT VARIABLE				*themis-environment-variable*
 
 $THEMIS_HOME					*$THEMIS_HOME*
 	The home directory of themis.  The home directory is a base of
@@ -154,6 +174,94 @@ $THEMIS_HOME					*$THEMIS_HOME*
 $THEMIS_VIM					*$THEMIS_VIM*
 	The path to vim command.  "vim" is used when this is empty.
 
+------------------------------------------------------------------------------
+THEMISRC					*themis-themisrc*
+
+Themis loads *.themisrc* file before loading of test scripts for user setup.
+".themisrc" file is just a Vim script.
+
+Loading Rule
+------------
+The ".themisrc" file is searched from test target file or directory to upper
+layer.
+
+When two or more files exist, it is sequentially loaded from a shallow
+hierarchy.
+
+For example, you run: >
+	$ themis ~/path/to/project/test/
+will look in the following dirs for a config file: >
+	/path/to/project/test/.themisrc
+	/path/to/project/.themisrc
+	/path/to/.themisrc
+	/path/.themisrc
+	... # up until root of filesystem
+These files are sorted by alphabetical sequence and loaded in the order. >
+	/path/.themisrc
+	/path/to/.themisrc
+	/path/to/project/.themisrc
+	/path/to/project/test/.themisrc
+
+Another example: >
+	$ themis ~/project/test/foo/test.vim ~/project/test/dir
+will look in the following dirs for a config file: >
+	/project/test/foo/.themisrc
+	/project/test/.themisrc
+	/project/.themisrc
+	/.themisrc
+	/project/test/dir/.themisrc
+	/project/test/.themisrc
+	/project/.themisrc
+	/.themisrc
+These are sorted, and duplicated items are removed. >
+	/.themisrc
+	/project/.themisrc
+	/project/test/.themisrc
+	/project/test/dir/.themisrc
+	/project/test/foo/.themisrc
+
+Note: You should not place the ".themisrc" file in the subdirectory of test
+directory.  The file is not loaded when the test directory was specified and a
+test is run.
+
+Command line Options
+--------------------
+You can access and change the default value of command-line options.
+You can get a dictionary from |themis#option()| that contains the following
+elements.
+
+option.exclude
+	Value of |themis-option-exclude|.  This is a List.
+option.target
+	Value of |themis-option-target|.  This is a List.
+option.recursive
+	Value of |themis-option-recursive|.  This is 1 or 0.
+option.reporter
+	Value of |themis-option-reporter|.
+option.runtimepath
+	Value of |themis-option-runtimepath|.  This is a List.
+
+Note that these values may be changed from upper stream of ".themisrc".
+You can overwrite these options from command line.
+
+Example of Usage
+----------------
+You can put helpers in global scope, and use all test scripts.
+>
+	let g:assert = themis#helper('assert')
+<
+You can define helper functions or commands used only in this project.
+>
+	function! InitBuffer()
+	  tabonly!
+	  only!
+	  enew!
+	  put =['aaa', 'bbb', 'ccc']
+	endfunction
+	command! InitBuffer call InitBuffer
+<
+You can define a new matcher for expect-helper.
+See |themis#helper#expect#define_matcher()| for detail.
 
 
 ==============================================================================
@@ -255,94 +363,110 @@ assert.todo([{message}])		*themis-helper-assert-todo()*
 assert.skip({message})			*themis-helper-assert-skip()*
 	Pass a test as SKIP with {message}.
 
-assert.true({value})			*themis-helper-assert-true()*
+assert.true({value} [, {message}])	*themis-helper-assert-true()*
 	Checks {value} is 1.
 
-assert.false({value})			*themis-helper-assert-false()*
+assert.false({value} [, {message}])	*themis-helper-assert-false()*
 	Checks {value} is 0.
 
-assert.truthy({value})			*themis-helper-assert-truthy()*
+assert.truthy({value} [, {message}])	*themis-helper-assert-truthy()*
 	Checks {value} is truthy value.
 
-assert.falsy({value})			*themis-helper-assert-falsy()*
+assert.falsy({value} [, {message}])	*themis-helper-assert-falsy()*
 	Checks {value} is falsy value.
 
-assert.compare({left}, {op}, {right})	*themis-helper-assert-compare()*
+					*themis-helper-assert-compare()*
+assert.compare({left}, {op}, {right} [, {message}])
 	Compares {left} value and {right} value by {op}. >
 	assert.compare(10, '<', 20)
-
-assert.equals({actual}, {expect})	*themis-helper-assert-equals()*
+<
+					*themis-helper-assert-equals()*
+assert.equals({actual}, {expect} [, {message}])
 	Checks an {actual} equals to an {expect}.  (|==#|)
 
-assert.not_equals({actual}, {expect})	*themis-helper-assert-not_equals()*
+					*themis-helper-assert-not_equals()*
+assert.not_equals({actual}, {expect} [, {message}])
 	Checks an {actual} not equals to an {expect}.  (|!=#|)
 
-assert.same({actual}, {expect})		*themis-helper-assert-same()*
-	Checks an {actual} sames to an {expect}.  (|is#|)
+					*themis-helper-assert-same()*
+assert.same({actual}, {expect} [, {message}])
+	Checks an {actual} and an {expect} are same.  (|is#|)
 
-assert.not_same({actual}, {expect})	*themis-helper-assert-not_same()*
-	Checks an {actual} not sames to an {expect}.  (|isnot#|)
+					*themis-helper-assert-not_same()*
+assert.not_same({actual}, {expect} [, {message}])
+	Checks an {actual} and an {expect} are not same.  (|isnot#|)
 
-assert.match({value}, {pattern})	*themis-helper-assert-match()*
+					*themis-helper-assert-match()*
+assert.match({value}, {pattern} [, {message}])
 	Checks {value} matches to {pattern}.  (|=~#|)
 
-assert.not_match({value}, {pattern})	*themis-helper-assert-not_match()*
+					*themis-helper-assert-not_match()*
+assert.not_match({value}, {pattern} [, {message}])
 	Checks {value} doesn't match to {pattern}.  (|!~#|)
 
-assert.is_number({value})		*themis-helper-assert-is_number()*
+assert.is_number({value} [, {message}])	*themis-helper-assert-is_number()*
 	Checks type of {value} is |Number|.
 
-assert.is_not_number({value})		*themis-helper-assert-is_not_number()*
+					*themis-helper-assert-is_not_number()*
+assert.is_not_number({value} [, {message}])
 	Checks type of {value} is not |Number|.
 
-assert.is_string({value})		*themis-helper-assert-is_string()*
+assert.is_string({value} [, {message}])	*themis-helper-assert-is_string()*
 	Checks type of {value} is String.
 
-assert.is_not_string({value})		*themis-helper-assert-is_not_string()*
+					*themis-helper-assert-is_not_string()*
+assert.is_not_string({value} [, {message}])
 	Checks type of {value} is not String.
 
-assert.is_func({value})			*themis-helper-assert-is_func()*
+assert.is_func({value} [, {message}])	*themis-helper-assert-is_func()*
 	Checks type of {value} is |Funcref|.
 
-assert.is_not_func({value})		*themis-helper-assert-is_not_func()*
+					*themis-helper-assert-is_not_func()*
+assert.is_not_func({value} [, {message}])
 	Checks type of {value} is not |Funcref|.
 
-assert.is_list({value})			*themis-helper-assert-is_list()*
+assert.is_list({value} [, {message}])	*themis-helper-assert-is_list()*
 	Checks type of {value} is |List|.
 
-assert.is_not_list({value})		*themis-helper-assert-is_not_list()*
+					*themis-helper-assert-is_not_list()*
+assert.is_not_list({value} [, {message}])
 	Checks type of {value} is not |List|.
 
-assert.is_dict({value})			*themis-helper-assert-is_dict()*
+assert.is_dict({value} [, {message}])	*themis-helper-assert-is_dict()*
 	Checks type of {value} is |Dictionary|.
 
-assert.is_not_dict({value})		*themis-helper-assert-is_not_dict()*
+					*themis-helper-assert-is_not_dict()*
+assert.is_not_dict({value} [, {message}])
 	Checks type of {value} is not |Dictionary|.
 
-assert.is_float({value})		*themis-helper-assert-is_float()*
+assert.is_float({value} [, {message}])	*themis-helper-assert-is_float()*
 	Checks type of {value} is |Float|.
 
-assert.is_not_float({value})		*themis-helper-assert-is_not_float()*
+					*themis-helper-assert-is_not_float()*
+assert.is_not_float({value} [, {message}])
 	Checks type of {value} is not |Float|.
 
-assert.type_of({value}, {names})	*themis-helper-assert-type_of()*
+					*themis-helper-assert-type_of()*
+assert.type_of({value}, {names} [, {message}])
 	Checks the type of {value} is one of {names}.
 	{names} is a List of type names or a String of type name.
 	Type name is one of the following:
 	"Number", "String", "Funcref", "List", "Dict", "Dictionary", "Float"
 	Type name is case-insensitive.
 
-assert.length_of({value}, {length})	*themis-helper-assert-length_of()*
+					*themis-helper-assert-length_of()*
+assert.length_of({value}, {length} [, {message}])
 	Checks length of {value} is {length}.
 	{value} is a String, a List, or a Dictionary.
 	|len()| is used for length of {value}.
 
-assert.has_key({dict}, {key})		*themis-helper-assert-has_key()*
-assert.has_key({array}, {index})
+					*themis-helper-assert-has_key()*
+assert.has_key({dict}, {key} [, {message}])
+assert.has_key({list}, {index})
 	If the first argument is a dictionary, check {key} exists in {dict}.
-	If the first argument is an array, check {index} exists in {array}.
+	If the first argument is an array, check {index} exists in {list}.
 
-assert.exists({expr})			*themis-helper-assert-exists()*
+assert.exists({expr} [, {message}])	*themis-helper-assert-exists()*
 	Checks {expr} by |exists()|.
 	Note that this can not use for |local-variable| and |script-variable|.
 
@@ -401,6 +525,121 @@ command.with({scope})			*themis-helper-command-with()*
 
 :Skip {message}				*themis-helper-command-:Skip*
 	Passes a test as SKIP with {message}.
+
+------------------------------------------------------------------------------
+EXPECT						*themis-helper-expect*
+
+Expect-helper provides a natural-language-flavored testing style.
+First, you should create an expect object by following.
+>
+	let s:expect = themis#helper('expect')
+<
+Then, we can use expect-helper like below.
+>
+	call s:expect(40 + 2).to_equal(42)
+<
+						*themis-helper-expect-not*
+Expect-helper also provides not object.
+It is useful to invert the result of the test.
+>
+	call s:expect(2 + 3).not.to_equal(42)
+
+Of course you can easily make a custom matcher.
+See |themis#helper#expect#define_matcher()|
+
+expect({value}).to_be_true()		*hemis-helper-expect-to_be_true()*
+	Checks {value} is 1.
+
+expect({value}).to_be_false()		*themis-helper-expect-to_be_false()*
+	Checks {value} is 0.
+
+expect({value}).to_be_truthy()		*themis-helper-expect-to_be_truthy()*
+	Checks {value} is truthy value.
+
+expect({value}).to_be_falsy()		*themis-helper-expect-to_be_falsy()*
+	Checks {value} is falsy value.
+
+				*themis-helper-expect-to_be_greater_than()*
+expect({left}).to_be_greater_than({right})
+	Compares by |>#|
+
+			*themis-helper-expect-to_be_greater_than_or_equal()*
+expect({left}).to_be_greater_than({right})
+	Compares by |>=#|
+
+				*themis-helper-expect-to_be_less_than()*
+expect({left}).to_be_less_than({right})
+	Compares by |<#|
+
+			*themis-helper-expect-to_be_less_than_or_equal()*
+expect({left}).to_be_less_than({right})
+	Compares by |<=#|
+
+expect({actual}).to_equal({expect})	*themis-helper-expect-to_equal()*
+	Checks an {actual} equals to an {expect}.  (|==#|)
+
+expect({actual}).to_be_same({expect})	*themis-helper-expect-to_be_same()*
+	Checks an {actual} sames to an {expect}.  (|is#|)
+
+expect({value}).to_match({pattern})	*themis-helper-expect-to_match()*
+	Checks {value} matches to {pattern}.  (|=~#|)
+
+expect({value}).to_be_number()		*themis-helper-expect-to_be_number()*
+	Checks type of {value} is |Number|.
+
+expect({value}).to_be_string()		*themis-helper-expect-to_be_string()*
+	Checks type of {value} is String.
+
+expect({value}).to_be_func()		*themis-helper-expect-to_be_func()*
+	Checks type of {value} is |Funcref|.
+
+expect({value}).to_be_list()		*themis-helper-expect-to_be_list()*
+	Checks type of {value} is |List|.
+
+expect({value}).to_be_dict()		*themis-helper-expect-to_be_dict()*
+	Checks type of {value} is |Dictionary|.
+
+expect({value}).to_be_float()		*themis-helper-expect-to_be_float()*
+	Checks type of {value} is |Float|.
+
+expect({expr}).to_have_length()		*themis-helper-expect-to_exist()*
+	Checks {expr} by |exists()|.
+	Note that this can not use for |local-variable| and |script-variable|.
+
+expect({expr}).to_exist()		*themis-helper-expect-to_exist()*
+	Checks length of {value} is {length}.
+	{value} is a String, a List, or a Dictionary.
+	|len()| is used for length of {value}.
+
+expect({dict}).to_have_key({key})	*themis-helper-expect-to_have_key()*
+expect({list}).to_have_key({index})
+	When argument of expect() is dictionary, check {key} exists in
+	{dict}.
+	When argument of expect() is list, check {key} exists in {list}.
+
+
+					*themis#helper#expect#define_matcher()*
+themis#helper#expect#define_matcher({name}, {predicate})
+	Defines a matcher which name is {name}.
+	{predicate} decides how a test result to be success.
+	When {predicate} is |Funcref|, it should take one argument at least
+	and should return 1 or 0 as a test result. The first argument will be
+	consumed by expect function and extra arguments will be used for
+	matcher arguments.
+	For example,
+>
+	function s:close_to(actual, value)
+	  return a:value - 0.1 < a:actual && a:actual < a:value + 0.1
+	endfunction
+	call themis#helper#expect#define_matcher('to_be_close_to', function('s:close_to'))
+
+	call s:expect(1 / 100.0).to_be_close_to(0.0)
+	" => Success
+<
+	When {predicate} is String, it will be evaluated as a Funcref body.
+	Inside this string, |a:1|, a:2, ... can be used as arguments.
+>
+	call themis#helper#expect#define_matcher('to_be_similar_to, 'a:1 ==? a:2')
 
 
 ==============================================================================
@@ -477,6 +716,14 @@ Some test names have a special meaning.  They are called in special situation.
 
 ==============================================================================
 CHANGELOG					*themis-changelog*
+
+1.2	2014-09-06
+	- Add |.themisrc| file feature.
+	- Add --reporter-list option(|themis-option-reporter-list|).
+	- Add --target option(|themis-option-target|).
+	- Assert-helpers take optional argument {message}.
+	- Do not load all plugins.
+	  - Use "-u NONE" instead of "-u NORC" and load plugins by themis.
 
 1.1	2014-08-05
 	- Add tests to themis.vim itself.

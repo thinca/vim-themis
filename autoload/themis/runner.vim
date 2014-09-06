@@ -1,5 +1,5 @@
 " themis: Test runner
-" Version: 1.1
+" Version: 1.2
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
@@ -11,27 +11,49 @@ let s:runner = {
 \   '_suppporters': {},
 \ }
 
-function! s:runner.run(scripts, options)
-  let scripts = type(a:scripts) == type([]) ? a:scripts : [a:scripts]
-  let self.style = themis#module#style(a:options.style, self)
-  call filter(scripts, 'self.style.can_handle(v:val)')
-  if empty(scripts)
+function! s:runner.run(paths, options)
+  let paths = type(a:paths) == type([]) ? a:paths : [a:paths]
+
+  call s:load_themisrc(paths)
+
+  let options = themis#option#merge(themis#option(), a:options)
+
+  let files = s:paths2files(paths, options.recursive)
+
+  let excludes = join(filter(copy(options.exclude), '!empty(v:val)'), '\|\m')
+  if !empty(excludes)
+    call filter(files, 'v:val !~# excludes')
+  endif
+
+  let self.style = themis#module#style(options.style, self)
+  call filter(files, 'self.style.can_handle(v:val)')
+  if empty(files)
     throw 'themis: Target file not found.'
   endif
 
   let error_count = 0
   let save_runtimepath = &runtimepath
-  if !empty(a:options.runtimepath)
-    let &runtimepath =
-    \   join(map(copy(a:options.runtimepath), 'escape(v:val, "\\,")'), ',')
-    \   . ',' . &runtimepath
+
+  let appended = [getcwd()]
+  if !empty(options.runtimepath)
+    for rtp in options.runtimepath
+      let appended += s:append_rtp(rtp)
+    endfor
   endif
+
+  let plugins = globpath(join(appended, ','), 'plugin/**/*.vim', 1)
+  for plugin in split(plugins, "\n")
+    execute 'source' fnameescape(plugin)
+  endfor
+
+  let self.target_pattern = join(options.target, '\m\|')
+
   let stats = self.supporter('stats')
   call self.init_bundle()
-  let reporter = themis#module#reporter(a:options.reporter)
+  let reporter = themis#module#reporter(options.reporter)
   call self.add_event(reporter)
   try
-    call self.load_scripts(a:scripts)
+    call self.load_scripts(files)
     call self.emit('script_loaded', self)
     call self.emit('start', self)
     call self.run_all()
@@ -91,17 +113,22 @@ function! s:runner.run_all()
 endfunction
 
 function! s:runner.run_bundle(bundle)
+  let test_names = self.get_test_names(a:bundle)
+  if empty(a:bundle.children) && empty(test_names)
+    " skip: empty bundle
+    return
+  endif
   let self.current_bundle = a:bundle
   call self.emit('before_suite', a:bundle)
-  call self.run_suite(a:bundle)
+  call self.run_suite(a:bundle, test_names)
   for child in a:bundle.children
     call self.run_bundle(child)
   endfor
   call self.emit('after_suite', a:bundle)
 endfunction
 
-function! s:runner.run_suite(bundle)
-  for name in self.style.get_test_names(a:bundle)
+function! s:runner.run_suite(bundle, test_names)
+  for name in a:test_names
     let report = themis#report#new(a:bundle, name)
     call self.emit('before_test', a:bundle, name)
     try
@@ -119,6 +146,15 @@ function! s:runner.run_suite(bundle)
   endfor
 endfunction
 
+function! s:runner.get_test_names(bundle)
+  let names = self.style.get_test_names(a:bundle)
+  if get(self, 'target_pattern', '') !=# ''
+    let pat = self.target_pattern
+    call filter(names, 'a:bundle.get_test_full_title(v:val) =~# pat')
+  endif
+  return names
+endfunction
+
 function! s:runner.supporter(name)
   if !has_key(self._suppporters, a:name)
     let self._suppporters[a:name] = themis#module#supporter(a:name, self)
@@ -133,7 +169,7 @@ endfunction
 
 function! s:runner.total_test_count(...)
   let bundle = a:0 ? a:1 : self.bundle
-  return len(self.style.get_test_names(bundle))
+  return len(self.get_test_names(bundle))
   \    + s:sum(map(copy(bundle.children), 'self.total_test_count(v:val)'))
 endfunction
 
@@ -168,6 +204,43 @@ function! s:test_fail(report, exception, throwpoint)
   else
     let a:report.result = 'fail'
   endif
+endfunction
+
+function! s:append_rtp(path)
+  let appended = []
+  if isdirectory(a:path)
+    let path = substitute(a:path, '\\\+', '/', 'g')
+    let path = substitute(path, '/$', '', 'g')
+    let &runtimepath = escape(path, '\,') . ',' . &runtimepath
+    let appended += [path]
+    let after = path . '/after'
+    if isdirectory(after)
+      let &runtimepath .= ',' . after
+      let appended += [after]
+    endif
+  endif
+  return appended
+endfunction
+
+function! s:load_themisrc(paths)
+  let themisrcs = themis#util#find_files(a:paths, '.themisrc')
+  for themisrc in themisrcs
+    execute 'source' fnameescape(themisrc)
+  endfor
+endfunction
+
+function! s:paths2files(paths, recursive)
+  let files = []
+  let target_pattern = a:recursive ? '**/*' : '*'
+  for path in a:paths
+    if isdirectory(path)
+      let files += split(globpath(path, target_pattern, 1), "\n")
+    else
+      let files += [path]
+    endif
+  endfor
+  let mods =  ':p:gs?\\?/?'
+  return filter(map(files, 'fnamemodify(v:val, mods)'), '!isdirectory(v:val)')
 endfunction
 
 function! s:sum(list)

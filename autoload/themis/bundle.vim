@@ -1,5 +1,5 @@
 " themis: Test bundle.
-" Version: 1.1
+" Version: 1.2
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
@@ -13,27 +13,25 @@ let s:bundle = {
 \   'children': [],
 \ }
 
-" FIXME: Duplicate function in rerport
-function! s:bundle.get_full_title()
-  let title = ''
-  if has_key(self, 'parent')
-    let t = self.parent.get_full_title()
-    if !empty(t)
-      let title = t . ' '
-    endif
-  endif
-  return title . self.get_title()
-endfunction
-
 function! s:bundle.get_title()
   let title = get(self, 'title', '')
-  if empty(title)
-    let filename = get(self, 'filename', '')
-    if !empty(filename)
-      let title = fnamemodify(filename, ':t')
-    endif
+  if title !=# ''
+    return title
   endif
-  return title
+  let filename = get(self, 'filename', '')
+  if filename !=# ''
+    return fnamemodify(filename, ':t')
+  endif
+  return ''
+endfunction
+
+function! s:bundle.get_test_full_title(name)
+  return themis#util#get_full_title(self, [self.get_test_title(a:name)])
+endfunction
+
+function! s:bundle.get_test_title(name)
+  let description = self.get_description(a:name)
+  return description !=# '' ? description : a:name
 endfunction
 
 function! s:bundle.get_description(name)

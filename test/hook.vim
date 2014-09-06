@@ -1,6 +1,4 @@
 let s:hook = themis#suite('hook')
-let s:assert = themis#helper('assert')
-call themis#helper('command').with(s:assert)
 
 function! s:hook.before()
   let self.runner = themis#runner#new()

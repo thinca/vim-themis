@@ -1,5 +1,5 @@
 " themis: helper: Command base utilities.
-" Version: 1.1
+" Version: 1.2
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
@@ -21,7 +21,7 @@ endfunction
 function! s:wrap_exception(exception, line)
   " TODO: Duplicate code
   let result = matchstr(a:exception, '\c^themis:\_s*report:\_s*\zs.*')
-  if empty(result)
+  if result ==# ''
     let [type, message] = ['failure', a:exception]
   else
     let [type, message] =
@@ -74,9 +74,8 @@ function! s:check_exception(line, thrown_expection, expected_exception)
   endif
 endfunction
 
-function! s:define_assert(prefix)
-  let command = a:prefix . 'Assert'
-  execute 'command! -nargs=+' command
+function! s:define_assert(command)
+  execute 'command! -nargs=+' a:command
   \ '  try'
   \ '|   let s:c.result = s:eval(<q-args>, s:current_scopes + [l:])'
   \ '| catch /^themis:\s*report:/'
@@ -87,9 +86,8 @@ function! s:define_assert(prefix)
   \ '| endif'
 endfunction
 
-function! s:define_throws(prefix)
-  let command = a:prefix . 'Throws'
-  execute 'command! -nargs=+' command
+function! s:define_throws(command)
+  execute 'command! -nargs=+' a:command
   \ '  let s:c.not_thrown = 0'
   \ '| let [s:c.expect_exception, s:c.expr] = s:get_throws_args(<q-args>)'
   \ '| try'
@@ -103,9 +101,8 @@ function! s:define_throws(prefix)
   \ '| endif'
 endfunction
 
-function! s:define_fail(prefix)
-  let command = a:prefix . 'Fail'
-  execute 'command! -nargs=*' command
+function! s:define_fail(command)
+  execute 'command! -nargs=*' a:command
   \ '  if <q-args> !=# ""'
   \ '|   throw themis#failure(<q-args>)'
   \ '| else'
@@ -113,15 +110,13 @@ function! s:define_fail(prefix)
   \ '| endif'
 endfunction
 
-function! s:define_todo(prefix)
-  let command = a:prefix . 'TODO'
-  execute 'command! -nargs=*' command
+function! s:define_todo(command)
+  execute 'command! -nargs=*' a:command
   \ 'throw "themis: report: todo:" . <q-args>'
 endfunction
 
-function! s:define_skip(prefix)
-  let command = a:prefix . 'Skip'
-  execute 'command! -nargs=*' command
+function! s:define_skip(command)
+  execute 'command! -nargs=*' a:command
   \ '  if <q-args> !=# ""'
   \ '|   throw "themis: report: SKIP:" . <q-args>'
   \ '| else'
@@ -140,11 +135,11 @@ function! s:helper.with(...)
 endfunction
 
 function! s:helper.define()
-  call s:define_assert(self._prefix)
-  call s:define_throws(self._prefix)
-  call s:define_fail(self._prefix)
-  call s:define_todo(self._prefix)
-  call s:define_skip(self._prefix)
+  call s:define_assert(self._prefix . 'Assert')
+  call s:define_throws(self._prefix . 'Throws')
+  call s:define_fail(self._prefix . 'Fail')
+  call s:define_todo(self._prefix . 'TODO')
+  call s:define_skip(self._prefix . 'Skip')
   let s:current_scopes = self._scopes
 endfunction
 
@@ -156,13 +151,20 @@ function! s:helper.undef()
   call s:delcommand(self._prefix . 'Skip')
   unlet! s:current_scopes
 endfunction
+function! s:helper.defined()
+  return exists(':' . self._prefix . 'Assert') == 2
+endfunction
 
 
-let s:events = {'helper': s:helper, 'nest': 0}
+let s:events = {'helper': s:helper, 'nest': 0, 'skip': 0}
 function! s:events.before_suite(bundle)
   if self.is_target(a:bundle)
     if self.nest == 0
-      call self.helper.define()
+      if self.helper.defined()
+        let self.skip = 1
+      else
+        call self.helper.define()
+      endif
     endif
     let self.nest += 1
   endif
@@ -171,7 +173,7 @@ endfunction
 function! s:events.after_suite(bundle)
   if self.is_target(a:bundle)
     let self.nest -= 1
-    if self.nest == 0
+    if self.nest == 0 && !self.skip
       call self.helper.undef()
     endif
   endif

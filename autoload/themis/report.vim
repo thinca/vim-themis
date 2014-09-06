@@ -1,5 +1,5 @@
 " themis: A report of test.
-" Version: 1.1
+" Version: 1.2
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
@@ -14,21 +14,12 @@ function! s:report.is_success()
   return self.result ==# 'pass'
 endfunction
 
-" FIXME: Duplicate function in bundle
 function! s:report.get_full_title()
-  let title = ''
-  if has_key(self, 'parent')
-    let t = self.parent.get_full_title()
-    if !empty(t)
-      let title = t . ' '
-    endif
-  endif
-  return title . self.get_title()
+  return themis#util#get_full_title(self)
 endfunction
 
 function! s:report.get_title()
-  let description = self.parent.get_description(self.name)
-  return empty(description) ? get(self, 'name', '') : description
+  return self.parent.get_test_title(self.name)
 endfunction
 
 function! s:report.get_message()

@@ -1,5 +1,5 @@
 " themis: Utility functions.
-" Version: 1.1
+" Version: 1.2
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
@@ -120,6 +120,38 @@ endfunction
 
 function! themis#util#funcname(funcref)
   return matchstr(string(a:funcref), '^function(''\zs.*\ze'')$')
+endfunction
+
+function! themis#util#get_full_title(obj, ...)
+  let obj = a:obj
+  let titles = a:0 ? a:1 : []
+  call insert(titles, obj.get_title())
+  while has_key(obj, 'parent')
+    let obj = obj.parent
+    call insert(titles, obj.get_title())
+  endwhile
+  return join(filter(titles, 'v:val !=# ""'), ' ')
+endfunction
+
+function! themis#util#sortuniq(list)
+  call sort(a:list)
+  let i = len(a:list) - 1
+  while 0 < i
+    if a:list[i] == a:list[i - 1]
+      call remove(a:list, i)
+    endif
+    let i -= 1
+  endwhile
+  return a:list
+endfunction
+
+function! themis#util#find_files(paths, filename)
+  let todir =  'isdirectory(v:val) ? v:val : fnamemodify(v:val, ":h")'
+  let dirs = map(copy(a:paths), todir)
+  let mod = ':p:gs?\\\+?/?:s?/$??'
+  call map(dirs, 'fnamemodify(v:val, mod)')
+  let files = findfile(a:filename, join(map(dirs, 'v:val . ";"'), ''), -1)
+  return themis#util#sortuniq(files)
 endfunction
 
 
