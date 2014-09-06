@@ -222,14 +222,48 @@ function! s:helper.__expect__()
     endfunction
   endfunction
 
+  function! expect.__custom_matcher__()
+    let custom_matcher = themis#suite('custom matcher')
+    function! custom_matcher.before()
+      call themis#helper#expect#define_matcher('to_be_one_bigger_than', 'a:1 ==# a:2 + 1',
+      \ '(a:not ? "Not e" : "E") . "xpect " . string(a:1) . " to equal " . string(a:2) . "+1"')
+      function! Ambigous_equal(a, b)
+        return a:a == a:b
+      endfunction
+      function! My_failure_message(not, name, x, y)
+        if a:not
+          return 'Not expect ' . string(a:x) . ' == ' . string(a:y)
+        else
+          return 'Expect ' . string(a:x) . ' == ' . string(a:y)
+        endif
+      endfunction
+      call themis#helper#expect#define_matcher('to_be_similar', function('Ambigous_equal'), function('My_failure_message'))
+    endfunction
+    function! custom_matcher.after()
+      delfunction Ambigous_equal
+      delfunction My_failure_message
+    endfunction
+    function! custom_matcher.can_be_defined()
+      call s:expect(2).to_be_one_bigger_than(1)
+      call s:expect('2').to_be_similar(2)
+    endfunction
+    function! custom_matcher.provides_failre_message_definition()
+      call s:check_throw('to_be_one_bigger_than', 2, [0], 0, 'themis: report: failure: Expect 2 to equal 0+1')
+      call s:check_throw('to_be_one_bigger_than', 2, [1], 1, 'themis: report: failure: Not expect 2 to equal 1+1')
+      call s:check_throw('to_be_similar', 2, ['1'], 0, 'themis: report: failure: Expect 2 == ''1''')
+      call s:check_throw('to_be_similar', 2, ['2'], 1, 'themis: report: failure: Not expect 2 == ''2''')
+    endfunction
+  endfunction
+
 endfunction
 
 function! s:check_throw(target, actual, ...)
   let args = a:0 ? a:1 : []
-  let expected_exception = a:0 > 2 ? a:2 : '^themis:\s*report:\s*failure:.*$'
+  let not = a:0 > 1 ? (a:2 ==# 1 ? 1 : 0) : 0
+  let expected_exception = a:0 > 2 ? a:3 : '^themis:\s*report:\s*failure:.*$'
   let not_thrown = 0
   try
-    let expect = s:expect(a:actual)
+    let expect = not ? s:expect(a:actual).not : s:expect(a:actual)
     call call(expect[a:target], args, expect)
     let not_thrown = 1
   catch
