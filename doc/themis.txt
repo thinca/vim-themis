@@ -547,7 +547,7 @@ It is useful to invert the result of the test.
 Of course you can easily make a custom matcher.
 See |themis#helper#expect#define_matcher()|
 
-expect({value}).to_be_true()		*hemis-helper-expect-to_be_true()*
+expect({value}).to_be_true()		*themis-helper-expect-to_be_true()*
 	Checks {value} is 1.
 
 expect({value}).to_be_false()		*themis-helper-expect-to_be_false()*
@@ -602,7 +602,7 @@ expect({value}).to_be_dict()		*themis-helper-expect-to_be_dict()*
 expect({value}).to_be_float()		*themis-helper-expect-to_be_float()*
 	Checks type of {value} is |Float|.
 
-expect({expr}).to_have_length()		*themis-helper-expect-to_exist()*
+expect({expr}).to_have_length()		*themis-helper-expect-to_have_length()*
 	Checks {expr} by |exists()|.
 	Note that this can not use for |local-variable| and |script-variable|.
 
