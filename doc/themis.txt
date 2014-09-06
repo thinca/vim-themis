@@ -1,6 +1,6 @@
 *themis.txt*	A testing framework for Vim script.
 
-Version: 1.1
+Version: 1.2
 Author : thinca <thinca+vim@gmail.com>
 License: zlib License
 
@@ -717,7 +717,7 @@ Some test names have a special meaning.  They are called in special situation.
 ==============================================================================
 CHANGELOG					*themis-changelog*
 
-1.2	Roadmap
+1.2	2014-09-06
 	- Add |.themisrc| file feature.
 	- Add --reporter-list option(|themis-option-reporter-list|).
 	- Add --target option(|themis-option-target|).
