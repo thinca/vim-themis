@@ -15,7 +15,7 @@ function! themis#helper#expect#_create_expect(actual)
   return expect
 endfunction
 
-function! s:matcher_impl(name, f, ...) dict
+function! s:matcher_impl(name, f, error_msg, ...) dict
   let result = call(a:f, [self._actual] + a:000)
   if self._negate
     let result = !result
@@ -23,15 +23,11 @@ function! s:matcher_impl(name, f, ...) dict
   if result
     return {'and' : self}
   else
-    throw printf('themis: report: failure: Expected %s %s%s%s.',
-    \       string(self._actual),
-    \       (self._negate ? 'not ' : ''),
-    \       substitute(a:name, '_', ' ', 'g'),
-    \       (a:0 > 0) ? (' ' . string(join(a:000, ', '))) : '')
+    throw themis#failure(call(a:error_msg, [self._negate, a:name, self._actual] + a:000))
   endif
 endfunction
 
-function! s:expr_to_func(name, pred, ...)
+function! s:expr_to_matcher(name, pred, ...)
   let func_name = 's:_matcher_' . a:name
   execute join([
   \ 'function! ' . func_name . '(...)',
@@ -40,16 +36,43 @@ function! s:expr_to_func(name, pred, ...)
   return function(func_name)
 endfunction
 
+function! s:expr_to_failure_message(name, pred, ...)
+  let func_name = 's:_failure_message_' . a:name
+  execute join([
+  \ 'function! ' . func_name . '(not, name, ...)',
+  \ '  return ' . a:pred,
+  \ 'endfunction'], "\n")
+  return function(func_name)
+endfunction
+
+function! s:default_failure_message(not, name, ...)
+  return printf('Expected %s %s%s%s.',
+    \       string(a:1),
+    \       (a:not ? 'not ' : ''),
+    \       substitute(a:name, '_', ' ', 'g'),
+    \       (a:0 >=# 2) ? (' ' . string(join(a:000, ', '))) : '')
+endfunction
+
 let s:matchers = {}
-function! themis#helper#expect#define_matcher(name, predicate)
+let s:failure_messages = {}
+function! themis#helper#expect#define_matcher(name, predicate, ...)
   if type(a:predicate) ==# type('')
-    let s:matchers[a:name] = s:expr_to_func(a:name, a:predicate)
+    let s:matchers[a:name] = s:expr_to_matcher(a:name, a:predicate)
   elseif type(a:predicate) ==# type(function('function'))
     let s:matchers[a:name] = a:predicate
   endif
+  if a:0 >=# 1
+    if type(a:1) ==# type('')
+      let s:failure_messages[a:name] = s:expr_to_failure_message(a:name, a:1)
+    elseif type(a:1) ==# type(function('function'))
+      let s:failure_messages[a:name] = a:1
+    endif
+  else
+    let s:failure_messages[a:name] = function('s:default_failure_message')
+  endif
   execute join([
   \ 'function! s:expect.' . a:name . '(...)',
-  \ '  return call("s:matcher_impl", ['. string(a:name) . ', s:matchers.' . a:name . '] + a:000, self)',
+  \ '  return call("s:matcher_impl", ['. string(a:name) . ', s:matchers.' . a:name . ', s:failure_messages.' . a:name . '] + a:000, self)',
   \ 'endfunction'], "\n")
   let s:expect.not[a:name] = s:expect[a:name]
 endfunction
