@@ -13,6 +13,8 @@ INTERFACE			|themis-interface|
   EXTERNAL COMMANDS		  |themis-external-commands|
   FUNCTIONS			  |themis-functions|
 CUSTOMIZING			|themis-customizing|
+  ENVIRONMENT VARIABLE		  |themis-environment-variable|
+  THEMISRC			  |themis-themisrc|
 WRITE TEST			|themis-write-test|
   QUICKREF			  |themis-quickref|
 HELPER				|themis-helper|
