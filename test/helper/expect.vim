@@ -227,17 +227,21 @@ function! s:helper.__expect__()
     function! custom_matcher.before()
       call themis#helper#expect#define_matcher('to_be_one_bigger_than', 'a:1 ==# a:2 + 1',
       \ '(a:not ? "Not e" : "E") . "xpect " . string(a:1) . " to equal " . string(a:2) . "+1"')
-      function! s:ambigous_equal(a, b)
+      function! Ambigous_equal(a, b)
         return a:a == a:b
       endfunction
-      function! s:my_failure_message(not, name, x, y)
+      function! My_failure_message(not, name, x, y)
         if a:not
           return 'Not expect ' . string(a:x) . ' == ' . string(a:y)
         else
           return 'Expect ' . string(a:x) . ' == ' . string(a:y)
         endif
       endfunction
-      call themis#helper#expect#define_matcher('to_be_similar', function('s:ambigous_equal'), function('s:my_failure_message'))
+      call themis#helper#expect#define_matcher('to_be_similar', function('Ambigous_equal'), function('My_failure_message'))
+    endfunction
+    function! custom_matcher.after()
+      delfunction Ambigous_equal
+      delfunction My_failure_message
     endfunction
     function! custom_matcher.can_be_defined()
       call s:expect(2).to_be_one_bigger_than(1)
