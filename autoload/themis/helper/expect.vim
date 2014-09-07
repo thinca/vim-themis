@@ -50,7 +50,7 @@ function! s:default_failure_message(not, name, ...)
     \       string(a:1),
     \       (a:not ? 'not ' : ''),
     \       substitute(a:name, '_', ' ', 'g'),
-    \       (a:0 >=# 2) ? (' ' . string(join(a:000, ', '))) : '')
+    \       (a:0 >=# 2) ? (' ' . string(join(a:000[1:], ', '))) : '')
 endfunction
 
 let s:matchers = {}
