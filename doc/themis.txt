@@ -654,11 +654,11 @@ themis#helper#expect#define_matcher({name}, {predicate} [, {meesageexpr}])
 	matcher arguments.
 	For example,
 >
-	function Close_to(actual, value)
+	function CloseTo(actual, value)
 	  return a:value - 0.1 < a:actual && a:actual < a:value + 0.1
 	endfunction
 	call themis#helper#expect#define_matcher('to_be_close_to',
-	\ function('Close_to'))
+	\ function('CloseTo'))
 
 	call s:expect(1 / 100.0).to_be_close_to(0.0)
 	" => Success
@@ -672,7 +672,7 @@ themis#helper#expect#define_matcher({name}, {predicate} [, {meesageexpr}])
 	by specifying {messageexpr}.
 	If {messageexpr} is |Funcref|, it should have the following signature.
 >
-	function! My_message(not, name, x, y)
+	function! MyMessage(not, name, x, y)
 	  let name = (a:not ? 'not ' : '') . a:name
 	  return printf("You tested '%s' with %s and %s but failed",
 	  \ name, a:x, a:y)
@@ -685,7 +685,7 @@ themis#helper#expect#define_matcher({name}, {predicate} [, {meesageexpr}])
 	For example,
 >
 	call themis#helper#expect#define_matcher('to_equal2', 'a:1 ==# a:2',
-	\ function('My_message'))
+	\ function('MyMessage'))
 
 	call s:expect(1).not.to_equal2(1)
 	" => You tested 'not.to_equal' with 1 and 1 but failed.
