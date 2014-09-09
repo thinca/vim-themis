@@ -696,8 +696,10 @@ themis#helper#expect#define_matcher({name}, {predicate} [, {meesageexpr}])
 	For example,
 >
 	call themis#helper#expect#define_matcher('to_equal3', 'a:1 ==# a:2',
-	\ printf("You tested %s with %s and %s but failed",
-	\ (a:not ? 'not ' : '') . a:name, a:1, a:2))
+	\ 'printf("You tested %s with %s and %s but failed",
+	\ (a:not ? "not " : "") . a:name, a:1, a:2)')
+
+
 
 ==============================================================================
 REPORTER					*themis-reporter*
