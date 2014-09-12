@@ -339,6 +339,32 @@ Available commands
 |themis-helper-command-:Skip|	Skip.
 
 
+Expect Helper >
+	let s:expect = themis#helper('expect')
+
+Check values
+|themis-helper-expect-to_be_true()| / |themis-helper-expect-to_be_false()|
+|themis-helper-expect-to_be_truthy()| / |themis-helper-expect-to_be_falsy()|
+|themis-helper-expect-to_be_greater_than()|
+|themis-helper-expect-to_be_greater_than_or_equal()|
+|themis-helper-expect-to_be_less_than()|
+|themis-helper-expect-to_be_less_than_or_equal()|
+|themis-helper-expect-to_equal()| / |themis-helper-expect-to_be_same()|
+|themis-helper-expect-to_match()|
+Check types
+|themis-helper-expect-to_be_number()| / |themis-helper-expect-to_be_string()|
+|themis-helper-expect-to_be_func()| / |themis-helper-expect-to_be_list()|
+|themis-helper-expect-to_be_dict()| / |themis-helper-expect-to_be_float()|
+Others
+|themis-helper-expect-to_exist()|
+|themis-helper-expect-to_have_length()|
+|themis-helper-expect-to_have_key()|
+Invert results
+|themis-helper-expect-not|
+Define custom matcher
+|themis#helper#expect#define_matcher()|
+
+
 
 ==============================================================================
 HELPER						*themis-helper*
@@ -547,7 +573,7 @@ It is useful to invert the result of the test.
 Of course you can easily make a custom matcher.
 See |themis#helper#expect#define_matcher()|
 
-expect({value}).to_be_true()		*hemis-helper-expect-to_be_true()*
+expect({value}).to_be_true()		*themis-helper-expect-to_be_true()*
 	Checks {value} is 1.
 
 expect({value}).to_be_false()		*themis-helper-expect-to_be_false()*
@@ -602,7 +628,7 @@ expect({value}).to_be_dict()		*themis-helper-expect-to_be_dict()*
 expect({value}).to_be_float()		*themis-helper-expect-to_be_float()*
 	Checks type of {value} is |Float|.
 
-expect({expr}).to_have_length()		*themis-helper-expect-to_exist()*
+expect({expr}).to_have_length()		*themis-helper-expect-to_have_length()*
 	Checks {expr} by |exists()|.
 	Note that this can not use for |local-variable| and |script-variable|.
 
@@ -619,7 +645,7 @@ expect({list}).to_have_key({index})
 
 
 					*themis#helper#expect#define_matcher()*
-themis#helper#expect#define_matcher({name}, {predicate})
+themis#helper#expect#define_matcher({name}, {predicate} [, {meesageexpr}])
 	Defines a matcher which name is {name}.
 	{predicate} decides how a test result to be success.
 	When {predicate} is |Funcref|, it should take one argument at least
@@ -628,10 +654,11 @@ themis#helper#expect#define_matcher({name}, {predicate})
 	matcher arguments.
 	For example,
 >
-	function s:close_to(actual, value)
+	function CloseTo(actual, value)
 	  return a:value - 0.1 < a:actual && a:actual < a:value + 0.1
 	endfunction
-	call themis#helper#expect#define_matcher('to_be_close_to', function('s:close_to'))
+	call themis#helper#expect#define_matcher('to_be_close_to',
+	\ function('CloseTo'))
 
 	call s:expect(1 / 100.0).to_be_close_to(0.0)
 	" => Success
@@ -640,6 +667,38 @@ themis#helper#expect#define_matcher({name}, {predicate})
 	Inside this string, |a:1|, a:2, ... can be used as arguments.
 >
 	call themis#helper#expect#define_matcher('to_be_similar_to, 'a:1 ==? a:2')
+<
+	You can also customize the message which is shown when a test fails
+	by specifying {messageexpr}.
+	If {messageexpr} is |Funcref|, it should have the following signature.
+>
+	function! MyMessage(not, name, x, y)
+	  let name = (a:not ? 'not ' : '') . a:name
+	  return printf("You tested '%s' with %s and %s but failed",
+	  \ name, a:x, a:y)
+	endfunction
+<
+	In case of the tests using |themis-helper-expect-not|, argument a:not
+	becomes 1, otherwise 0. a:name has the name of the current matcher.
+	Other arguments are used by an expect function argument and matcher
+	arguments. (similar to {predicate})
+	For example,
+>
+	call themis#helper#expect#define_matcher('to_equal2', 'a:1 ==# a:2',
+	\ function('MyMessage'))
+
+	call s:expect(1).not.to_equal2(1)
+	" => You tested 'not.to_equal' with 1 and 1 but failed.
+<
+	{messageexpr} can also be specified as |String|. a:not and a:name can
+	be used in the same manner as the case of |Funcref|. Also a:1, a:2 ...
+	are available.
+	For example,
+>
+	call themis#helper#expect#define_matcher('to_equal3', 'a:1 ==# a:2',
+	\ 'printf("You tested %s with %s and %s but failed",
+	\ (a:not ? "not " : "") . a:name, a:1, a:2)')
+
 
 
 ==============================================================================
