@@ -6,13 +6,11 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-let s:runner = {
-\   '_events': [],
-\   '_suppporters': {},
-\ }
+let s:runner = {}
 
 function! s:runner.init()
-  call self.clear_event()
+  let self._events = []
+  let self._suppporters = {}
   let self._styles = {}
   for style_name in themis#module#list('style')
     let self._styles[style_name] = themis#module#style(style_name, self)
@@ -190,10 +188,6 @@ endfunction
 function! s:runner.add_event(event)
   call add(self._events, a:event)
   call s:call(a:event, 'init', [self])
-endfunction
-
-function! s:runner.clear_event()
-  let self._events = []
 endfunction
 
 function! s:runner.total_test_count(...)
