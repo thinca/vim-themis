@@ -12,6 +12,7 @@ let s:runner = {
 \ }
 
 function! s:runner.init()
+  call self.clear_event()
   let self.styles = {}
   for style_name in themis#module#list('style')
     let self.styles[style_name] = themis#module#style(style_name, self)
@@ -19,6 +20,7 @@ function! s:runner.init()
 endfunction
 
 function! s:runner.run(paths, options)
+  call self.init()
   let paths = type(a:paths) == type([]) ? a:paths : [a:paths]
 
   call s:load_themisrc(paths)
@@ -190,6 +192,10 @@ function! s:runner.add_event(event)
   call s:call(a:event, 'init', [self])
 endfunction
 
+function! s:runner.clear_event()
+  let self.events = []
+endfunction
+
 function! s:runner.total_test_count(...)
   let bundle = a:0 ? a:1 : self.bundle
   return len(self.get_test_names(bundle))
@@ -281,7 +287,6 @@ endfunction
 
 function! themis#runner#new()
   let runner = deepcopy(s:runner)
-  call runner.init()
   return runner
 endfunction
 

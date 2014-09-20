@@ -2,6 +2,7 @@ let s:hook = themis#suite('hook')
 
 function! s:hook.before()
   let self.runner = themis#runner#new()
+  call self.runner.init()
 endfunction
 
 function! s:hook.before_each()
