@@ -93,8 +93,8 @@ function! s:runner.run(paths, options)
 endfunction
 
 function! s:runner.init_bundle()
-  let self.bundle = themis#bundle#new()
-  let self.current_bundle = self.bundle
+  let self.root_bundle = themis#bundle#new()
+  let self.current_bundle = self.root_bundle
 endfunction
 
 function! s:runner.add_new_bundle(title)
@@ -128,7 +128,7 @@ function! s:runner.load_scripts(files_with_styles)
 endfunction
 
 function! s:runner.run_all()
-  call self.run_bundle(self.bundle)
+  call self.run_bundle(self.root_bundle)
 endfunction
 
 function! s:runner.run_bundle(bundle)
@@ -191,7 +191,7 @@ function! s:runner.add_event(event)
 endfunction
 
 function! s:runner.total_test_count(...)
-  let bundle = a:0 ? a:1 : self.bundle
+  let bundle = a:0 ? a:1 : self.root_bundle
   return len(self.get_test_names(bundle))
   \    + s:sum(map(copy(bundle.children), 'self.total_test_count(v:val)'))
 endfunction

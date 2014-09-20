@@ -18,7 +18,7 @@ let s:describe_pattern = '^__.\+__$'
 let s:receiver = {}
 
 function! s:receiver.script_loaded(runner)
-  call s:load_nested_bundle(a:runner, a:runner.bundle)
+  call s:load_nested_bundle(a:runner, a:runner.root_bundle)
 endfunction
 
 function! s:load_nested_bundle(runner, bundle)
