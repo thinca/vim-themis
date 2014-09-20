@@ -13,9 +13,9 @@ let s:runner = {
 
 function! s:runner.init()
   call self.clear_event()
-  let self.styles = {}
+  let self._styles = {}
   for style_name in themis#module#list('style')
-    let self.styles[style_name] = themis#module#style(style_name, self)
+    let self._styles[style_name] = themis#module#style(style_name, self)
   endfor
 endfunction
 
@@ -36,7 +36,7 @@ function! s:runner.run(paths, options)
 
   let files_with_styles = {}
   for file in files
-    let style = s:can_handle(values(self.styles), file)
+    let style = s:can_handle(values(self._styles), file)
     if style !=# ''
       let files_with_styles[file] = style
     endif
@@ -118,7 +118,7 @@ function! s:runner.load_scripts(files_with_styles)
     if !filereadable(filename)
       throw printf('themis: Target file was not found: %s', filename)
     endif
-    let style = self.styles[style_name]
+    let style = self._styles[style_name]
     let self._current = {
     \   'filename': filename,
     \   'style_name': style_name,
@@ -168,7 +168,7 @@ function! s:runner.run_suite(bundle, test_names)
 endfunction
 
 function! s:runner.get_test_names(bundle)
-  let style = get(self.styles, a:bundle.get_style_name(), {})
+  let style = get(self._styles, a:bundle.get_style_name(), {})
   if empty(style)
     return []
   endif
