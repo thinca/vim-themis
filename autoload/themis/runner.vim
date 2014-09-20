@@ -7,7 +7,7 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 let s:runner = {
-\   'events': [],
+\   '_events': [],
 \   '_suppporters': {},
 \ }
 
@@ -188,12 +188,12 @@ function! s:runner.supporter(name)
 endfunction
 
 function! s:runner.add_event(event)
-  call add(self.events, a:event)
+  call add(self._events, a:event)
   call s:call(a:event, 'init', [self])
 endfunction
 
 function! s:runner.clear_event()
-  let self.events = []
+  let self._events = []
 endfunction
 
 function! s:runner.total_test_count(...)
@@ -204,7 +204,7 @@ endfunction
 
 function! s:runner.emit(name, ...)
   let self.phase = a:name
-  for event in self.events
+  for event in self._events
     call s:call(event, a:name, a:000)
   endfor
   unlet self.phase
