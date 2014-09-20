@@ -66,13 +66,6 @@ function! s:options.recursive(args, options)
   let a:options.recursive = 1
 endfunction
 
-function! s:options.style(args, options)
-  if empty(a:args)
-    throw 'themis: --style option requires {name}'
-  endif
-  let a:options.style = remove(a:args, 0)
-endfunction
-
 function! s:options.reporter(args, options)
   if empty(a:args)
     throw 'themis: --reporter option requires {name}'

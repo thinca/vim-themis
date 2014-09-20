@@ -2,12 +2,12 @@ let s:hook = themis#suite('hook')
 
 function! s:hook.before()
   let self.runner = themis#runner#new()
-  let self.runner.style = themis#module#style('basic', self.runner)
 endfunction
 
 function! s:hook.before_each()
   call self.runner.init_bundle()
   let self.bundle = self.runner.add_new_bundle('sample')
+  let self.bundle.style_name = 'basic'
   let self.suite = self.bundle.suite
   let self.suite.called = []
 endfunction

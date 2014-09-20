@@ -38,6 +38,16 @@ function! s:bundle.get_description(name)
   return get(self.suite.title, a:name, '')
 endfunction
 
+function! s:bundle.get_style_name()
+  if has_key(self, 'style_name')
+    return self.style_name
+  endif
+  if has_key(self, 'parent')
+    return self.parent.get_style_name()
+  endif
+  return ''
+endfunction
+
 function! s:bundle.add_child(bundle)
   if has_key(a:bundle, 'parent')
     call a:bundle.parent.remove_child(a:bundle)

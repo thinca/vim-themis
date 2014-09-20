@@ -11,6 +11,13 @@ let s:runner = {
 \   '_suppporters': {},
 \ }
 
+function! s:runner.init()
+  let self.styles = {}
+  for style_name in themis#module#list('style')
+    let self.styles[style_name] = themis#module#style(style_name, self)
+  endfor
+endfunction
+
 function! s:runner.run(paths, options)
   let paths = type(a:paths) == type([]) ? a:paths : [a:paths]
 
@@ -25,9 +32,15 @@ function! s:runner.run(paths, options)
     call filter(files, 'v:val !~# excludes')
   endif
 
-  let self.style = themis#module#style(options.style, self)
-  call filter(files, 'self.style.can_handle(v:val)')
-  if empty(files)
+  let files_with_styles = {}
+  for file in files
+    let style = s:can_handle(values(self.styles), file)
+    if style !=# ''
+      let files_with_styles[file] = style
+    endif
+  endfor
+
+  if empty(files_with_styles)
     throw 'themis: Target file not found.'
   endif
 
@@ -53,7 +66,7 @@ function! s:runner.run(paths, options)
   let reporter = themis#module#reporter(options.reporter)
   call self.add_event(reporter)
   try
-    call self.load_scripts(files)
+    call self.load_scripts(files_with_styles)
     call self.emit('script_loaded', self)
     call self.emit('start', self)
     call self.run_all()
@@ -89,21 +102,27 @@ function! s:runner.add_new_bundle(title)
 endfunction
 
 function! s:runner.add_bundle(bundle)
-  if has_key(self, '_filename')
-    let a:bundle.filename = self._filename
+  if has_key(self, '_current')
+    let a:bundle.filename = self._current.filename
+    let a:bundle.style_name = self._current.style_name
   endif
   call self.current_bundle.add_child(a:bundle)
   return a:bundle
 endfunction
 
-function! s:runner.load_scripts(scripts)
+function! s:runner.load_scripts(files_with_styles)
   let self.phase = 'script loading'
-  for script in a:scripts
-    if !filereadable(script)
-      throw printf('themis: Target file was not found: %s', script)
+  for [filename, style_name] in items(a:files_with_styles)
+    if !filereadable(filename)
+      throw printf('themis: Target file was not found: %s', filename)
     endif
-    let self._filename = script
-    call self.style.load_script(script)
+    let style = self.styles[style_name]
+    let self._current = {
+    \   'filename': filename,
+    \   'style_name': style_name,
+    \ }
+    call style.load_script(filename)
+    unlet self._current
   endfor
   unlet self.phase
 endfunction
@@ -147,7 +166,11 @@ function! s:runner.run_suite(bundle, test_names)
 endfunction
 
 function! s:runner.get_test_names(bundle)
-  let names = self.style.get_test_names(a:bundle)
+  let style = get(self.styles, a:bundle.get_style_name(), {})
+  if empty(style)
+    return []
+  endif
+  let names = style.get_test_names(a:bundle)
   if get(self, 'target_pattern', '') !=# ''
     let pat = self.target_pattern
     call filter(names, 'a:bundle.get_test_full_title(v:val) =~# pat')
@@ -243,12 +266,22 @@ function! s:paths2files(paths, recursive)
   return filter(map(files, 'fnamemodify(v:val, mods)'), '!isdirectory(v:val)')
 endfunction
 
+function! s:can_handle(styles, file)
+  for style in a:styles
+    if style.can_handle(a:file)
+      return style.name
+    endif
+  endfor
+  return ''
+endfunction
+
 function! s:sum(list)
   return empty(a:list) ? 0 : eval(join(a:list, '+'))
 endfunction
 
 function! themis#runner#new()
   let runner = deepcopy(s:runner)
+  call runner.init()
   return runner
 endfunction
 
