@@ -213,6 +213,8 @@ endfunction
 function! s:call(obj, key, args)
   if has_key(a:obj, a:key)
     call call(a:obj[a:key], a:args, a:obj)
+  elseif has_key(a:obj, '_')
+    call call(a:obj['_'], [a:key, a:args], a:obj)
   endif
 endfunction
 
