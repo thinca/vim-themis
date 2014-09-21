@@ -22,7 +22,7 @@ function! s:receiver.script_loaded(runner)
 endfunction
 
 function! s:load_nested_bundle(runner, bundle)
-  let a:runner.current_bundle = a:bundle
+  let a:runner.in_bundle(a:bundle)
   let suite = copy(a:bundle.suite)
   call filter(suite, 'v:key =~# s:describe_pattern')
   for name in s:names_by_defined_order(suite)
@@ -34,6 +34,7 @@ function! s:load_nested_bundle(runner, bundle)
   for child in a:bundle.children
     call s:load_nested_bundle(a:runner, child)
   endfor
+  let a:runner.out_bundle()
 endfunction
 
 function! s:receiver.before_suite(bundle)

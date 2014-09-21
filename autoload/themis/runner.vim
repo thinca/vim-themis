@@ -94,7 +94,19 @@ endfunction
 
 function! s:runner.init_bundle()
   let self.root_bundle = themis#bundle#new()
-  let self.current_bundle = self.root_bundle
+  let self.bundle_stacks = [self.root_bundle]
+endfunction
+
+function! s:runner.get_current_bundle()
+  return self.bundle_stacks[-1]
+endfunction
+
+function! s:runner.in_bundle(bundle)
+  let self.bundle_stacks += [a:bundle]
+endfunction
+
+function! s:runner.out_bundle()
+  call remove(self.bundle_stacks, -1)
 endfunction
 
 function! s:runner.add_new_bundle(title)
@@ -106,7 +118,7 @@ function! s:runner.add_bundle(bundle)
     let a:bundle.filename = self._current.filename
     let a:bundle.style_name = self._current.style_name
   endif
-  call self.current_bundle.add_child(a:bundle)
+  call self.get_current_bundle().add_child(a:bundle)
   return a:bundle
 endfunction
 
@@ -137,13 +149,14 @@ function! s:runner.run_bundle(bundle)
     " skip: empty bundle
     return
   endif
-  let self.current_bundle = a:bundle
+  call self.in_bundle(a:bundle)
   call self.emit('before_suite', a:bundle)
   call self.run_suite(a:bundle, test_names)
   for child in a:bundle.children
     call self.run_bundle(child)
   endfor
   call self.emit('after_suite', a:bundle)
+  call self.out_bundle()
 endfunction
 
 function! s:runner.run_suite(bundle, test_names)
