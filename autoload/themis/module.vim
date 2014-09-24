@@ -28,8 +28,8 @@ function! themis#module#load(type, name, args)
   endtry
 endfunction
 
-function! themis#module#style(name, runner)
-  return themis#module#load('style', a:name, [a:runner])
+function! themis#module#style(name)
+  return themis#module#load('style', a:name, [])
 endfunction
 
 function! themis#module#reporter(name)

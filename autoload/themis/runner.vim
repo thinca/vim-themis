@@ -9,12 +9,17 @@ set cpo&vim
 let s:runner = {}
 
 function! s:runner.init()
+  call self.init_bundle()
   let self._events = []
   let self._suppporters = {}
   let self._styles = {}
   for style_name in themis#module#list('style')
-    let self._styles[style_name] = themis#module#style(style_name, self)
+    let self._styles[style_name] = themis#module#style(style_name)
   endfor
+
+  let style_event = deepcopy(s:style_event)
+  let style_event.runner = self
+  call self.add_event(style_event)
 endfunction
 
 function! s:runner.run(paths, options)
@@ -62,7 +67,6 @@ function! s:runner.run(paths, options)
   let self.target_pattern = join(options.target, '\m\|')
 
   let stats = self.supporter('stats')
-  call self.init_bundle()
   let reporter = themis#module#reporter(options.reporter)
   call self.add_event(reporter)
   try
@@ -149,13 +153,18 @@ function! s:runner.run_bundle(bundle)
     " skip: empty bundle
     return
   endif
+  let has_style = a:bundle.get_style_name() !=# ''
   call self.in_bundle(a:bundle)
-  call self.emit('before_suite', a:bundle)
+  if has_style
+    call self.emit('before_suite', a:bundle)
+  endif
   call self.run_suite(a:bundle, test_names)
   for child in a:bundle.children
     call self.run_bundle(child)
   endfor
-  call self.emit('after_suite', a:bundle)
+  if has_style
+    call self.emit('after_suite', a:bundle)
+  endif
   call self.out_bundle()
 endfunction
 
@@ -191,6 +200,10 @@ function! s:runner.get_test_names(bundle)
   return names
 endfunction
 
+function! s:runner.get_current_style()
+  return get(self._styles, self.get_current_bundle().get_style_name(), {})
+endfunction
+
 function! s:runner.supporter(name)
   if !has_key(self._suppporters, a:name)
     let self._suppporters[a:name] = themis#module#supporter(a:name, self)
@@ -222,6 +235,20 @@ function! s:call(obj, key, args)
     call call(a:obj[a:key], a:args, a:obj)
   elseif has_key(a:obj, '_')
     call call(a:obj['_'], [a:key, a:args], a:obj)
+  endif
+endfunction
+
+let s:style_event = {}
+function! s:style_event._(event, args)
+  let current_style = self.runner.get_current_style()
+  if !empty(current_style)
+    if has_key(current_style, 'event')
+      call s:call(current_style.event, a:event, a:args)
+    end
+  else
+    for style in values(self.runner._styles)
+      call s:call(style.event, a:event, a:args)
+    endfor
   endif
 endfunction
 
