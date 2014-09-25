@@ -68,8 +68,8 @@ function! s:bundle.remove_child(child)
   call filter(self.children, 'v:val isnot a:child')
 endfunction
 
-function! s:bundle.run_test(title)
-  call self.suite[a:title]()
+function! s:bundle.run_test(name)
+  call self.suite[a:name]()
 endfunction
 
 function! themis#bundle#new(...)
