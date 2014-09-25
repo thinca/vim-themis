@@ -7,9 +7,8 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 let s:bundle = {
-\   'suite': {
-\     'title': {},
-\   },
+\   'suite': {},
+\   'suite_descriptions': {},
 \   'children': [],
 \ }
 
@@ -34,7 +33,7 @@ function! s:bundle.get_test_title(name)
 endfunction
 
 function! s:bundle.get_description(name)
-  return get(self.suite.title, a:name, '')
+  return get(self.suite_descriptions, a:name, '')
 endfunction
 
 function! s:bundle.get_style_name()
