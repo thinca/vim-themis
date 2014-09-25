@@ -150,7 +150,7 @@ function! themis#util#find_files(paths, filename)
   let dirs = map(copy(a:paths), todir)
   let mod = ':p:gs?\\\+?/?:s?/$??'
   call map(dirs, 'fnamemodify(v:val, mod)')
-  let files = findfile(a:filename, join(map(dirs, 'v:val . ";"'), ''), -1)
+  let files = findfile(a:filename, join(map(dirs, 'v:val . ";"'), ','), -1)
   return themis#util#sortuniq(files)
 endfunction
 
