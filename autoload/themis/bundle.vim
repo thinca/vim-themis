@@ -14,9 +14,8 @@ let s:bundle = {
 \ }
 
 function! s:bundle.get_title()
-  let title = get(self, 'title', '')
-  if title !=# ''
-    return title
+  if self.title !=# ''
+    return self.title
   endif
   let filename = get(self, 'filename', '')
   if filename !=# ''
@@ -75,13 +74,10 @@ endfunction
 
 function! themis#bundle#new(...)
   let bundle = deepcopy(s:bundle)
-  for arg in a:000
-    let t = type(arg)
-    if t == type('')
-      let bundle.title = arg
-    endif
-    unlet arg
-  endfor
+  let bundle.title = 1 <= a:0 ? a:1 : ''
+  if 2 <= a:0
+    call a:2.add_child(bundle)
+  endif
   return bundle
 endfunction
 
