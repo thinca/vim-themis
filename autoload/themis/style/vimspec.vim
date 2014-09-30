@@ -58,7 +58,7 @@ function! s:translate_script(lines)
         let timing = 'each'
       endif
       if timing !~# '^\%(each\|all\)$'
-        throw printf('vimspec%d:Invalid argument for "%s"', lnum, position)
+        throw printf('vimspec:%d:Invalid argument for "%s"', lnum, position)
       endif
       let hook_point = printf('%s_%s', position, timing)
       let result += [
