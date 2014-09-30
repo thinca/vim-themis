@@ -12,15 +12,15 @@ set cpo&vim
 
 runtime! syntax/vim.vim
 
-syntax keyword vimVimspecCommand describe Describe skipwhite nextgroup=vimString
-syntax keyword vimVimspecCommand context Context skipwhite nextgroup=vimString
-syntax keyword vimVimspecCommand before Before
-syntax keyword vimVimspecCommand after After
-syntax keyword vimVimspecCommand end End
-syntax keyword vimVimspecCommand it It skipwhite nextgroup=vimString
+syntax keyword vimspecCommand describe Describe skipwhite nextgroup=vimString
+syntax keyword vimspecCommand context Context skipwhite nextgroup=vimString
+syntax keyword vimspecCommand before Before
+syntax keyword vimspecCommand after After
+syntax keyword vimspecCommand end End
+syntax keyword vimspecCommand it It skipwhite nextgroup=vimString
 
 
-highlight default link vimVimspecCommand  vimCommand
+highlight default link vimspecCommand  vimCommand
 
 
 let b:current_syntax = 'vimspec'
