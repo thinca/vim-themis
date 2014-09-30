@@ -26,7 +26,7 @@ function! GetVimspecIndent()
   if line =~# '^\s*\%([aA]fter\|[bB]efore\|[cC]ontext\|[dD]escribe\|[iI]t\)\>'
     let indent += s:shiftwidth()
   endif
-  if getline(v:lnum) =~# '^\s*[eE]nd\>'
+  if getline(v:lnum) =~# '^\s*End\>'  " 'end' is already processed
     let indent -= s:shiftwidth()
   endif
 
