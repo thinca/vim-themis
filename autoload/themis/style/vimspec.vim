@@ -19,9 +19,12 @@ function! s:translate_script(lines)
   for line in a:lines
     let lnum += 1
 
-    let tokens = matchlist(line, '^\s*\%([Dd]escribe\|[Cc]ontext\)\s*\(.*\)$')
+    let tokens = matchlist(line, '^\s*\([Dd]escribe\|[Cc]ontext\)\s*\(.*\)$')
     if !empty(tokens)
-      let description = tokens[1]
+      let [command, description] = tokens[1 : 2]
+      if description ==# ''
+        throw printf('vimspec:%d::%s must take an argument', lnum, command)
+      endif
       if description =~# '^\s*\([''"]\).*\1\s*$'
         let description = eval(description)
       endif
@@ -38,9 +41,12 @@ function! s:translate_script(lines)
       continue
     endif
 
-    let tokens = matchlist(line, '^\s*[Ii]t\s*\(.*\)$')
+    let tokens = matchlist(line, '^\s*\([Ii]t\)\s*\(.*\)$')
     if !empty(tokens)
-      let example = tokens[1]
+      let [command, example] = tokens[1 : 2]
+      if example ==# ''
+        throw printf('vimspec:%d::%s must take an argument', lnum, command)
+      endif
       let result += [
       \   printf('let s:__themis_vimspec_bundles[-1].suite_descriptions["_%05d"] = %s', c, string(example)),
       \   printf('function! s:__themis_vimspec_bundles[-1].suite._%05d()', c),
@@ -52,15 +58,14 @@ function! s:translate_script(lines)
 
     let tokens = matchlist(line, '^\s*\([Bb]efore\|[Aa]fter\)\%(\s\+\(.*\)\)\?$')
     if !empty(tokens)
-      let position = tolower(tokens[1])
-      let timing = tolower(tokens[2])
+      let [command, timing] = tokens[1 : 2]
       if timing ==# ''
         let timing = 'each'
       endif
       if timing !~# '^\%(each\|all\)$'
-        throw printf('vimspec:%d:Invalid argument for "%s"', lnum, position)
+        throw printf('vimspec:%d:Invalid argument for "%s"', lnum, command)
       endif
-      let hook_point = printf('%s_%s', position, timing)
+      let hook_point = printf('%s_%s', tolower(command), timing)
       let result += [
       \   printf('function! s:__themis_vimspec_bundles[-1]._vimspec_%s()', hook_point),
       \ ]
@@ -68,10 +73,11 @@ function! s:translate_script(lines)
       continue
     endif
 
-    let tokens = matchlist(line, '^\s*[Ee]nd\s*$')
+    let tokens = matchlist(line, '^\s*\([Ee]nd\)\s*$')
     if !empty(tokens)
       if empty(context_stack)
-        throw printf('vimspec:%d:There is :End, but not opened', lnum)
+        let command = tokens[1]
+        throw printf('vimspec:%d:There is :%s, but not opened', lnum, command)
       endif
       let context = remove(context_stack, -1)[0]
       if context ==# 'describe'
