@@ -1,0 +1,135 @@
+let s:file = expand('<sfile>')
+
+function! ExecuteCmd(cmd)
+  execute a:cmd
+endfunction
+
+function! SampleFunctionForUtil()
+  echo "line1"
+  echo "line2"
+  echo [
+  \   0,
+  \   1,
+  \   2,
+  \ ]
+  echo "lastline"
+endfunction
+
+
+Describe util
+  Describe #parse_callstack()
+    It can parse sfile
+      let stacks = themis#util#parse_callstack(ExecuteCmd('return expand("<sfile>")'))
+      for stack in stacks
+        Assert HasKey(stack, 'function')
+        Assert HasKey(stack, 'line')
+      endfor
+      let laststack = stacks[-1]
+      Assert Equals(laststack.function, 'ExecuteCmd')
+      Assert Equals(laststack.line, 0)
+    End
+
+    It can parse throwpoint
+      try
+        call ExecuteCmd('throw "dummy"')
+      catch
+        let stacks = themis#util#parse_callstack(v:throwpoint)
+      endtry
+      for stack in stacks
+        Assert HasKey(stack, 'function')
+        Assert HasKey(stack, 'line')
+      endfor
+      let laststack = stacks[-1]
+      Assert Equals(laststack.function, 'ExecuteCmd')
+      Assert Equals(laststack.line, 1)
+    End
+  End
+
+  Describe #funcbody()
+    It takes a function by name
+      let body = themis#util#funcbody('SampleFunctionForUtil', 0)
+      Assert Match(body[1], '1\s*echo "line1"')
+      Assert Match(body[-2], '\d\+\s*echo "lastline"')
+    End
+    It takes a function by funcref
+      let body = themis#util#funcbody(function('SampleFunctionForUtil'), 0)
+      Assert Match(body[1], '1\s*echo "line1"')
+      Assert Match(body[-2], '\d\+\s*echo "lastline"')
+    End
+    It can contain defined filename info in first line
+      let body = themis#util#funcbody('SampleFunctionForUtil', 1)
+      let file = s:file
+      Assert Match(body[1], fnamemodify(file, ':t') . '$')
+    End
+  End
+
+  Describe #funcline()
+    It returns the line of the body of the specified function
+      Assert Match(themis#util#funcline('SampleFunctionForUtil', 1), 'echo "line1"')
+      Assert Match(themis#util#funcline('SampleFunctionForUtil', 2), 'echo "line2"')
+      Assert Match(themis#util#funcline('SampleFunctionForUtil', 8), 'echo "lastline"')
+    End
+  End
+
+  Describe #is_funcname()
+    It checks the argument is name of function
+      Assert True(themis#util#is_funcname('GlobalFunc'))
+      Assert True(themis#util#is_funcname('s:script_local_func'))
+      Assert True(themis#util#is_funcname('<SNR>10_script_local_func'))
+      Assert True(themis#util#is_funcname('autoload#func'))
+      Assert True(themis#util#is_funcname('10'))
+
+      Assert False(themis#util#is_funcname(''))
+      Assert False(themis#util#is_funcname('global_func'))
+      Assert False(themis#util#is_funcname('g:global_func'))
+      Assert False(themis#util#is_funcname('#func'))
+      Assert False(themis#util#is_funcname('10func'))
+    End
+  End
+
+  Describe #funcname()
+    It returns function name from Funcref
+      let obj = {}
+      Assert Equals(themis#util#funcname(function('SampleFunctionForUtil')), 'SampleFunctionForUtil')
+      function! obj.funcname()
+      endfunction
+      Assert Match(themis#util#funcname(obj.funcname), '^\d\+$')
+    End
+  End
+
+  Describe #get_full_title()
+    It returns the full title of a suite or a report
+      let obj1 = {}
+      function! obj1.get_title()
+        return 'foo'
+      endfunction
+      Assert Equals(themis#util#get_full_title(obj1), 'foo')
+
+      let obj2 = {'parent': obj1}
+      function! obj2.get_title()
+        return 'bar'
+      endfunction
+      Assert Equals(themis#util#get_full_title(obj2), 'foo bar')
+
+      let obj3 = {'parent': obj2}
+      function! obj3.get_title()
+        return ''
+      endfunction
+      Assert Equals(themis#util#get_full_title(obj3), 'foo bar')
+
+      let obj4 = {'parent': obj3}
+      function! obj4.get_title()
+        return 'buz'
+      endfunction
+      Assert Equals(themis#util#get_full_title(obj4), 'foo bar buz')
+    End
+  End
+
+  Describe #sortuniq()
+    It sorts the list, and removes duplicated item from the list
+      let original = ['foo', 'bar', 'foo', 'buz']
+      let expect = ['bar', 'buz', 'foo']
+      Assert Equals(themis#util#sortuniq(original), expect)
+    End
+  End
+End
