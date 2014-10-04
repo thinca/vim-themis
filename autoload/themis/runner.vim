@@ -92,6 +92,7 @@ function! s:runner.run(paths, options)
     let error_count = 1
   finally
     let &runtimepath = save_runtimepath
+    call self.emit('finish', self)
   endtry
   return error_count
 endfunction
