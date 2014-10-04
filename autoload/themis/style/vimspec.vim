@@ -106,7 +106,9 @@ function! s:compile_specfile(specfile_path, result_path)
 endfunction
 
 
-let s:event = {}
+let s:event = {
+\   '_converted_files': []
+\ }
 
 function! s:event.before_suite(bundle)
   call s:call_hook(a:bundle, '_vimspec_before_all')
@@ -128,6 +130,14 @@ endfunction
 
 function! s:event.after_suite(bundle)
   call s:call_hook(a:bundle, '_vimspec_after_all')
+endfunction
+
+function! s:event.finish(runner)
+  for file in self._converted_files
+    if filereadable(file)
+      call delete(file)
+    endif
+  endfor
 endfunction
 
 function! s:call_hook(bundle, point)
@@ -152,6 +162,7 @@ endfunction
 
 function! s:style.load_script(filename)
   let compiled_specfile_path = tempname()
+  call add(self.event._converted_files, compiled_specfile_path)
   try
     call s:compile_specfile(a:filename, compiled_specfile_path)
     execute 'source' fnameescape(compiled_specfile_path)
@@ -162,10 +173,6 @@ function! s:style.load_script(filename)
     \   printf('Error occurred in %s:%d', a:filename, lnum),
     \   message,
     \ ])
-  finally
-    if filereadable(compiled_specfile_path)
-      call delete(compiled_specfile_path)
-    endif
   endtry
 endfunction
 
