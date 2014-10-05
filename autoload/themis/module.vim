@@ -1,5 +1,5 @@
 " themis: Module loader.
-" Version: 1.2
+" Version: 1.3
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
@@ -28,8 +28,8 @@ function! themis#module#load(type, name, args)
   endtry
 endfunction
 
-function! themis#module#style(name, runner)
-  return themis#module#load('style', a:name, [a:runner])
+function! themis#module#style(name)
+  return themis#module#load('style', a:name, [])
 endfunction
 
 function! themis#module#reporter(name)

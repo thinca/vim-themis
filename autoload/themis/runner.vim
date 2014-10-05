@@ -1,17 +1,29 @@
 " themis: Test runner
-" Version: 1.2
+" Version: 1.3
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
 let s:save_cpo = &cpo
 set cpo&vim
 
-let s:runner = {
-\   'events': [],
-\   '_suppporters': {},
-\ }
+let s:runner = {}
+
+function! s:runner.init()
+  call self.init_bundle()
+  let self._events = []
+  let self._suppporters = {}
+  let self._styles = {}
+  for style_name in themis#module#list('style')
+    let self._styles[style_name] = themis#module#style(style_name)
+  endfor
+
+  let style_event = deepcopy(s:style_event)
+  let style_event.runner = self
+  call self.add_event(style_event)
+endfunction
 
 function! s:runner.run(paths, options)
+  call self.init()
   let paths = type(a:paths) == type([]) ? a:paths : [a:paths]
 
   call s:load_themisrc(paths)
@@ -25,9 +37,15 @@ function! s:runner.run(paths, options)
     call filter(files, 'v:val !~# excludes')
   endif
 
-  let self.style = themis#module#style(options.style, self)
-  call filter(files, 'self.style.can_handle(v:val)')
-  if empty(files)
+  let files_with_styles = {}
+  for file in files
+    let style = s:can_handle(values(self._styles), file)
+    if style !=# ''
+      let files_with_styles[file] = style
+    endif
+  endfor
+
+  if empty(files_with_styles)
     throw 'themis: Target file not found.'
   endif
 
@@ -49,11 +67,10 @@ function! s:runner.run(paths, options)
   let self.target_pattern = join(options.target, '\m\|')
 
   let stats = self.supporter('stats')
-  call self.init_bundle()
   let reporter = themis#module#reporter(options.reporter)
   call self.add_event(reporter)
   try
-    call self.load_scripts(files)
+    call self.load_scripts(files_with_styles)
     call self.emit('script_loaded', self)
     call self.emit('start', self)
     call self.run_all()
@@ -75,13 +92,26 @@ function! s:runner.run(paths, options)
     let error_count = 1
   finally
     let &runtimepath = save_runtimepath
+    call self.emit('finish', self)
   endtry
   return error_count
 endfunction
 
 function! s:runner.init_bundle()
-  let self.bundle = themis#bundle#new()
-  let self.current_bundle = self.bundle
+  let self.root_bundle = themis#bundle#new()
+  let self.bundle_stacks = [self.root_bundle]
+endfunction
+
+function! s:runner.get_current_bundle()
+  return self.bundle_stacks[-1]
+endfunction
+
+function! s:runner.in_bundle(bundle)
+  let self.bundle_stacks += [a:bundle]
+endfunction
+
+function! s:runner.out_bundle()
+  call remove(self.bundle_stacks, -1)
 endfunction
 
 function! s:runner.add_new_bundle(title)
@@ -89,27 +119,33 @@ function! s:runner.add_new_bundle(title)
 endfunction
 
 function! s:runner.add_bundle(bundle)
-  if has_key(self, '_filename')
-    let a:bundle.filename = self._filename
+  if has_key(self, '_current')
+    let a:bundle.filename = self._current.filename
+    let a:bundle.style_name = self._current.style_name
   endif
-  call self.current_bundle.add_child(a:bundle)
+  call self.get_current_bundle().add_child(a:bundle)
   return a:bundle
 endfunction
 
-function! s:runner.load_scripts(scripts)
+function! s:runner.load_scripts(files_with_styles)
   let self.phase = 'script loading'
-  for script in a:scripts
-    if !filereadable(script)
-      throw printf('themis: Target file was not found: %s', script)
+  for [filename, style_name] in items(a:files_with_styles)
+    if !filereadable(filename)
+      throw printf('themis: Target file was not found: %s', filename)
     endif
-    let self._filename = script
-    call self.style.load_script(script)
+    let style = self._styles[style_name]
+    let self._current = {
+    \   'filename': filename,
+    \   'style_name': style_name,
+    \ }
+    call style.load_script(filename)
+    unlet self._current
   endfor
   unlet self.phase
 endfunction
 
 function! s:runner.run_all()
-  call self.run_bundle(self.bundle)
+  call self.run_bundle(self.root_bundle)
 endfunction
 
 function! s:runner.run_bundle(bundle)
@@ -118,13 +154,19 @@ function! s:runner.run_bundle(bundle)
     " skip: empty bundle
     return
   endif
-  let self.current_bundle = a:bundle
-  call self.emit('before_suite', a:bundle)
+  let has_style = a:bundle.get_style_name() !=# ''
+  call self.in_bundle(a:bundle)
+  if has_style
+    call self.emit('before_suite', a:bundle)
+  endif
   call self.run_suite(a:bundle, test_names)
   for child in a:bundle.children
     call self.run_bundle(child)
   endfor
-  call self.emit('after_suite', a:bundle)
+  if has_style
+    call self.emit('after_suite', a:bundle)
+  endif
+  call self.out_bundle()
 endfunction
 
 function! s:runner.run_suite(bundle, test_names)
@@ -147,12 +189,20 @@ function! s:runner.run_suite(bundle, test_names)
 endfunction
 
 function! s:runner.get_test_names(bundle)
-  let names = self.style.get_test_names(a:bundle)
+  let style = get(self._styles, a:bundle.get_style_name(), {})
+  if empty(style)
+    return []
+  endif
+  let names = style.get_test_names(a:bundle)
   if get(self, 'target_pattern', '') !=# ''
     let pat = self.target_pattern
     call filter(names, 'a:bundle.get_test_full_title(v:val) =~# pat')
   endif
   return names
+endfunction
+
+function! s:runner.get_current_style()
+  return get(self._styles, self.get_current_bundle().get_style_name(), {})
 endfunction
 
 function! s:runner.supporter(name)
@@ -163,19 +213,19 @@ function! s:runner.supporter(name)
 endfunction
 
 function! s:runner.add_event(event)
-  call add(self.events, a:event)
+  call add(self._events, a:event)
   call s:call(a:event, 'init', [self])
 endfunction
 
 function! s:runner.total_test_count(...)
-  let bundle = a:0 ? a:1 : self.bundle
+  let bundle = a:0 ? a:1 : self.root_bundle
   return len(self.get_test_names(bundle))
   \    + s:sum(map(copy(bundle.children), 'self.total_test_count(v:val)'))
 endfunction
 
 function! s:runner.emit(name, ...)
   let self.phase = a:name
-  for event in self.events
+  for event in self._events
     call s:call(event, a:name, a:000)
   endfor
   unlet self.phase
@@ -184,6 +234,22 @@ endfunction
 function! s:call(obj, key, args)
   if has_key(a:obj, a:key)
     call call(a:obj[a:key], a:args, a:obj)
+  elseif has_key(a:obj, '_')
+    call call(a:obj['_'], [a:key, a:args], a:obj)
+  endif
+endfunction
+
+let s:style_event = {}
+function! s:style_event._(event, args)
+  let current_style = self.runner.get_current_style()
+  if !empty(current_style)
+    if has_key(current_style, 'event')
+      call s:call(current_style.event, a:event, a:args)
+    end
+  else
+    for style in values(self.runner._styles)
+      call s:call(style.event, a:event, a:args)
+    endfor
   endif
 endfunction
 
@@ -241,6 +307,15 @@ function! s:paths2files(paths, recursive)
   endfor
   let mods =  ':p:gs?\\?/?'
   return filter(map(files, 'fnamemodify(v:val, mods)'), '!isdirectory(v:val)')
+endfunction
+
+function! s:can_handle(styles, file)
+  for style in a:styles
+    if style.can_handle(a:file)
+      return style.name
+    endif
+  endfor
+  return ''
 endfunction
 
 function! s:sum(list)

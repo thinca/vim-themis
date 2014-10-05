@@ -1,5 +1,5 @@
 " themis: style: basic: Basic style.
-" Version: 1.2
+" Version: 1.3
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
@@ -15,14 +15,14 @@ let s:special_names = [
 \ ]
 let s:describe_pattern = '^__.\+__$'
 
-let s:receiver = {}
+let s:event = {}
 
-function! s:receiver.script_loaded(runner)
-  call s:load_nested_bundle(a:runner, a:runner.bundle)
+function! s:event.script_loaded(runner)
+  call s:load_nested_bundle(a:runner, a:runner.root_bundle)
 endfunction
 
 function! s:load_nested_bundle(runner, bundle)
-  let a:runner.current_bundle = a:bundle
+  let a:runner.in_bundle(a:bundle)
   let suite = copy(a:bundle.suite)
   call filter(suite, 'v:key =~# s:describe_pattern')
   for name in s:names_by_defined_order(suite)
@@ -34,15 +34,16 @@ function! s:load_nested_bundle(runner, bundle)
   for child in a:bundle.children
     call s:load_nested_bundle(a:runner, child)
   endfor
+  let a:runner.out_bundle()
 endfunction
 
-function! s:receiver.before_suite(bundle)
+function! s:event.before_suite(bundle)
   if has_key(a:bundle.suite, 'before')
     call a:bundle.suite.before()
   endif
 endfunction
 
-function! s:receiver.before_test(bundle, name)
+function! s:event.before_test(bundle, name)
   if has_key(a:bundle, 'parent')
     call self.before_test(a:bundle.parent, a:name)
   endif
@@ -51,13 +52,13 @@ function! s:receiver.before_test(bundle, name)
   endif
 endfunction
 
-function! s:receiver.after_suite(bundle)
+function! s:event.after_suite(bundle)
   if has_key(a:bundle.suite, 'after')
     call a:bundle.suite.after()
   endif
 endfunction
 
-function! s:receiver.after_test(bundle, name)
+function! s:event.after_test(bundle, name)
   if has_key(a:bundle.suite, 'after_each')
     call a:bundle.suite.after_each()
   endif
@@ -68,7 +69,7 @@ endfunction
 
 
 let s:style = {
-\   'receiver': s:receiver,
+\   'event': s:event,
 \ }
 
 function! s:style.get_test_names(bundle)
@@ -104,10 +105,8 @@ function! s:style.load_script(filename)
   source `=a:filename`
 endfunction
 
-function! themis#style#basic#new(runner)
-  let style = deepcopy(s:style)
-  call a:runner.add_event(style.receiver)
-  return style
+function! themis#style#basic#new()
+  return deepcopy(s:style)
 endfunction
 
 let &cpo = s:save_cpo

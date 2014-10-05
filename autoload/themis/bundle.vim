@@ -1,5 +1,5 @@
 " themis: Test bundle.
-" Version: 1.2
+" Version: 1.3
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
@@ -7,16 +7,14 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 let s:bundle = {
-\   'suite': {
-\     'title': {},
-\   },
+\   'suite': {},
+\   'suite_descriptions': {},
 \   'children': [],
 \ }
 
 function! s:bundle.get_title()
-  let title = get(self, 'title', '')
-  if title !=# ''
-    return title
+  if self.title !=# ''
+    return self.title
   endif
   let filename = get(self, 'filename', '')
   if filename !=# ''
@@ -35,7 +33,17 @@ function! s:bundle.get_test_title(name)
 endfunction
 
 function! s:bundle.get_description(name)
-  return get(self.suite.title, a:name, '')
+  return get(self.suite_descriptions, a:name, '')
+endfunction
+
+function! s:bundle.get_style_name()
+  if has_key(self, 'style_name')
+    return self.style_name
+  endif
+  if has_key(self, 'parent')
+    return self.parent.get_style_name()
+  endif
+  return ''
 endfunction
 
 function! s:bundle.add_child(bundle)
@@ -59,19 +67,16 @@ function! s:bundle.remove_child(child)
   call filter(self.children, 'v:val isnot a:child')
 endfunction
 
-function! s:bundle.run_test(title)
-  call self.suite[a:title]()
+function! s:bundle.run_test(name)
+  call self.suite[a:name]()
 endfunction
 
 function! themis#bundle#new(...)
   let bundle = deepcopy(s:bundle)
-  for arg in a:000
-    let t = type(arg)
-    if t == type('')
-      let bundle.title = arg
-    endif
-    unlet arg
-  endfor
+  let bundle.title = 1 <= a:0 ? a:1 : ''
+  if 2 <= a:0
+    call a:2.add_child(bundle)
+  endif
   return bundle
 endfunction
 

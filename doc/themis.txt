@@ -1,6 +1,6 @@
 *themis.txt*	A testing framework for Vim script.
 
-Version: 1.2
+Version: 1.3
 Author : thinca <thinca+vim@gmail.com>
 License: zlib License
 
@@ -13,8 +13,13 @@ INTERFACE			|themis-interface|
   EXTERNAL COMMANDS		  |themis-external-commands|
   FUNCTIONS			  |themis-functions|
 CUSTOMIZING			|themis-customizing|
+  ENVIRONMENT VARIABLE		  |themis-environment-variable|
+  THEMISRC			  |themis-themisrc|
 WRITE TEST			|themis-write-test|
   QUICKREF			  |themis-quickref|
+STYLE				|themis-style|
+  BASIC				  |themis-style-basic|
+  VIMSPEC			  |themis-style-vimspec|
 HELPER				|themis-helper|
   ASSERT			  |themis-helper-assert|
   COMMAND			  |themis-helper-command|
@@ -22,7 +27,6 @@ HELPER				|themis-helper|
 REPORTER			|themis-reporter|
 TEST RULE			|themis-test-rule|
   EXCEPTION			  |themis-rule-exception|
-  TEST NAME			  |themis-rule-test-name|
 CHANGELOG			|themis-changelog|
 
 
@@ -277,6 +281,7 @@ Create a new test script.
 >
 	$ vim test/your-test.vim
 <
+You can select a style to write a test.  See |themis-style| for details.
 And write a test.  There is a sample with explanation comment.
 >
 	" In a file, create a suite at first.
@@ -363,6 +368,106 @@ Invert results
 |themis-helper-expect-not|
 Define custom matcher
 |themis#helper#expect#define_matcher()|
+
+
+
+==============================================================================
+STYLE						*themis-style*
+
+You can write tests by some styles.
+Style is a file format.  You can select your favorite style.
+Style is decided from extension of test file.
+
+------------------------------------------------------------------------------
+BASIC						*themis-style-basic*
+
+Basic-style is most basic style.  This style is just a Vim script.
+"*.vim" file is treated as basic style.
+
+You can make a suite by |themis#suite()|.
+
+TEST NAME					*themis-style-basic-test-name*
+The key name of a suite is test name.
+Some test names have a special meaning.  They are called in special situation.
+
+- before()
+  - This is called before a first test of this suite.
+- before_each()
+  - This is called before each test of this suite.
+- after_each()
+  - This is called after each test of this suite.
+- after()
+  - This is called after a last test of this suite.
+- __XXX__()
+  - XXX is any string.
+  - This is called before the all test.
+  - You can make nested suite in this function.  >
+	let s:parent = themis#suite('parent')
+	function! s:parent.__child__()
+	  let child = themis#suite('child')
+	  function! child.test()
+	    " Test code here...
+	  endfunction
+	endfunction
+
+------------------------------------------------------------------------------
+VIMSPEC						*themis-style-vimspec*
+
+Vimspec-style provides spec style test.
+"*.vimspec" file is treated as vimspec style.
+
+Vimspec-style provides some special commands.
+>
+	Describe DateTime
+	  Context .from_unix_time()
+	    It makes a DateTime object from unix time
+	      Assert Equals(DateTime.from_unix_time(1410590959).year(), 2014)
+	    End
+	  End
+	End
+<
+A .vimspec file is converted to a Vim script before :source.
+The converted file may be placed to other place from original file.
+Note that when you use `expand("<sfile>")`.
+
+All special commands can start with lowercase. >
+	describe DateTime.now()
+	  it makes a DateTime object with now time
+	    " ...
+	  end
+	end
+
+:Describe {description}			*themis-style-vimspec-:Describe*
+:End
+	Defines a suite block.
+	{description} can quote by '' or "" like a string.
+	This can be nested.
+
+:Context {description}			*themis-style-vimspec-:Context*
+:End
+	Defines a suite block.  This is an alias of :Describe.
+	This is useful to make nested groups more readable.
+
+:It {example}				*themis-style-vimspec-:It*
+:End
+	Defines a test.
+	This block will be converted to a function.
+
+:Before all				*themis-style-vimspec-:Before*
+:End
+	Defines a block which is run before each suite.
+
+:Before [each]
+:End
+	Defines a block which is run before each test.
+
+:After all				*themis-style-vimspec-:After*
+:End
+	Defines a block which is run after each suite.
+
+:After [each]
+:End
+	Defines a block which is run after each test.
 
 
 
@@ -745,36 +850,13 @@ Some specialized patterns are processed by themis.
 When all characters of {type} are uppercase, a test treated as "pending".
 
 
-------------------------------------------------------------------------------
-TEST NAME					*themis-rule-test-name*
-
-The key name of a suite is test name.
-Some test names have a special meaning.  They are called in special situation.
-
-- before()
-  - This is called before a first test of this suite.
-- before_each()
-  - This is called before each test of this suite.
-- after_each()
-  - This is called after each test of this suite.
-- after()
-  - This is called after a last test of this suite.
-- __XXX__()
-  - XXX is any string.
-  - This is called before the all test.
-  - You can make nested suite in this function.  >
-	let s:parent = themis#suite('parent')
-	function! s:parent.__child__()
-	  let child = themis#suite('child')
-	  function! child.test()
-	    " Test code here...
-	  endfunction
-	endfunction
-
-
 
 ==============================================================================
 CHANGELOG					*themis-changelog*
+
+1.3	2014-10-06
+	- Add |themis-style| feature.
+	  - Add |themis-style-vimspec|.
 
 1.2	2014-09-06
 	- Add |.themisrc| file feature.

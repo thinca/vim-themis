@@ -1,5 +1,5 @@
 " themis: reporter: Report with spec style.
-" Version: 1.2
+" Version: 1.3
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
@@ -66,7 +66,7 @@ endfunction
 function! s:reporter.print(message, ...)
   let prefix = a:0 ? a:1 : ''
   for line in split(a:message, "\n")
-    call themis#log(prefix . repeat('  ', self.indent - 1) . line)
+    call themis#log(prefix . repeat('  ', self.indent) . line)
   endfor
 endfunction
 
