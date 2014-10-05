@@ -1,5 +1,5 @@
 " themis: style: vimspec: Spec style.
-" Version: 1.2
+" Version: 1.3
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
