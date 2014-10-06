@@ -112,7 +112,11 @@ endfunction
 
 function! s:define_todo(command)
   execute 'command! -nargs=*' a:command
-  \ 'throw "themis: report: todo:" . <q-args>'
+  \ '  if <q-args> !=# ""'
+  \ '|   throw "themis: report: todo:" . <q-args>'
+  \ '| else'
+  \ '|   throw "themis: report: todo: TODO"'
+  \ '| endif'
 endfunction
 
 function! s:define_skip(command)

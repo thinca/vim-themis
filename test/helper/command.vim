@@ -71,8 +71,8 @@ function! s:helper.__command__()
     function! TODO.fails_a_test_as_todo_with_message()
       call s:check_throw('TODO', ['fail message'], 'todo:\s*fail message$')
     endfunction
-    function! TODO.can_omit_message()
-      call s:check_throw('TODO', [], 'todo:\s*$')
+    function! TODO.uses_default_message_when_the_message_is_omitted()
+      call s:check_throw('TODO', [], 'todo:\s*TODO$')
     endfunction
   endfunction
 

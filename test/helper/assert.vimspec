@@ -12,8 +12,8 @@ Describe helper-assert
     It throws a todo report with message
       call s:check_throw('todo', ['message'], '^themis:\s*report:\s*todo:.*message$')
     End
-    It can omit message
-      call s:check_throw('todo', [], '^themis:\s*report:\s*todo:$')
+    It uses default message when the message is omitted
+      call s:check_throw('todo', [], '^themis:\s*report:\s*todo:\s*TODO$')
     End
   End
 

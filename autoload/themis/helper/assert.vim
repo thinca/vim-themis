@@ -13,7 +13,7 @@ function! s:assert_fail(mes)
 endfunction
 
 function! s:assert_todo(...)
-  throw 'themis: report: todo:' . themis#message(a:0 ? a:1 : '')
+  throw 'themis: report: todo:' . themis#message(a:0 ? a:1 : 'TODO')
 endfunction
 
 function! s:assert_skip(mes)
