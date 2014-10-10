@@ -150,10 +150,6 @@ endfunction
 
 function! s:runner.run_bundle(bundle)
   let test_names = self.get_test_names(a:bundle)
-  if empty(a:bundle.children) && empty(test_names)
-    " skip: empty bundle
-    return
-  endif
   let has_style = a:bundle.get_style_name() !=# ''
   call self.in_bundle(a:bundle)
   if has_style
