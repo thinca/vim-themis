@@ -38,6 +38,10 @@ function! themis#util#parse_callstack(callstack)
 endfunction
 
 function! themis#util#funcinfo_format(funcinfo)
+  if empty(a:funcinfo)
+    return 'function ??()  This function is already deleted.'
+  endif
+
   if a:funcinfo.signature ==# ''
     " This is a file.
     return printf('%s Line:%d', a:funcinfo.file, a:funcinfo.line)
@@ -54,6 +58,9 @@ function! themis#util#funcinfo(stack)
   let line = a:stack.line
   if themis#util#is_funcname(f)
     let body = themis#util#funcbody(f, 1)
+    if empty(body)
+      return {}
+    endif
     let signature = matchstr(body[0], '^\s*\zs.*')
     let file = matchstr(body[1], '^\s*Last set from\s*\zs.*$')
     let file = substitute(file, '[/\\]\+', '/', 'g')
@@ -79,6 +86,9 @@ function! themis#util#funcbody(func, verbose)
   let func = type(a:func) == type(function('type')) ?
   \          themis#util#funcname(a:func) : a:func
   let fname = func =~# '^\d\+' ? '{' . func . '}' : func
+  if !exists('*' . fname)
+    return []
+  endif
   let verbose = a:verbose ? 'verbose' : ''
   redir => body
   silent execute verbose 'function' fname

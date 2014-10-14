@@ -61,6 +61,14 @@ Describe util
       let file = s:file
       Assert Match(body[1], fnamemodify(file, ':t') . '$')
     End
+    It returns empty List when the function is already deleted
+      let obj = {}
+      function! obj.func()
+      endfunction
+      let funcname = matchstr(string(obj.func), 'function(''\zs.\{-}\ze'')')
+      unlet obj
+      Assert Equals(themis#util#funcbody(funcname, 0), [])
+    End
   End
 
   Describe #funcline()
