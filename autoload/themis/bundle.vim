@@ -74,7 +74,7 @@ endfunction
 function! themis#bundle#new(...)
   let bundle = deepcopy(s:bundle)
   let bundle.title = 1 <= a:0 ? a:1 : ''
-  if 2 <= a:0
+  if 2 <= a:0 && has_key(a:2, 'add_child')
     call a:2.add_child(bundle)
   endif
   return bundle
