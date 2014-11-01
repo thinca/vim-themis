@@ -854,6 +854,10 @@ When all characters of {type} are uppercase, a test treated as "pending".
 ==============================================================================
 CHANGELOG					*themis-changelog*
 
+1.4	Roadmap
+	- [Yet] Lexical scope support for |themis-style-vimspec|.
+	- [Yet] Add |themis#func_alias()|.
+
 1.3	2014-10-06
 	- Add |themis-style| feature.
 	  - Add |themis-style-vimspec|.
