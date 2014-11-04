@@ -39,8 +39,9 @@ function! s:dump_error(throwpoint, exception)
       let funcs = matchstr(a:throwpoint, '^function\s*\zs.\+\ze,')
       let f = get(split(funcs, '\.\.'), -1)
       if f
-        let body = themis#util#funcbody(f, 1)
-        $ put =body
+        let data = themis#util#funcdata(f)
+        $ put =data.signature
+        $ put =data.body
       endif
     endif
     $ put ='ERROR: ' . matchstr(a:exception, '^\%(themis:\s*\)\?\zs.*')

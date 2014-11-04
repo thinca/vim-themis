@@ -57,17 +57,14 @@ function! themis#util#funcinfo(stack)
   let f = a:stack.function
   let line = a:stack.line
   if themis#util#is_funcname(f)
-    let body = themis#util#funcbody(f, 1)
-    if empty(body)
+    let data = themis#util#funcdata(f)
+    if empty(data)
       return {}
     endif
-    let signature = matchstr(body[0], '^\s*\zs.*')
-    let file = matchstr(body[1], '^\s*Last set from\s*\zs.*$')
-    let file = substitute(file, '[/\\]\+', '/', 'g')
     return {
     \   'funcname': f,
-    \   'signature': signature,
-    \   'file': file,
+    \   'signature': data.signature,
+    \   'file': data.filename,
     \   'line': line,
     \ }
   elseif filereadable(f)
@@ -82,25 +79,42 @@ function! themis#util#funcinfo(stack)
   endif
 endfunction
 
-function! themis#util#funcbody(func, verbose)
+function! themis#util#funcdata(func)
   let func = type(a:func) == type(function('type')) ?
   \          themis#util#funcname(a:func) : a:func
   let fname = func =~# '^\d\+' ? '{' . func . '}' : func
   if !exists('*' . fname)
-    return []
+    return {}
   endif
-  let verbose = a:verbose ? 'verbose' : ''
   redir => body
-  silent execute verbose 'function' fname
+  silent execute 'verbose function' fname
   redir END
-  return split(body, "\n")
+  let lines = split(body, "\n")
+  let signature = matchstr(lines[0], '^\s*\zs.*')
+  let file = matchstr(lines[1], '^\s*Last set from\s*\zs.*$')
+  let file = substitute(file, '[/\\]\+', '/', 'g')
+  let arguments = split(matchstr(signature, '(\zs.*\ze)'), '\s*,\s*')
+  let has_extra_arguments = get(arguments, -1, '') ==# '...'
+  let arity = len(arguments) - (has_extra_arguments ? 1 : 0)
+  return {
+  \   'filename': file,
+  \   'funcname': func,
+  \   'signature': signature,
+  \   'arguments': arguments,
+  \   'arity': arity,
+  \   'has_extra_arguments': has_extra_arguments,
+  \   'is_dict': signature =~# ').*dict',
+  \   'is_abort': signature =~# ').*abort',
+  \   'has_range': signature =~# ').*range',
+  \   'body': lines[2 : -2],
+  \ }
 endfunction
 
 function! themis#util#funcline(target, lnum)
   if themis#util#is_funcname(a:target)
-    let body = themis#util#funcbody(a:target, 0)
+    let data = themis#util#funcdata(a:target)
     " XXX: More improve speed
-    for line in body[1 : -2]
+    for line in data.body
       if line =~# '^' . a:lnum
         let num_width = a:lnum < 1000 ? 3 : len(a:lnum)
         return line[num_width :]
