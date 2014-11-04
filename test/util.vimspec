@@ -56,19 +56,22 @@ Describe util
       Assert Match(data.body[0], '1\s*echo "line1"')
       Assert Match(data.body[-1], '\d\+\s*echo "lastline"')
     End
-    It returns empty Dictionary when the function is already deleted
+    It returns the data with "exists" flag as false when the function is already deleted
       let obj = {}
       function! obj.func()
       endfunction
       let funcname = matchstr(string(obj.func), 'function(''\zs.\{-}\ze'')')
       unlet obj
-      Assert Equals(themis#util#funcdata(funcname), {})
+      Assert False(themis#util#funcdata(funcname).exists)
     End
 
     Context returns data that
       Before
         " TODO: More sample
         let self.data = themis#util#funcdata('SampleFunctionForUtil')
+      End
+      It contains exists flag
+        Assert True(self.data.exists)
       End
       It contains filename
         let file = s:file

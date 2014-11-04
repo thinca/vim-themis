@@ -58,7 +58,7 @@ function! themis#util#funcinfo(stack)
   let line = a:stack.line
   if themis#util#is_funcname(f)
     let data = themis#util#funcdata(f)
-    if empty(data)
+    if !data.exists
       return {}
     endif
     return {
@@ -84,7 +84,10 @@ function! themis#util#funcdata(func)
   \          themis#util#funcname(a:func) : a:func
   let fname = func =~# '^\d\+' ? '{' . func . '}' : func
   if !exists('*' . fname)
-    return {}
+    return {
+    \   'exists': 0,
+    \   'funcname': func,
+    \ }
   endif
   redir => body
   silent execute 'verbose function' fname
@@ -97,6 +100,7 @@ function! themis#util#funcdata(func)
   let has_extra_arguments = get(arguments, -1, '') ==# '...'
   let arity = len(arguments) - (has_extra_arguments ? 1 : 0)
   return {
+  \   'exists': 1,
   \   'filename': file,
   \   'funcname': func,
   \   'signature': signature,
