@@ -38,19 +38,20 @@ function! themis#util#parse_callstack(callstack)
 endfunction
 
 function! themis#util#funcinfo_format(funcinfo)
-  if empty(a:funcinfo)
-    return 'function ??()  This function is already deleted.'
+  if !a:funcinfo.exists
+    return printf('function %s()  This function is already deleted.',
+    \             a:funcinfo.funcname)
   endif
 
   if a:funcinfo.signature ==# ''
     " This is a file.
-    return printf('%s Line:%d', a:funcinfo.file, a:funcinfo.line)
+    return printf('%s Line:%d', a:funcinfo.filename, a:funcinfo.line)
   endif
   let result = a:funcinfo.signature
   if a:funcinfo.line
     let result .= '  Line:' . a:funcinfo.line
   endif
-  return result . '  (' . a:funcinfo.file . ')'
+  return result . '  (' . a:funcinfo.filename . ')'
 endfunction
 
 function! themis#util#funcinfo(stack)
@@ -58,20 +59,14 @@ function! themis#util#funcinfo(stack)
   let line = a:stack.line
   if themis#util#is_funcname(f)
     let data = themis#util#funcdata(f)
-    if !data.exists
-      return {}
-    endif
-    return {
-    \   'funcname': f,
-    \   'signature': data.signature,
-    \   'file': data.filename,
-    \   'line': line,
-    \ }
+    let data.line = line
+    return data
   elseif filereadable(f)
     return {
+    \   'exists': 1,
     \   'funcname': f,
     \   'signature': '',
-    \   'file': f,
+    \   'filename': f,
     \   'line': line,
     \ }
   else
