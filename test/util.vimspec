@@ -21,11 +21,11 @@ Describe util
     It can parse sfile
       let stacks = themis#util#parse_callstack(ExecuteCmd('return expand("<sfile>")'))
       for stack in stacks
-        Assert HasKey(stack, 'function')
+        Assert HasKey(stack, 'stack')
         Assert HasKey(stack, 'line')
       endfor
       let laststack = stacks[-1]
-      Assert Equals(laststack.function, 'ExecuteCmd')
+      Assert Equals(laststack.stack, 'ExecuteCmd')
       Assert Equals(laststack.line, 0)
     End
 
@@ -36,11 +36,11 @@ Describe util
         let stacks = themis#util#parse_callstack(v:throwpoint)
       endtry
       for stack in stacks
-        Assert HasKey(stack, 'function')
+        Assert HasKey(stack, 'stack')
         Assert HasKey(stack, 'line')
       endfor
       let laststack = stacks[-1]
-      Assert Equals(laststack.function, 'ExecuteCmd')
+      Assert Equals(laststack.stack, 'ExecuteCmd')
       Assert Equals(laststack.line, 1)
     End
   End
@@ -105,14 +105,6 @@ Describe util
         Assert IsList(self.data.body)
         Assert LengthOf(self.data.body, 4)
       End
-    End
-  End
-
-  Describe #funcline()
-    It returns the line of the body of the specified function
-      Assert Match(themis#util#funcline('SampleFunctionForUtil', 1), 'echo "line1"')
-      Assert Match(themis#util#funcline('SampleFunctionForUtil', 2), 'echo "line2"')
-      Assert Match(themis#util#funcline('SampleFunctionForUtil', 8), 'echo "lastline"')
     End
   End
 

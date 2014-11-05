@@ -6,9 +6,78 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
+let s:StackInfo = {
+\   'stack': '',
+\   'type': '',
+\   'line': 0,
+\   'filled': 0,
+\ }
+
+function! s:StackInfo.fill_info()
+  if self.filled
+    return
+  endif
+  if themis#util#is_funcname(self.stack)
+    call extend(self, themis#util#funcdata(self.stack), 'keep')
+    let self.type = 'function'
+  elseif filereadable(self.stack)
+    let self.exists = 1
+    let self.filename = self.stack
+    let self.type = 'file'
+  endif
+  let self.filled = 1
+endfunction
+
+function! s:StackInfo.format()
+  call self.fill_info()
+  if !self.exists
+    return printf('function %s()  This function is already deleted.',
+    \             self.funcname)
+  endif
+
+  if self.type ==# 'file'
+    return printf('%s Line:%d', self.filename, self.line)
+  endif
+  if self.type ==# 'function'
+    let result = self.signature
+    if self.line
+      let result .= '  Line:' . self.line
+    endif
+    return result . '  (' . self.filename . ')'
+  endif
+  return 'Unknown Stack'
+endfunction
+
+function! s:StackInfo.get_line(...)
+  let lnum = a:0 ? a:1 : self.line
+  call self.fill_info()
+  if self.type ==# 'file'
+    if !has_key(self, 'body')
+      let self.body = readfile(self.filename)
+    endif
+    return get(self.body, lnum, '')
+  endif
+  if self.type ==# 'function'
+    " XXX: More improve speed
+    for line in self.body
+      if line =~# '^' . lnum
+        let num_width = lnum < 1000 ? 3 : len(lnum)
+        return line[num_width :]
+      endif
+    endfor
+  endif
+  return ''
+endfunction
+
+function! themis#util#stack_info(stack)
+  let info = deepcopy(s:StackInfo)
+  let info.stack = a:stack
+  return info
+endfunction
+
 function! themis#util#callstacklines(throwpoint, ...)
   let infos = call('themis#util#callstack', [a:throwpoint] + a:000)
-  return map(infos, 'themis#util#funcinfo_format(v:val)')
+  return map(infos, 'v:val.format()')
 endfunction
 
 function! themis#util#callstack(throwpoint, ...)
@@ -19,8 +88,7 @@ function! themis#util#callstack(throwpoint, ...)
   \  this_stacks[0] != throwpoint_stacks[0]
     let start = 0
   endif
-  let error_stack = throwpoint_stacks[start :]
-  return map(error_stack, 'themis#util#funcinfo(v:val)')
+  return throwpoint_stacks[start :]
 endfunction
 
 function! themis#util#parse_callstack(callstack)
@@ -31,47 +99,10 @@ function! themis#util#parse_callstack(callstack)
   else
     let line = 0
   endif
-  let stack_info = split(callstack_line, '\.\.')
-  call map(stack_info, '{"function": v:val, "line": 0}')
-  let stack_info[-1].line = line - 0
-  return stack_info
-endfunction
-
-function! themis#util#funcinfo_format(funcinfo)
-  if !a:funcinfo.exists
-    return printf('function %s()  This function is already deleted.',
-    \             a:funcinfo.funcname)
-  endif
-
-  if a:funcinfo.signature ==# ''
-    " This is a file.
-    return printf('%s Line:%d', a:funcinfo.filename, a:funcinfo.line)
-  endif
-  let result = a:funcinfo.signature
-  if a:funcinfo.line
-    let result .= '  Line:' . a:funcinfo.line
-  endif
-  return result . '  (' . a:funcinfo.filename . ')'
-endfunction
-
-function! themis#util#funcinfo(stack)
-  let f = a:stack.function
-  let line = a:stack.line
-  if themis#util#is_funcname(f)
-    let data = themis#util#funcdata(f)
-    let data.line = line
-    return data
-  elseif filereadable(f)
-    return {
-    \   'exists': 1,
-    \   'funcname': f,
-    \   'signature': '',
-    \   'filename': f,
-    \   'line': line,
-    \ }
-  else
-    return {}
-  endif
+  let stack_infos = split(callstack_line, '\.\.')
+  call map(stack_infos, 'themis#util#stack_info(v:val)')
+  let stack_infos[-1].line = line - 0
+  return stack_infos
 endfunction
 
 function! themis#util#funcdata(func)
@@ -109,28 +140,11 @@ function! themis#util#funcdata(func)
   \ }
 endfunction
 
-function! themis#util#funcline(target, lnum)
-  if themis#util#is_funcname(a:target)
-    let data = themis#util#funcdata(a:target)
-    " XXX: More improve speed
-    for line in data.body
-      if line =~# '^' . a:lnum
-        let num_width = a:lnum < 1000 ? 3 : len(a:lnum)
-        return line[num_width :]
-      endif
-    endfor
-  elseif filereadable(a:target)
-    let lines = readfile(a:target, '', a:lnum)
-    return empty(lines) ? '' : lines[-1]
-  endif
-  return ''
-endfunction
-
 function! themis#util#error_info(stacktrace)
-  let tracelines = map(copy(a:stacktrace), 'themis#util#funcinfo_format(v:val)')
+  let tracelines = map(copy(a:stacktrace), 'v:val.format()')
   let tail = a:stacktrace[-1]
-  if has_key(tail, 'funcname')
-    let line_str = themis#util#funcline(tail.funcname, tail.line)
+  let line_str = tail.get_line()
+  if line_str !=# ''
     let error_line = printf('%d: %s', tail.line, line_str)
     let tracelines += [error_line]
   endif

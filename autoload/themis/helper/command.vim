@@ -27,22 +27,22 @@ function! s:wrap_exception(exception, line)
     let [type, message] =
     \   matchlist(result, '\v^%((\w+):\s*)?(.*)')[1 : 2]
   endif
-  let func = split(expand('<sfile>'), '\.\.')[-2]
+  let stack = themis#util#parse_callstack(expand('<sfile>'))[-2]
   throw printf("themis: report: %s: %s\n%3d: %s\n%s",
   \   type,
   \   'Error occurred line:',
   \   a:line,
-  \   themis#util#funcline(func, a:line),
+  \   stack.get_line(a:line),
   \   message
   \ )
 endfunction
 
 function! s:fail(line, exception, expr, result)
-  let func = split(expand('<sfile>'), '\.\.')[-2]
+  let stack = themis#util#parse_callstack(expand('<sfile>'))[-2]
   throw themis#failure([
   \   'The truthy value was expected, but it was not the case.',
   \   'Error occurred line:',
-  \   printf('%3d: %s', a:line, themis#util#funcline(func, a:line)),
+  \   printf('%3d: %s', a:line, stack.get_line(a:line)),
   \   '',
   \   '    expected: truthy',
   \   '         got: ' . string(a:result),
@@ -50,11 +50,11 @@ function! s:fail(line, exception, expr, result)
 endfunction
 
 function! s:not_thrown(line, expected_exception, expr, result)
-  let func = split(expand('<sfile>'), '\.\.')[-2]
+  let stack = themis#util#parse_callstack(expand('<sfile>'))[-2]
   throw themis#failure([
   \   'An exception thrown was expected, but not thrown.',
   \   'Error occurred line:',
-  \   printf('%3d: %s', a:line, themis#util#funcline(func, a:line)),
+  \   printf('%3d: %s', a:line, stack.get_line(a:line)),
   \   '',
   \   '    expected exception: ' . string(a:expected_exception),
   \ ])
@@ -62,11 +62,11 @@ endfunction
 
 function! s:check_exception(line, thrown_expection, expected_exception)
   if a:expected_exception != '' && a:thrown_expection !~# a:expected_exception
-    let func = split(expand('<sfile>'), '\.\.')[-2]
+  let stack = themis#util#parse_callstack(expand('<sfile>'))[-2]
     throw themis#failure([
     \   'An exception was expected, but not thrown.',
     \   'Error occurred line:',
-    \   printf('%3d: %s', a:line, themis#util#funcline(func, a:line)),
+    \   printf('%3d: %s', a:line, stack.get_line(a:line)),
     \   '',
     \   '    expected exception: ' . string(a:expected_exception),
     \   '      thrown exception: ' . string(a:thrown_expection),
