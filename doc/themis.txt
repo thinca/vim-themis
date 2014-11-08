@@ -623,7 +623,7 @@ command.with({scope})			*themis-helper-command-with()*
 	local variable.
 >
 	let s:assert = themis#helper('assert')
-	call themis#helper('command').with(s:)
+	call themis#helper('command').with(s:assert)
 
 	function! s:suite.test()
 	  Assert assert.equals(1 + 1, 2)
