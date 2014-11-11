@@ -6,6 +6,8 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
+let s:func_aliases = {}
+
 let s:StackInfo = {
 \   'stack': '',
 \   'type': '',
@@ -28,6 +30,22 @@ function! s:StackInfo.fill_info()
   let self.filled = 1
 endfunction
 
+function! s:StackInfo.make_signature()
+  let funcname = get(s:func_aliases, self.funcname, self.funcname)
+  let args = join(self.arguments, ', ')
+  let flags = ''
+  if self.is_abort
+    let flags .= ' abort'
+  endif
+  if self.has_range
+    let flags .= ' range'
+  endif
+  if self.is_dict
+    let flags .= ' dict'
+  endif
+  return printf('function %s(%s)%s', funcname, args, flags)
+endfunction
+
 function! s:StackInfo.format()
   call self.fill_info()
   if !self.exists
@@ -39,7 +57,7 @@ function! s:StackInfo.format()
     return printf('%s Line:%d', self.filename, self.line)
   endif
   if self.type ==# 'function'
-    let result = self.signature
+    let result = self.make_signature()
     if self.line
       let result .= '  Line:' . self.line
     endif
@@ -73,6 +91,21 @@ function! themis#util#stack_info(stack)
   let info = deepcopy(s:StackInfo)
   let info.stack = a:stack
   return info
+endfunction
+
+function! themis#util#func_alias(dict, prefixes)
+  let dict_t = type({})
+  let func_t = type(function('type'))
+  for [key, Value] in items(a:dict)
+    let t = type(Value)
+    if t == dict_t
+      call themis#util#func_alias(Value, a:prefixes + [key])
+    elseif t == func_t
+      let name = join(a:prefixes + [key], '.')
+      let s:func_aliases[themis#util#funcname(Value)] = name
+    endif
+    unlet Value
+  endfor
 endfunction
 
 function! themis#util#callstacklines(throwpoint, ...)

@@ -73,6 +73,10 @@ function! themis#option(...)
   endif
 endfunction
 
+function! themis#func_alias(dict)
+  call themis#util#func_alias(a:dict, [])
+endfunction
+
 function! themis#exception(type, message)
   return printf('themis: %s: %s', a:type, themis#message(a:message))
 endfunction
