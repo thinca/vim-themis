@@ -80,6 +80,8 @@ function! themis#bundle#new(...)
   return bundle
 endfunction
 
+call themis#func_alias({'vital/Bundle': s:bundle})
+
 
 let &cpo = s:save_cpo
 unlet s:save_cpo

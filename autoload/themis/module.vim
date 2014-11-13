@@ -20,6 +20,9 @@ endfunction
 function! themis#module#load(type, name, args)
   try
     let module = call(printf('themis#%s#%s#new', a:type, a:name), a:args)
+    " XXX: It may perform two or more times.
+    call themis#func_alias(
+    \   {printf('vital/%s[%s]', a:type, string(a:name)): module})
     let module.type = a:type
     let module.name = a:name
     return module
