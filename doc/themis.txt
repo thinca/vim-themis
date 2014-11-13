@@ -498,6 +498,10 @@ Helper supports writing your test.
 To use a helper, writes as follows. >
 	let s:helper = themis#helper(helper_name)
 
+- |themis-helper-assert|
+- |themis-helper-command|
+- |themis-helper-expect|
+
 ------------------------------------------------------------------------------
 ASSERT						*themis-helper-assert*
 
