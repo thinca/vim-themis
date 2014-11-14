@@ -47,6 +47,9 @@ function! s:translate_script(lines)
       if example ==# ''
         throw printf('vimspec:%d::%s must take an argument', lnum, command)
       endif
+      if empty(context_stack) || context_stack[-1][0] !=# 'describe'
+        throw printf('vimspec:%d::%s must put on :describe or :context block', lnum, command)
+      endif
       let result += [
       \   printf('let s:__themis_vimspec_bundles[-1].suite_descriptions["_%05d"] = %s', c, string(example)),
       \   printf('function! s:__themis_vimspec_bundles[-1].suite._%05d()', c),
@@ -59,6 +62,9 @@ function! s:translate_script(lines)
     let tokens = matchlist(line, '^\s*\([Bb]efore\|[Aa]fter\)\%(\s\+\(.*\)\)\?$')
     if !empty(tokens)
       let [command, timing] = tokens[1 : 2]
+      if empty(context_stack) || context_stack[-1][0] !=# 'describe'
+        throw printf('vimspec:%d::%s must put on :describe or :context block', lnum, command)
+      endif
       if timing ==# ''
         let timing = 'each'
       endif
