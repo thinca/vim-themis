@@ -1,0 +1,58 @@
+Describe vimspec-style
+  Describe supports lexical scope
+    Before all
+      let test_var_1 = 1
+    End
+
+    It can access to the variable
+      Assert True(exists('test_var_1'))
+      Assert Equals(test_var_1, 1)
+    End
+
+    It does not taint the global scope
+      Assert False(exists('g:test_var_1'))
+    End
+
+    Context in the child block
+      It can access to the variable
+        Assert True(exists('test_var_1'))
+        Assert Equals(test_var_1, 1)
+      End
+    End
+
+    Context in before block
+      Before all
+        let test_var_1 = 5
+      End
+      It can change the variable
+        Assert True(exists('test_var_1'))
+        Assert Equals(test_var_1, 5)
+      End
+    End
+
+    Context in before each block
+      Before all
+        let inc = 0
+      End
+
+      Before each
+        let inc += 1
+      End
+
+      It is shared the scope (first)
+        Assert True(exists('inc'))
+        Assert Equals(inc, 1)
+      End
+
+      It is shared the scope (second)
+        Assert True(exists('inc'))
+        Assert Equals(inc, 2)
+      End
+
+      It is shared the scope (third)
+        Assert True(exists('inc'))
+        Assert Equals(inc, 3)
+      End
+    End
+  End
+End
