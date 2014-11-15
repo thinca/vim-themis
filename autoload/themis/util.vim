@@ -60,7 +60,7 @@ function! s:StackInfo.format()
   if self.type ==# 'function'
     let result = self.make_signature()
     if self.line
-      let result .= '  Line:' . self.line
+      let result .= '  Line:' . self.adjusted_lnum()
     endif
     return result . '  (' . self.filename . ')'
   endif
@@ -86,6 +86,18 @@ function! s:StackInfo.get_line(...)
     endfor
   endif
   return ''
+endfunction
+
+function! s:StackInfo.adjusted_lnum(...)
+  let lnum = a:0 ? a:1 : self.line
+  let adjuster = get(s:line_adjuster, self.funcname, 0)
+  return lnum + adjuster
+endfunction
+
+function! s:StackInfo.get_line_with_lnum(...)
+  let lnum = a:0 ? a:1 : self.line
+  let line = self.get_line(lnum)
+  return printf('%3d: %s', self.adjusted_lnum(lnum), line)
 endfunction
 
 function! themis#util#stack_info(stack)
@@ -192,10 +204,8 @@ endfunction
 function! themis#util#error_info(stacktrace)
   let tracelines = map(copy(a:stacktrace), 'v:val.format()')
   let tail = a:stacktrace[-1]
-  let line_str = tail.get_line()
-  if line_str !=# ''
-    let error_line = printf('%d: %s', tail.line, line_str)
-    let tracelines += [error_line]
+  if tail.line
+    let tracelines += [tail.get_line_with_lnum()]
   endif
   return join(tracelines, "\n")
 endfunction
