@@ -7,6 +7,7 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 let s:func_aliases = {}
+let s:line_adjuster = {}
 
 let s:StackInfo = {
 \   'stack': '',
@@ -106,6 +107,21 @@ function! themis#util#func_alias(dict, prefixes)
     endif
     unlet Value
   endfor
+endfunction
+
+function! themis#util#adjust_func_line(target, line)
+  let t = type(a:target)
+  if t == type({})
+    for V in values(a:target)
+      call themis#util#adjust_func_line(V, a:line)
+    endfor
+  elseif t == type([])
+    for V in a:target
+      call themis#util#adjust_func_line(V, a:line)
+    endfor
+  elseif t == type(function('type'))
+    let s:line_adjuster[themis#util#funcname(a:target)] = a:line
+  endif
 endfunction
 
 function! themis#util#callstacklines(throwpoint, ...)
