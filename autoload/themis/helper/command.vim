@@ -18,7 +18,7 @@ function! s:get_throws_args(value)
   return matchlist(a:value, '\v^\s*%(/(%(\\.|[^/])*)/)?\s*(.*)')[1 : 2]
 endfunction
 
-function! s:wrap_exception(exception, line)
+function! s:wrap_exception(exception, lnum)
   " TODO: Duplicate code
   let result = matchstr(a:exception, '\c^themis:\_s*report:\_s*\zs.*')
   if result ==# ''
@@ -28,45 +28,44 @@ function! s:wrap_exception(exception, line)
     \   matchlist(result, '\v^%((\w+):\s*)?(.*)')[1 : 2]
   endif
   let stack = themis#util#parse_callstack(expand('<sfile>'))[-2]
-  throw printf("themis: report: %s: %s\n%3d: %s\n%s",
+  throw printf("themis: report: %s: %s\n%s\n%s",
   \   type,
   \   'Error occurred line:',
-  \   a:line,
-  \   stack.get_line(a:line),
+  \   stack.get_line_with_lnum(a:lnum),
   \   message
   \ )
 endfunction
 
-function! s:fail(line, exception, expr, result)
+function! s:fail(lnum, exception, expr, result)
   let stack = themis#util#parse_callstack(expand('<sfile>'))[-2]
   throw themis#failure([
   \   'The truthy value was expected, but it was not the case.',
   \   'Error occurred line:',
-  \   printf('%3d: %s', a:line, stack.get_line(a:line)),
+  \   stack.get_line_with_lnum(a:lnum),
   \   '',
   \   '    expected: truthy',
   \   '         got: ' . string(a:result),
   \ ])
 endfunction
 
-function! s:not_thrown(line, expected_exception, expr, result)
+function! s:not_thrown(lnum, expected_exception, expr, result)
   let stack = themis#util#parse_callstack(expand('<sfile>'))[-2]
   throw themis#failure([
   \   'An exception thrown was expected, but not thrown.',
   \   'Error occurred line:',
-  \   printf('%3d: %s', a:line, stack.get_line(a:line)),
+  \   stack.get_line_with_lnum(a:lnum),
   \   '',
   \   '    expected exception: ' . string(a:expected_exception),
   \ ])
 endfunction
 
-function! s:check_exception(line, thrown_expection, expected_exception)
+function! s:check_exception(lnum, thrown_expection, expected_exception)
   if a:expected_exception != '' && a:thrown_expection !~# a:expected_exception
   let stack = themis#util#parse_callstack(expand('<sfile>'))[-2]
     throw themis#failure([
     \   'An exception was expected, but not thrown.',
     \   'Error occurred line:',
-    \   printf('%3d: %s', a:line, stack.get_line(a:line)),
+    \   stack.get_line_with_lnum(a:lnum),
     \   '',
     \   '    expected exception: ' . string(a:expected_exception),
     \   '      thrown exception: ' . string(a:thrown_expection),
