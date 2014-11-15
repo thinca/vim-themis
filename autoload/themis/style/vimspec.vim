@@ -105,6 +105,8 @@ function! s:translate_script(lines)
         let parent_scope = empty(context_stack) ? -1 : context_stack[-1][3]
         let result += [
         \   printf('call s:themis_vimspec_scopes.push(copy(l:), %d, %d)', scope_id, parent_scope),
+        \   'call themis#util#adjust_func_line(s:themis_vimspec_bundles[-1]._vimspec_hooks, -1)',
+        \   'call themis#util#adjust_func_line(s:themis_vimspec_bundles[-1].suite, -1)',
         \   'call remove(s:themis_vimspec_bundles, -1)',
         \   'endfunction',
         \   printf('call %s()', funcname),
