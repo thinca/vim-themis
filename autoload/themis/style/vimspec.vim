@@ -42,6 +42,7 @@ function! s:translate_script(lines)
       let result += [
       \   printf('function! %s()', funcname),
       \   printf('let s:themis_vimspec_bundles += [%s]', bundle_new),
+      \   'let s:themis_vimspec_bundles[-1]._vimspec_hooks = {}',
       \ ]
       let context_stack += [['describe', lnum, funcname, current_scope_id]]
       let current_scope_id += 1
@@ -85,7 +86,7 @@ function! s:translate_script(lines)
       let hook_point = printf('%s_%s', tolower(command), timing)
       let scope = context_stack[-1][3]
       let result += [
-      \   printf('function! s:themis_vimspec_bundles[-1]._vimspec_%s()', hook_point),
+      \   printf('function! s:themis_vimspec_bundles[-1]._vimspec_hooks.%s()', hook_point),
       \   printf('execute s:themis_vimspec_scopes.extend("s:themis_vimspec_scopes.scope(%d)")', scope),
       \ ]
       let context_stack += [['hook', lnum]]
@@ -186,25 +187,25 @@ let s:event = {
 \ }
 
 function! s:event.before_suite(bundle)
-  call s:call_hook(a:bundle, '_vimspec_before_all')
+  call s:call_hook(a:bundle, 'before_all')
 endfunction
 
 function! s:event.before_test(bundle, name)
   if has_key(a:bundle, 'parent')
     call self.before_test(a:bundle.parent, a:name)
   endif
-  call s:call_hook(a:bundle, '_vimspec_before_each')
+  call s:call_hook(a:bundle, 'before_each')
 endfunction
 
 function! s:event.after_test(bundle, name)
-  call s:call_hook(a:bundle, '_vimspec_after_each')
+  call s:call_hook(a:bundle, 'after_each')
   if has_key(a:bundle, 'parent')
     call self.after_test(a:bundle.parent, a:name)
   endif
 endfunction
 
 function! s:event.after_suite(bundle)
-  call s:call_hook(a:bundle, '_vimspec_after_all')
+  call s:call_hook(a:bundle, 'after_all')
 endfunction
 
 function! s:event.finish(runner)
@@ -216,8 +217,8 @@ function! s:event.finish(runner)
 endfunction
 
 function! s:call_hook(bundle, point)
-  if has_key(a:bundle, a:point)
-    call call(a:bundle[a:point], [], a:bundle.suite)
+  if has_key(get(a:bundle, '_vimspec_hooks', {}), a:point)
+    call call(a:bundle._vimspec_hooks[a:point], [], a:bundle.suite)
   endif
 endfunction
 
