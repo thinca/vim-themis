@@ -36,7 +36,7 @@ function! s:wrap_exception(exception, lnum)
   \ )
 endfunction
 
-function! s:fail(lnum, exception, expr, result)
+function! s:fail(lnum, result)
   let stack = themis#util#parse_callstack(expand('<sfile>'))[-2]
   throw themis#failure([
   \   'The truthy value was expected, but it was not the case.',
@@ -48,7 +48,7 @@ function! s:fail(lnum, exception, expr, result)
   \ ])
 endfunction
 
-function! s:not_thrown(lnum, expected_exception, expr, result)
+function! s:not_thrown(lnum, expected_exception, result)
   let stack = themis#util#parse_callstack(expand('<sfile>'))[-2]
   throw themis#failure([
   \   'An exception thrown was expected, but not thrown.',
@@ -56,6 +56,7 @@ function! s:not_thrown(lnum, expected_exception, expr, result)
   \   stack.get_line_with_lnum(a:lnum),
   \   '',
   \   '    expected exception: ' . string(a:expected_exception),
+  \   '                   got: ' . string(a:result),
   \ ])
 endfunction
 
@@ -81,7 +82,7 @@ function! s:define_assert(command)
   \ '|   call s:wrap_exception(v:exception, expand("<slnum>"))'
   \ '| endtry'
   \ '| if !s:check_truthy(s:c.result)'
-  \ '|   call s:fail(expand("<slnum>"), "", <q-args>, s:c.result)'
+  \ '|   call s:fail(expand("<slnum>"), s:c.result)'
   \ '| endif'
 endfunction
 
@@ -96,7 +97,7 @@ function! s:define_throws(command)
   \ '|   call s:check_exception(expand("<slnum>"), v:exception, s:c.expect_exception)'
   \ '| endtry'
   \ '| if s:c.not_thrown'
-  \ '|   call s:not_thrown(expand("<slnum>"), s:c.expect_exception, s:c.expr, s:c.result)'
+  \ '|   call s:not_thrown(expand("<slnum>"), s:c.expect_exception, s:c.result)'
   \ '| endif'
 endfunction
 
