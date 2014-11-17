@@ -8,19 +8,19 @@ set cpo&vim
 
 let s:helper = {}
 
-function! s:assert_fail(mes)
+function! s:assert_fail(mes) abort
   throw themis#failure(a:mes)
 endfunction
 
-function! s:assert_todo(...)
+function! s:assert_todo(...) abort
   throw 'themis: report: todo:' . themis#message(a:0 ? a:1 : 'TODO')
 endfunction
 
-function! s:assert_skip(mes)
+function! s:assert_skip(mes) abort
   throw 'themis: report: SKIP:' . themis#message(a:mes)
 endfunction
 
-function! s:assert_true(value, ...)
+function! s:assert_true(value, ...) abort
   if a:value isnot 1
     throw s:failure([
     \   'The true value was expected, but it was not the case.',
@@ -32,7 +32,7 @@ function! s:assert_true(value, ...)
   return 1
 endfunction
 
-function! s:assert_false(value, ...)
+function! s:assert_false(value, ...) abort
   if a:value isnot 0
     throw s:failure([
     \   'The false value was expected, but it was not the case.',
@@ -44,7 +44,7 @@ function! s:assert_false(value, ...)
   return 1
 endfunction
 
-function! s:assert_truthy(value, ...)
+function! s:assert_truthy(value, ...) abort
   let t = type(a:value)
   if !(t == type(0) || t == type('')) || !a:value
     throw s:failure([
@@ -57,7 +57,7 @@ function! s:assert_truthy(value, ...)
   return 1
 endfunction
 
-function! s:assert_falsy(value, ...)
+function! s:assert_falsy(value, ...) abort
   let t = type(a:value)
   if (t != type(0) && t != type('')) || a:value
     throw s:failure([
@@ -70,7 +70,7 @@ function! s:assert_falsy(value, ...)
   return 1
 endfunction
 
-function! s:assert_compare(left, expr, right, ...)
+function! s:assert_compare(left, expr, right, ...) abort
   let expr_str = join([string(a:left), a:expr, string(a:right)])
   try
     let result = eval(join(['a:left', a:expr, 'a:right']))
@@ -94,7 +94,7 @@ function! s:assert_compare(left, expr, right, ...)
   return 1
 endfunction
 
-function! s:assert_equals(actual, expect, ...)
+function! s:assert_equals(actual, expect, ...) abort
   if !s:equals(a:expect, a:actual)
     throw s:failure([
     \   'The equivalent values were expected, but it was not the case.',
@@ -106,7 +106,7 @@ function! s:assert_equals(actual, expect, ...)
   return 1
 endfunction
 
-function! s:assert_not_equals(actual, expect, ...)
+function! s:assert_not_equals(actual, expect, ...) abort
   if s:equals(a:expect, a:actual)
     throw s:failure([
     \   'Not the equivalent values were expected, but it was not the case.',
@@ -118,7 +118,7 @@ function! s:assert_not_equals(actual, expect, ...)
   return 1
 endfunction
 
-function! s:assert_same(actual, expect, ...)
+function! s:assert_same(actual, expect, ...) abort
   if a:expect isnot# a:actual
     throw s:failure([
     \   'The same values were expected, but it was not the case.',
@@ -130,7 +130,7 @@ function! s:assert_same(actual, expect, ...)
   return 1
 endfunction
 
-function! s:assert_not_same(actual, expect, ...)
+function! s:assert_not_same(actual, expect, ...) abort
   if a:expect is# a:actual
     throw s:failure([
     \   'Not the same values were expected, but it was not the case.',
@@ -142,7 +142,7 @@ function! s:assert_not_same(actual, expect, ...)
   return 1
 endfunction
 
-function! s:assert_match(actual, pattern, ...)
+function! s:assert_match(actual, pattern, ...) abort
   if !s:match(a:actual, a:pattern)
     throw s:failure([
     \   'Match was expected, but did not match.',
@@ -154,7 +154,7 @@ function! s:assert_match(actual, pattern, ...)
   return 1
 endfunction
 
-function! s:assert_not_match(actual, pattern, ...)
+function! s:assert_not_match(actual, pattern, ...) abort
   if s:match(a:actual, a:pattern)
     throw s:failure([
     \   'Not match was expected, but matched.',
@@ -166,59 +166,59 @@ function! s:assert_not_match(actual, pattern, ...)
   return 1
 endfunction
 
-function! s:assert_is_number(value, ...)
+function! s:assert_is_number(value, ...) abort
   return s:check_type(a:value, 'Number', 0, a:000)
 endfunction
 
-function! s:assert_is_not_number(value, ...)
+function! s:assert_is_not_number(value, ...) abort
   return s:check_type(a:value, 'Number', 1, a:000)
 endfunction
 
-function! s:assert_is_string(value, ...)
+function! s:assert_is_string(value, ...) abort
   return s:check_type(a:value, 'String', 0, a:000)
 endfunction
 
-function! s:assert_is_not_string(value, ...)
+function! s:assert_is_not_string(value, ...) abort
   return s:check_type(a:value, 'String', 1, a:000)
 endfunction
 
-function! s:assert_is_func(value, ...)
+function! s:assert_is_func(value, ...) abort
   return s:check_type(a:value, 'Funcref', 0, a:000)
 endfunction
 
-function! s:assert_is_not_func(value, ...)
+function! s:assert_is_not_func(value, ...) abort
   return s:check_type(a:value, 'Funcref', 1, a:000)
 endfunction
 
-function! s:assert_is_list(value, ...)
+function! s:assert_is_list(value, ...) abort
   return s:check_type(a:value, 'List', 0, a:000)
 endfunction
 
-function! s:assert_is_not_list(value, ...)
+function! s:assert_is_not_list(value, ...) abort
   return s:check_type(a:value, 'List', 1, a:000)
 endfunction
 
-function! s:assert_is_dict(value, ...)
+function! s:assert_is_dict(value, ...) abort
   return s:check_type(a:value, 'Dictionary', 0, a:000)
 endfunction
 
-function! s:assert_is_not_dict(value, ...)
+function! s:assert_is_not_dict(value, ...) abort
   return s:check_type(a:value, 'Dictionary', 1, a:000)
 endfunction
 
-function! s:assert_is_float(value, ...)
+function! s:assert_is_float(value, ...) abort
   return s:check_type(a:value, 'Float', 0, a:000)
 endfunction
 
-function! s:assert_is_not_float(value, ...)
+function! s:assert_is_not_float(value, ...) abort
   return s:check_type(a:value, 'Float', 1, a:000)
 endfunction
 
-function! s:assert_type_of(value, names, ...)
+function! s:assert_type_of(value, names, ...) abort
   return s:check_type(a:value, a:names, 0, a:000)
 endfunction
 
-function! s:assert_length_of(value, length, ...)
+function! s:assert_length_of(value, length, ...) abort
   call s:assert_type_of(a:value, ['String', 'List', 'Dictionary'])
   let got_length = len(a:value)
   if got_length != a:length
@@ -233,7 +233,7 @@ function! s:assert_length_of(value, length, ...)
   return 1
 endfunction
 
-function! s:assert_has_key(value, key, ...)
+function! s:assert_has_key(value, key, ...) abort
   let t = type(a:value)
   if t == type({})
     if !has_key(a:value, a:key)
@@ -265,7 +265,7 @@ function! s:assert_has_key(value, key, ...)
   return 1
 endfunction
 
-function! s:assert_exists(expr, ...)
+function! s:assert_exists(expr, ...) abort
   if !exists(a:expr)
     throw s:failure([
     \   'The target was expected to exist, but it did not exist.',
@@ -277,7 +277,7 @@ function! s:assert_exists(expr, ...)
 endfunction
 
 " TODO: validate()
-function! s:assert_validate(expr, rule)
+function! s:assert_validate(expr, rule) abort
   let result = s:validate(a:expr, a:rule)
   if !empty(result)
     throw themis#failure([
@@ -288,7 +288,7 @@ function! s:assert_validate(expr, rule)
   return 1
 endfunction
 
-function! s:validate(expr, rule)
+function! s:validate(expr, rule) abort
   let rule_type = type(a:rule)
 
   if rule_type == type([])
@@ -317,11 +317,11 @@ function! s:validate(expr, rule)
 endfunction
 
 
-function! s:equals(a, b)
+function! s:equals(a, b) abort
   return a:a ==# a:b
 endfunction
 
-function! s:match(str, pattern)
+function! s:match(str, pattern) abort
   return type(a:str) == type('') &&
   \      type(a:pattern) == type('') &&
   \      a:str =~# a:pattern
@@ -335,11 +335,11 @@ let s:type_names = {
 \   type({}): 'dictionary',
 \   type(0.0): 'float',
 \ }
-function! s:type(value)
+function! s:type(value) abort
   return s:type_names[type(a:value)]
 endfunction
 
-function! s:check_type(value, expected_types, not, additional_message)
+function! s:check_type(value, expected_types, not, additional_message) abort
   let got_type = s:type(a:value)
   let expected_types = s:type(a:expected_types) ==# 'list' ?
   \                    copy(a:expected_types) : [a:expected_types]
@@ -373,14 +373,14 @@ function! s:check_type(value, expected_types, not, additional_message)
   return 1
 endfunction
 
-function! s:failure(mes, additional)
+function! s:failure(mes, additional) abort
   if empty(a:additional)
     return themis#failure(a:mes)
   endif
   return themis#failure(a:mes + [''] + a:additional)
 endfunction
 
-function! s:redir(cmd)
+function! s:redir(cmd) abort
   let [save_verbose, save_verbosefile] = [&verbose, &verbosefile]
   set verbose=0 verbosefile=
   redir => res
@@ -390,7 +390,7 @@ function! s:redir(cmd)
   return res
 endfunction
 
-function! s:get_functions(sid)
+function! s:get_functions(sid) abort
   let prefix = '<SNR>' . a:sid . '_'
   let funcs = s:redir('function')
   let filter_pat = '^\s*function ' . prefix
@@ -400,11 +400,11 @@ function! s:get_functions(sid)
   \          'matchstr(v:val, map_pat)')
 endfunction
 
-function! s:sid()
+function! s:sid() abort
   return matchstr(expand('<sfile>'), '<SNR>\zs\d\+\ze_\w\+$')
 endfunction
 
-function! s:make_helper()
+function! s:make_helper() abort
   let functions = s:get_functions(s:sid())
   let assert_pat = '^<SNR>\d\+_assert_'
   call filter(functions, 'v:val =~# assert_pat')
@@ -418,7 +418,7 @@ endfunction
 
 let s:helper = s:make_helper()
 
-function! themis#helper#assert#new(runner)
+function! themis#helper#assert#new(runner) abort
   return deepcopy(s:helper)
 endfunction
 

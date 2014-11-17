@@ -11,47 +11,47 @@ let s:supporter = {'receiver': {}}
 let s:receiver = s:supporter.receiver
 
 
-function! s:receiver.init(runner)
+function! s:receiver.init(runner) abort
   let self._count = 0
   let self._passes = 0
   let self._failures = 0
   let self._pendings = 0
 endfunction
 
-function! s:receiver.before_test(bundle, title)
+function! s:receiver.before_test(bundle, title) abort
   let self._count += 1
 endfunction
 
-function! s:receiver.pass(report)
+function! s:receiver.pass(report) abort
   let self._passes += 1
 endfunction
 
-function! s:receiver.fail(report)
+function! s:receiver.fail(report) abort
   let self._failures += 1
 endfunction
 
-function! s:receiver.pending(report)
+function! s:receiver.pending(report) abort
   let self._pendings += 1
 endfunction
 
 
-function! s:supporter.count()
+function! s:supporter.count() abort
   return self.receiver._count
 endfunction
 
-function! s:supporter.pass()
+function! s:supporter.pass() abort
   return self.receiver._passes
 endfunction
 
-function! s:supporter.fail()
+function! s:supporter.fail() abort
   return self.receiver._failures
 endfunction
 
-function! s:supporter.pending()
+function! s:supporter.pending() abort
   return self.receiver._pendings
 endfunction
 
-function! s:supporter.stat()
+function! s:supporter.stat() abort
   let result = ['tests ' . self.count(), 'passes ' . self.pass()]
 
   let pending = self.pending()
@@ -67,7 +67,7 @@ function! s:supporter.stat()
   return join(result, "\n")
 endfunction
 
-function! themis#supporter#stats#new(runner)
+function! themis#supporter#stats#new(runner) abort
   let supporter = deepcopy(s:supporter)
   call a:runner.add_event(supporter.receiver)
   return supporter

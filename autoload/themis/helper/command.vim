@@ -14,11 +14,11 @@ let s:helper = {
 \ }
 let s:c = {}  " This is used in commands.
 
-function! s:get_throws_args(value)
+function! s:get_throws_args(value) abort
   return matchlist(a:value, '\v^\s*%(/(%(\\.|[^/])*)/)?\s*(.*)')[1 : 2]
 endfunction
 
-function! s:wrap_exception(exception, lnum)
+function! s:wrap_exception(exception, lnum) abort
   " TODO: Duplicate code
   let result = matchstr(a:exception, '\c^themis:\_s*report:\_s*\zs.*')
   if result ==# ''
@@ -36,7 +36,7 @@ function! s:wrap_exception(exception, lnum)
   \ )
 endfunction
 
-function! s:fail(lnum, result)
+function! s:fail(lnum, result) abort
   let stack = themis#util#parse_callstack(expand('<sfile>'))[-2]
   throw themis#failure([
   \   'The truthy value was expected, but it was not the case.',
@@ -48,7 +48,7 @@ function! s:fail(lnum, result)
   \ ])
 endfunction
 
-function! s:not_thrown(lnum, expected_exception, result)
+function! s:not_thrown(lnum, expected_exception, result) abort
   let stack = themis#util#parse_callstack(expand('<sfile>'))[-2]
   throw themis#failure([
   \   'An exception thrown was expected, but not thrown.',
@@ -60,7 +60,7 @@ function! s:not_thrown(lnum, expected_exception, result)
   \ ])
 endfunction
 
-function! s:check_exception(lnum, thrown_expection, expected_exception)
+function! s:check_exception(lnum, thrown_expection, expected_exception) abort
   if a:expected_exception != '' && a:thrown_expection !~# a:expected_exception
   let stack = themis#util#parse_callstack(expand('<sfile>'))[-2]
     throw themis#failure([
@@ -74,7 +74,7 @@ function! s:check_exception(lnum, thrown_expection, expected_exception)
   endif
 endfunction
 
-function! s:define_assert(command)
+function! s:define_assert(command) abort
   execute 'command! -nargs=+' a:command
   \ '  try'
   \ '|   let s:c.result = s:eval(<q-args>, s:current_scopes + [l:])'
@@ -86,7 +86,7 @@ function! s:define_assert(command)
   \ '| endif'
 endfunction
 
-function! s:define_throws(command)
+function! s:define_throws(command) abort
   execute 'command! -nargs=+' a:command
   \ '  let s:c.not_thrown = 0'
   \ '| let [s:c.expect_exception, s:c.expr] = s:get_throws_args(<q-args>)'
@@ -101,7 +101,7 @@ function! s:define_throws(command)
   \ '| endif'
 endfunction
 
-function! s:define_fail(command)
+function! s:define_fail(command) abort
   execute 'command! -nargs=*' a:command
   \ '  if <q-args> !=# ""'
   \ '|   throw themis#failure(<q-args>)'
@@ -110,7 +110,7 @@ function! s:define_fail(command)
   \ '| endif'
 endfunction
 
-function! s:define_todo(command)
+function! s:define_todo(command) abort
   execute 'command! -nargs=*' a:command
   \ '  if <q-args> !=# ""'
   \ '|   throw "themis: report: todo:" . <q-args>'
@@ -119,7 +119,7 @@ function! s:define_todo(command)
   \ '| endif'
 endfunction
 
-function! s:define_skip(command)
+function! s:define_skip(command) abort
   execute 'command! -nargs=*' a:command
   \ '  if <q-args> !=# ""'
   \ '|   throw "themis: report: SKIP:" . <q-args>'
@@ -128,17 +128,17 @@ function! s:define_skip(command)
   \ '| endif'
 endfunction
 
-function! s:helper.prefix(prefix)
+function! s:helper.prefix(prefix) abort
   let self._prefix = a:prefix
   return self
 endfunction
 
-function! s:helper.with(...)
+function! s:helper.with(...) abort
   call extend(self._scopes, a:000)
   return self
 endfunction
 
-function! s:helper.define()
+function! s:helper.define() abort
   call s:define_assert(self._prefix . 'Assert')
   call s:define_throws(self._prefix . 'Throws')
   call s:define_fail(self._prefix . 'Fail')
@@ -147,7 +147,7 @@ function! s:helper.define()
   let s:current_scopes = self._scopes
 endfunction
 
-function! s:helper.undef()
+function! s:helper.undef() abort
   call s:delcommand(self._prefix . 'Assert')
   call s:delcommand(self._prefix . 'Throws')
   call s:delcommand(self._prefix . 'Fail')
@@ -155,13 +155,13 @@ function! s:helper.undef()
   call s:delcommand(self._prefix . 'Skip')
   unlet! s:current_scopes
 endfunction
-function! s:helper.defined()
+function! s:helper.defined() abort
   return exists(':' . self._prefix . 'Assert') == 2
 endfunction
 
 
 let s:events = {'helper': s:helper, 'nest': 0, 'skip': 0}
-function! s:events.before_suite(bundle)
+function! s:events.before_suite(bundle) abort
   if self.is_target(a:bundle)
     if self.nest == 0
       if self.helper.defined()
@@ -174,7 +174,7 @@ function! s:events.before_suite(bundle)
   endif
 endfunction
 
-function! s:events.after_suite(bundle)
+function! s:events.after_suite(bundle) abort
   if self.is_target(a:bundle)
     let self.nest -= 1
     if self.nest == 0 && !self.skip
@@ -183,23 +183,23 @@ function! s:events.after_suite(bundle)
   endif
 endfunction
 
-function! s:events.is_target(bundle)
+function! s:events.is_target(bundle) abort
   return self.filename ==# '' ||
   \      self.filename ==# get(a:bundle, 'filename', '')
 endfunction
 
-function! s:check_truthy(value)
+function! s:check_truthy(value) abort
   let t = type(a:value)
   return (t == type(0) || t == type('')) && a:value
 endfunction
 
-function! s:delcommand(cmd)
+function! s:delcommand(cmd) abort
   if exists(':' . a:cmd) == 2
     execute 'delcommand' a:cmd
   endif
 endfunction
 
-function! s:eval(expr, scopes)
+function! s:eval(expr, scopes) abort
   let s:__ = {}
   for s:__.scope in a:scopes
     for [s:__.name, s:__.value] in items(s:to_scope(s:__.scope))
@@ -215,7 +215,7 @@ function! s:eval(expr, scopes)
   return 0
 endfunction
 
-function! s:to_scope(dict)
+function! s:to_scope(dict) abort
   let scope = {}
   for [name, Value] in items(a:dict)
     if type(Value) == s:f_type
@@ -229,11 +229,11 @@ function! s:to_scope(dict)
   return scope
 endfunction
 
-function! s:to_camel_case(str)
+function! s:to_camel_case(str) abort
   return substitute(a:str, '\%(^\|_\)\(\w\)', '\u\1', 'g')
 endfunction
 
-function! themis#helper#command#new(runner)
+function! themis#helper#command#new(runner) abort
   let events = deepcopy(s:events)
   let events.filename = get(a:runner, '_filename', '')
   call a:runner.add_event(events)

@@ -1,6 +1,6 @@
 let s:file = expand('<sfile>')
 
-function! ExecuteCmd(cmd)
+function! ExecuteCmd(cmd) abort
   execute a:cmd
 endfunction
 
@@ -58,7 +58,7 @@ Describe util
     End
     It returns the data with "exists" flag as false when the function is already deleted
       let obj = {}
-      function! obj.func()
+      function! obj.func() abort
       endfunction
       let funcname = matchstr(string(obj.func), 'function(''\zs.\{-}\ze'')')
       unlet obj
@@ -128,7 +128,7 @@ Describe util
     It returns function name from Funcref
       let obj = {}
       Assert Equals(themis#util#funcname(function('SampleFunctionForUtil')), 'SampleFunctionForUtil')
-      function! obj.funcname()
+      function! obj.funcname() abort
       endfunction
       Assert Match(themis#util#funcname(obj.funcname), '^\d\+$')
     End
@@ -137,25 +137,25 @@ Describe util
   Describe #get_full_title()
     It returns the full title of a suite or a report
       let obj1 = {}
-      function! obj1.get_title()
+      function! obj1.get_title() abort
         return 'foo'
       endfunction
       Assert Equals(themis#util#get_full_title(obj1), 'foo')
 
       let obj2 = {'parent': obj1}
-      function! obj2.get_title()
+      function! obj2.get_title() abort
         return 'bar'
       endfunction
       Assert Equals(themis#util#get_full_title(obj2), 'foo bar')
 
       let obj3 = {'parent': obj2}
-      function! obj3.get_title()
+      function! obj3.get_title() abort
         return ''
       endfunction
       Assert Equals(themis#util#get_full_title(obj3), 'foo bar')
 
       let obj4 = {'parent': obj3}
-      function! obj4.get_title()
+      function! obj4.get_title() abort
         return 'buz'
       endfunction
       Assert Equals(themis#util#get_full_title(obj4), 'foo bar buz')

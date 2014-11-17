@@ -8,14 +8,14 @@ let s:expect = {
 \   }
 \ }
 
-function! themis#helper#expect#_create_expect(actual)
+function! themis#helper#expect#_create_expect(actual) abort
   let expect = deepcopy(s:expect)
   let expect._actual = a:actual
   let expect.not._actual = a:actual
   return expect
 endfunction
 
-function! s:matcher_impl(name, f, error_msg, ...) dict
+function! s:matcher_impl(name, f, error_msg, ...) dict abort
   let result = call(a:f, [self._actual] + a:000)
   if self._negate
     let result = !result
@@ -27,7 +27,7 @@ function! s:matcher_impl(name, f, error_msg, ...) dict
   endif
 endfunction
 
-function! s:expr_to_matcher(name, pred, ...)
+function! s:expr_to_matcher(name, pred, ...) abort
   let func_name = 's:_matcher_' . a:name
   execute join([
   \ 'function! ' . func_name . '(...)',
@@ -36,7 +36,7 @@ function! s:expr_to_matcher(name, pred, ...)
   return function(func_name)
 endfunction
 
-function! s:expr_to_failure_message(name, pred, ...)
+function! s:expr_to_failure_message(name, pred, ...) abort
   let func_name = 's:_failure_message_' . a:name
   execute join([
   \ 'function! ' . func_name . '(not, name, ...)',
@@ -45,7 +45,7 @@ function! s:expr_to_failure_message(name, pred, ...)
   return function(func_name)
 endfunction
 
-function! s:default_failure_message(not, name, ...)
+function! s:default_failure_message(not, name, ...) abort
   return printf('Expected %s %s%s%s.',
     \       string(a:1),
     \       (a:not ? 'not ' : ''),
@@ -55,7 +55,7 @@ endfunction
 
 let s:matchers = {}
 let s:failure_messages = {}
-function! themis#helper#expect#define_matcher(name, predicate, ...)
+function! themis#helper#expect#define_matcher(name, predicate, ...) abort
   if type(a:predicate) ==# type('')
     let s:matchers[a:name] = s:expr_to_matcher(a:name, a:predicate)
   elseif type(a:predicate) ==# type(function('function'))
@@ -99,7 +99,7 @@ call themis#helper#expect#define_matcher('to_be_list', 'type(a:1) ==# type([])')
 call themis#helper#expect#define_matcher('to_be_dict', 'type(a:1) ==# type({})')
 call themis#helper#expect#define_matcher('to_be_float', 'type(a:1) ==# type(0.0)')
 
-function! themis#helper#expect#new(_)
+function! themis#helper#expect#new(_) abort
   return function('themis#helper#expect#_create_expect')
 endfunction
 

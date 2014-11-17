@@ -16,7 +16,7 @@ let s:StackInfo = {
 \   'filled': 0,
 \ }
 
-function! s:StackInfo.fill_info()
+function! s:StackInfo.fill_info() abort
   if self.filled
     return
   endif
@@ -31,7 +31,7 @@ function! s:StackInfo.fill_info()
   let self.filled = 1
 endfunction
 
-function! s:StackInfo.make_signature()
+function! s:StackInfo.make_signature() abort
   let funcname = get(s:func_aliases, self.funcname, self.funcname)
   let args = join(self.arguments, ', ')
   let flags = ''
@@ -47,7 +47,7 @@ function! s:StackInfo.make_signature()
   return printf('function %s(%s)%s', funcname, args, flags)
 endfunction
 
-function! s:StackInfo.format()
+function! s:StackInfo.format() abort
   call self.fill_info()
   if !self.exists
     return printf('function %s()  This function is already deleted.',
@@ -67,7 +67,7 @@ function! s:StackInfo.format()
   return 'Unknown Stack'
 endfunction
 
-function! s:StackInfo.get_line(...)
+function! s:StackInfo.get_line(...) abort
   let lnum = a:0 ? a:1 : self.line
   call self.fill_info()
   if self.type ==# 'file'
@@ -88,25 +88,25 @@ function! s:StackInfo.get_line(...)
   return ''
 endfunction
 
-function! s:StackInfo.adjusted_lnum(...)
+function! s:StackInfo.adjusted_lnum(...) abort
   let lnum = a:0 ? a:1 : self.line
   let adjuster = get(s:line_adjuster, self.funcname, 0)
   return lnum + adjuster
 endfunction
 
-function! s:StackInfo.get_line_with_lnum(...)
+function! s:StackInfo.get_line_with_lnum(...) abort
   let lnum = a:0 ? a:1 : self.line
   let line = self.get_line(lnum)
   return printf('%3d: %s', self.adjusted_lnum(lnum), line)
 endfunction
 
-function! themis#util#stack_info(stack)
+function! themis#util#stack_info(stack) abort
   let info = deepcopy(s:StackInfo)
   let info.stack = a:stack
   return info
 endfunction
 
-function! themis#util#func_alias(dict, prefixes)
+function! themis#util#func_alias(dict, prefixes) abort
   let dict_t = type({})
   let func_t = type(function('type'))
   for [key, Value] in items(a:dict)
@@ -121,7 +121,7 @@ function! themis#util#func_alias(dict, prefixes)
   endfor
 endfunction
 
-function! themis#util#adjust_func_line(target, line)
+function! themis#util#adjust_func_line(target, line) abort
   let t = type(a:target)
   if t == type({})
     for V in values(a:target)
@@ -136,12 +136,12 @@ function! themis#util#adjust_func_line(target, line)
   endif
 endfunction
 
-function! themis#util#callstacklines(throwpoint, ...)
+function! themis#util#callstacklines(throwpoint, ...) abort
   let infos = call('themis#util#callstack', [a:throwpoint] + a:000)
   return map(infos, 'v:val.format()')
 endfunction
 
-function! themis#util#callstack(throwpoint, ...)
+function! themis#util#callstack(throwpoint, ...) abort
   let this_stacks = themis#util#parse_callstack(expand('<sfile>'))[: -2]
   let throwpoint_stacks = themis#util#parse_callstack(a:throwpoint)
   let start = a:0 ? len(this_stacks) + a:1 : 0
@@ -152,7 +152,7 @@ function! themis#util#callstack(throwpoint, ...)
   return throwpoint_stacks[start :]
 endfunction
 
-function! themis#util#parse_callstack(callstack)
+function! themis#util#parse_callstack(callstack) abort
   let callstack_line = matchstr(a:callstack, '^\%(function\s\+\)\?\zs.*')
   if callstack_line =~# ',.*\d'
     let pat = '^\(.\+\),.\{-}\(\d\+\)'
@@ -166,7 +166,7 @@ function! themis#util#parse_callstack(callstack)
   return stack_infos
 endfunction
 
-function! themis#util#funcdata(func)
+function! themis#util#funcdata(func) abort
   let func = type(a:func) == type(function('type')) ?
   \          themis#util#funcname(a:func) : a:func
   let fname = func =~# '^\d\+' ? '{' . func . '}' : func
@@ -201,7 +201,7 @@ function! themis#util#funcdata(func)
   \ }
 endfunction
 
-function! themis#util#error_info(stacktrace)
+function! themis#util#error_info(stacktrace) abort
   let tracelines = map(copy(a:stacktrace), 'v:val.format()')
   let tail = a:stacktrace[-1]
   if tail.line
@@ -210,15 +210,15 @@ function! themis#util#error_info(stacktrace)
   return join(tracelines, "\n")
 endfunction
 
-function! themis#util#is_funcname(name)
+function! themis#util#is_funcname(name) abort
   return a:name =~# '\v^%(\d+|%(\u|g:\u|s:|\<SNR\>\d+_)\w+|\h\w*%(#\w+)+)$'
 endfunction
 
-function! themis#util#funcname(funcref)
+function! themis#util#funcname(funcref) abort
   return matchstr(string(a:funcref), '^function(''\zs.*\ze'')$')
 endfunction
 
-function! themis#util#get_full_title(obj, ...)
+function! themis#util#get_full_title(obj, ...) abort
   let obj = a:obj
   let titles = a:0 ? a:1 : []
   call insert(titles, obj.get_title())
@@ -229,7 +229,7 @@ function! themis#util#get_full_title(obj, ...)
   return join(filter(titles, 'v:val !=# ""'), ' ')
 endfunction
 
-function! themis#util#sortuniq(list)
+function! themis#util#sortuniq(list) abort
   call sort(a:list)
   let i = len(a:list) - 1
   while 0 < i
@@ -241,7 +241,7 @@ function! themis#util#sortuniq(list)
   return a:list
 endfunction
 
-function! themis#util#find_files(paths, filename)
+function! themis#util#find_files(paths, filename) abort
   let todir =  'isdirectory(v:val) ? v:val : fnamemodify(v:val, ":h")'
   let dirs = map(copy(a:paths), todir)
   let mod = ':p:gs?\\\+?/?:s?/$??'

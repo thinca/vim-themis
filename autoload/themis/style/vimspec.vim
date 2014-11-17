@@ -8,7 +8,7 @@ set cpo&vim
 
 let s:func_t = type(function('type'))
 
-function! s:parse_describe(tokens, lnum, context_stack, scope_id)
+function! s:parse_describe(tokens, lnum, context_stack, scope_id) abort
   let [command, description] = a:tokens[1 : 2]
   if description ==# ''
     throw printf('vimspec:%d::%s must take an argument', a:lnum, command)
@@ -27,13 +27,13 @@ function! s:parse_describe(tokens, lnum, context_stack, scope_id)
   let funcname = printf('s:themis_vimspec_scope_%d', a:scope_id)
   call add(a:context_stack, ['describe', a:lnum, funcname, a:scope_id])
   return [
-  \   printf('function! %s()', funcname),
+  \   printf('function! %s() abort', funcname),
   \   printf('let s:themis_vimspec_bundles += [%s]', bundle_new),
   \   'let s:themis_vimspec_bundles[-1]._vimspec_hooks = {}',
   \ ]
 endfunction
 
-function! s:parse_example(tokens, lnum, context_stack, func_id)
+function! s:parse_example(tokens, lnum, context_stack, func_id) abort
   let [command, example] = a:tokens[1 : 2]
   if example ==# ''
     throw printf('vimspec:%d::%s must take an argument', a:lnum, command)
@@ -49,14 +49,14 @@ function! s:parse_example(tokens, lnum, context_stack, func_id)
   return [
   \   printf('let %s[-1].suite_descriptions["T_%05d"] = %s',
   \           bundle_var, a:func_id, string(example)),
-  \   printf('function! %s[-1].suite.T_%05d()',
+  \   printf('function! %s[-1].suite.T_%05d() abort',
   \           bundle_var, a:func_id),
   \   printf('execute %s.extend("%s.scope(%d)")',
   \           scope_var, scope_var, scope),
   \ ]
 endfunction
 
-function! s:parse_hook(tokens, lnum, context_stack)
+function! s:parse_hook(tokens, lnum, context_stack) abort
   let [command, timing] = a:tokens[1 : 2]
   if empty(a:context_stack) || a:context_stack[-1][0] !=# 'describe'
     throw printf('vimspec:%d::%s must put on :describe or :context block',
@@ -74,14 +74,14 @@ function! s:parse_hook(tokens, lnum, context_stack)
   let bundle_var = 's:themis_vimspec_bundles'
   let scope_var = 's:themis_vimspec_scopes'
   return [
-  \   printf('function! %s[-1]._vimspec_hooks.%s()',
+  \   printf('function! %s[-1]._vimspec_hooks.%s() abort',
   \           bundle_var, hook_point),
   \   printf('execute %s.extend("%s.scope(%d)")',
   \           scope_var, scope_var, scope),
   \ ]
 endfunction
 
-function! s:parse_end(tokens, lnum, context_stack)
+function! s:parse_end(tokens, lnum, context_stack) abort
   if empty(a:context_stack)
     let command = a:tokens[1]
     throw printf('vimspec:%d:There is :%s, but not opened', a:lnum, command)
@@ -114,7 +114,7 @@ function! s:parse_end(tokens, lnum, context_stack)
   return []
 endfunction
 
-function! s:translate_script(lines)
+function! s:translate_script(lines) abort
   let result = [
   \   'let s:themis_vimspec_bundles = []',
   \   'let s:themis_vimspec_scopes = themis#style#vimspec#new_scope()',
@@ -167,7 +167,7 @@ function! s:translate_script(lines)
   return result
 endfunction
 
-function! s:compile_specfile(specfile_path, result_path)
+function! s:compile_specfile(specfile_path, result_path) abort
   let slines = readfile(a:specfile_path)
   let rlines = s:translate_script(slines)
   call writefile(rlines, a:result_path)
@@ -176,11 +176,11 @@ endfunction
 
 let s:ScopeKeeper = {'scopes': {}}
 
-function! s:ScopeKeeper.push(scope, scope_id, parent)
+function! s:ScopeKeeper.push(scope, scope_id, parent) abort
   let self.scopes[a:scope_id] = {'scope': a:scope, 'parent': a:parent}
 endfunction
 
-function! s:ScopeKeeper.back(id, back_scope)
+function! s:ScopeKeeper.back(id, back_scope) abort
   let scope = self.scopes[a:id].scope
   for [k, Val] in items(a:back_scope)
     if k !=# 'self'
@@ -190,7 +190,7 @@ function! s:ScopeKeeper.back(id, back_scope)
   endfor
 endfunction
 
-function! s:ScopeKeeper.scope(id)
+function! s:ScopeKeeper.scope(id) abort
   let all = {}
   let id = a:id
   while has_key(self.scopes, id)
@@ -203,7 +203,7 @@ function! s:ScopeKeeper.scope(id)
   return all
 endfunction
 
-function! s:ScopeKeeper.extend(val)
+function! s:ScopeKeeper.extend(val) abort
    return join([
    \   printf('for [s:__key, s:__val] in items(%s)', a:val),
    \   '  let {s:__key} = s:__val',
@@ -212,7 +212,7 @@ function! s:ScopeKeeper.extend(val)
    \ ], "\n")
 endfunction
 
-function! themis#style#vimspec#new_scope()
+function! themis#style#vimspec#new_scope() abort
   return deepcopy(s:ScopeKeeper)
 endfunction
 
@@ -221,29 +221,29 @@ let s:event = {
 \   '_converted_files': []
 \ }
 
-function! s:event.before_suite(bundle)
+function! s:event.before_suite(bundle) abort
   call s:call_hook(a:bundle, 'before_all')
 endfunction
 
-function! s:event.before_test(bundle, name)
+function! s:event.before_test(bundle, name) abort
   if has_key(a:bundle, 'parent')
     call self.before_test(a:bundle.parent, a:name)
   endif
   call s:call_hook(a:bundle, 'before_each')
 endfunction
 
-function! s:event.after_test(bundle, name)
+function! s:event.after_test(bundle, name) abort
   call s:call_hook(a:bundle, 'after_each')
   if has_key(a:bundle, 'parent')
     call self.after_test(a:bundle.parent, a:name)
   endif
 endfunction
 
-function! s:event.after_suite(bundle)
+function! s:event.after_suite(bundle) abort
   call s:call_hook(a:bundle, 'after_all')
 endfunction
 
-function! s:event.finish(runner)
+function! s:event.finish(runner) abort
   for file in self._converted_files
     if filereadable(file)
       call delete(file)
@@ -251,7 +251,7 @@ function! s:event.finish(runner)
   endfor
 endfunction
 
-function! s:call_hook(bundle, point)
+function! s:call_hook(bundle, point) abort
   if has_key(get(a:bundle, '_vimspec_hooks', {}), a:point)
     call call(a:bundle._vimspec_hooks[a:point], [], a:bundle.suite)
   endif
@@ -262,16 +262,16 @@ let s:style = {
 \   'event': s:event,
 \ }
 
-function! s:style.get_test_names(bundle)
+function! s:style.get_test_names(bundle) abort
   let expr = 'type(a:bundle.suite[v:val]) == s:func_t'
   return sort(filter(keys(a:bundle.suite), expr))
 endfunction
 
-function! s:style.can_handle(filename)
+function! s:style.can_handle(filename) abort
   return fnamemodify(a:filename, ':e') ==? 'vimspec'
 endfunction
 
-function! s:style.load_script(filename)
+function! s:style.load_script(filename) abort
   let compiled_specfile_path = tempname()
   call add(self.event._converted_files, compiled_specfile_path)
   try
@@ -287,7 +287,7 @@ function! s:style.load_script(filename)
   endtry
 endfunction
 
-function! themis#style#vimspec#new()
+function! themis#style#vimspec#new() abort
   return deepcopy(s:style)
 endfunction
 

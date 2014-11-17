@@ -8,35 +8,35 @@ set cpo&vim
 
 let s:reporter = {}
 
-function! s:reporter.init(runner)
+function! s:reporter.init(runner) abort
   let self.stats = a:runner.supporter('stats')
 endfunction
 
-function! s:reporter.start(runner)
+function! s:reporter.start(runner) abort
   call themis#log('1..' . a:runner.total_test_count())
 endfunction
 
-function! s:reporter.pass(report)
+function! s:reporter.pass(report) abort
   let title = a:report.get_full_title()
   let mes = printf('ok %d - %s', self.stats.count(), title)
   call themis#log(mes)
 endfunction
 
-function! s:reporter.fail(report)
+function! s:reporter.fail(report) abort
   let title = a:report.get_full_title()
   let mes = printf('not ok %d - %s', self.stats.count(), title)
   call themis#log(mes)
   call s:print_message(a:report.message)
 endfunction
 
-function! s:reporter.pending(report)
+function! s:reporter.pending(report) abort
   let title = a:report.get_full_title()
   let mes = printf('ok %d - %s # SKIP', self.stats.count(), title)
   call themis#log(mes)
   call s:print_message(a:report.message)
 endfunction
 
-function! s:reporter.error(phase, info)
+function! s:reporter.error(phase, info) abort
   call themis#log(printf('Bail out!  Error occurred in %s.', a:phase))
   if has_key(a:info, 'stacktrace')
     call s:print_message(themis#util#error_info(a:info.stacktrace))
@@ -44,20 +44,20 @@ function! s:reporter.error(phase, info)
   call s:print_message(a:info.exception)
 endfunction
 
-function! s:reporter.end(runner)
+function! s:reporter.end(runner) abort
   call themis#log('')
   call s:print_message(self.stats.stat())
 endfunction
 
 
-function! s:print_message(message)
+function! s:print_message(message) abort
   let lines = type(a:message) == type([]) ? a:message : split(a:message, "\n")
   for line in lines
     call themis#log('# ' . line)
   endfor
 endfunction
 
-function! themis#reporter#tap#new()
+function! themis#reporter#tap#new() abort
   return deepcopy(s:reporter)
 endfunction
 

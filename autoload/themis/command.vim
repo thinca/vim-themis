@@ -6,7 +6,7 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! themis#command#start(args)
+function! themis#command#start(args) abort
   let [paths, options] = s:parse_args(a:args)
   if get(options, 'exit', 0)
     return
@@ -25,7 +25,7 @@ let s:short_options = {
 \   'r': 'recursive',
 \   'v': 'version',
 \ }
-function! s:parse_args(args)
+function! s:parse_args(args) abort
   let paths = []
   let options = themis#option#empty_options()
   let args = copy(a:args)
@@ -48,49 +48,49 @@ function! s:parse_args(args)
 endfunction
 
 let s:options = {}
-function! s:options.exclude(args, options)
+function! s:options.exclude(args, options) abort
   if empty(a:args)
     throw 'themis: --exclude option requires {pattern}'
   endif
   let a:options.exclude += [remove(a:args, 0)]
 endfunction
 
-function! s:options.target(args, options)
+function! s:options.target(args, options) abort
   if empty(a:args)
     throw 'themis: --target option requires {pattern}'
   endif
   let a:options.target += [remove(a:args, 0)]
 endfunction
 
-function! s:options.recursive(args, options)
+function! s:options.recursive(args, options) abort
   let a:options.recursive = 1
 endfunction
 
-function! s:options.reporter(args, options)
+function! s:options.reporter(args, options) abort
   if empty(a:args)
     throw 'themis: --reporter option requires {name}'
   endif
   let a:options.reporter = remove(a:args, 0)
 endfunction
 
-function! s:options.reporter_list(args, options)
+function! s:options.reporter_list(args, options) abort
   let reporters = themis#module#list('reporter')
   call themis#log(join(reporters, "\n"))
   let a:options.exit = 1
 endfunction
 
-function! s:options.runtimepath(args, options)
+function! s:options.runtimepath(args, options) abort
   if empty(a:args)
     throw 'themis: --runtime option requires {path}'
   endif
   let a:options.runtimepath += [remove(a:args, 0)]
 endfunction
 
-function! s:options.debug(args, options)
+function! s:options.debug(args, options) abort
   let $THEMIS_DEBUG = 1
 endfunction
 
-function! s:options.help(args, options)
+function! s:options.help(args, options) abort
   " TODO: automate options
   call themis#log(join([
   \   'themis: A testing framework for Vim script.',
@@ -108,12 +108,12 @@ function! s:options.help(args, options)
   let a:options.exit = 1
 endfunction
 
-function! s:options.version(args, options)
+function! s:options.version(args, options) abort
   call themis#log('themis version ' . themis#version())
   let a:options.exit = 1
 endfunction
 
-function! s:process_option(name, args, options)
+function! s:process_option(name, args, options) abort
   let name = substitute(a:name, '-', '_', 'g')
   if has_key(s:options, name)
     call s:options[name](a:args, a:options)

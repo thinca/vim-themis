@@ -18,7 +18,7 @@ if exists('*GetVimspecIndent')
   finish
 endif
 
-function! GetVimspecIndent()
+function! GetVimspecIndent() abort
   let indent = GetVimIndent()
 
   let base_lnum = prevnonblank(v:lnum - 1)
@@ -34,11 +34,11 @@ function! GetVimspecIndent()
 endfunction
 
 if exists('*shiftwidth')
-  function! s:shiftwidth()
+  function! s:shiftwidth() abort
     return shiftwidth()
   endfunction
 else
-  function! s:shiftwidth()
+  function! s:shiftwidth() abort
     return &l:shiftwidth == 0 ? &l:tabstop : &l:shiftwidth
   endfunction
 endif
