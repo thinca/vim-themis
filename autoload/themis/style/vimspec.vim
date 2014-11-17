@@ -8,6 +8,112 @@ set cpo&vim
 
 let s:func_t = type(function('type'))
 
+function! s:parse_describe(tokens, lnum, context_stack, scope_id)
+  let [command, description] = a:tokens[1 : 2]
+  if description ==# ''
+    throw printf('vimspec:%d::%s must take an argument', a:lnum, command)
+  endif
+  if description =~# '^\s*\([''"]\).*\1\s*$'
+    let description = eval(description)
+  endif
+
+  let bundle_new = printf(
+  \   empty(a:context_stack) ?
+  \     'themis#bundle(%s)' :
+  \     'themis#bundle#new(%s, s:themis_vimspec_bundles[-1])',
+  \   string(description)
+  \ )
+
+  let funcname = printf('s:themis_vimspec_scope_%d', a:scope_id)
+  call add(a:context_stack, ['describe', a:lnum, funcname, a:scope_id])
+  return [
+  \   printf('function! %s()', funcname),
+  \   printf('let s:themis_vimspec_bundles += [%s]', bundle_new),
+  \   'let s:themis_vimspec_bundles[-1]._vimspec_hooks = {}',
+  \ ]
+endfunction
+
+function! s:parse_example(tokens, lnum, context_stack, func_id)
+  let [command, example] = a:tokens[1 : 2]
+  if example ==# ''
+    throw printf('vimspec:%d::%s must take an argument', a:lnum, command)
+  endif
+  if empty(a:context_stack) || a:context_stack[-1][0] !=# 'describe'
+    throw printf('vimspec:%d::%s must put on :describe or :context block',
+    \            a:lnum, command)
+  endif
+  let scope = a:context_stack[-1][3]
+  call add(a:context_stack, ['example', a:lnum])
+  let bundle_var = 's:themis_vimspec_bundles'
+  let scope_var = 's:themis_vimspec_scopes'
+  return [
+  \   printf('let %s[-1].suite_descriptions["T_%05d"] = %s',
+  \           bundle_var, a:func_id, string(example)),
+  \   printf('function! %s[-1].suite.T_%05d()',
+  \           bundle_var, a:func_id),
+  \   printf('execute %s.extend("%s.scope(%d)")',
+  \           scope_var, scope_var, scope),
+  \ ]
+endfunction
+
+function! s:parse_hook(tokens, lnum, context_stack)
+  let [command, timing] = a:tokens[1 : 2]
+  if empty(a:context_stack) || a:context_stack[-1][0] !=# 'describe'
+    throw printf('vimspec:%d::%s must put on :describe or :context block',
+    \            a:lnum, command)
+  endif
+  if timing ==# ''
+    let timing = 'each'
+  endif
+  if timing !~# '^\%(each\|all\)$'
+    throw printf('vimspec:%d:Invalid argument for "%s"', a:lnum, command)
+  endif
+  let hook_point = printf('%s_%s', tolower(command), timing)
+  let scope = a:context_stack[-1][3]
+  call add(a:context_stack, ['hook', a:lnum])
+  let bundle_var = 's:themis_vimspec_bundles'
+  let scope_var = 's:themis_vimspec_scopes'
+  return [
+  \   printf('function! %s[-1]._vimspec_hooks.%s()',
+  \           bundle_var, hook_point),
+  \   printf('execute %s.extend("%s.scope(%d)")',
+  \           scope_var, scope_var, scope),
+  \ ]
+endfunction
+
+function! s:parse_end(tokens, lnum, context_stack)
+  if empty(a:context_stack)
+    let command = a:tokens[1]
+    throw printf('vimspec:%d:There is :%s, but not opened', a:lnum, command)
+  endif
+  let [context, lnum; rest] = remove(a:context_stack, -1)
+  if context ==# 'describe'
+    let [funcname, scope_id] = rest
+    let parent_scope = empty(a:context_stack) ? -1 : a:context_stack[-1][3]
+    let bundle_var = 's:themis_vimspec_bundles'
+    return [
+    \   printf('call s:themis_vimspec_scopes.push(copy(l:), %d, %d)',
+    \           scope_id, parent_scope),
+    \   printf('call themis#util#adjust_func_line(%s[-1]._vimspec_hooks, -1)',
+    \           bundle_var),
+    \   printf('call themis#util#adjust_func_line(%s[-1].suite, -1)',
+    \           bundle_var),
+    \   printf('call remove(%s, -1)', bundle_var),
+    \   'endfunction',
+    \   printf('call %s()', funcname),
+    \ ]
+  elseif context ==# 'hook'
+    let scope = a:context_stack[-1][3]
+    return [
+    \   printf('call s:themis_vimspec_scopes.back(%d, l:)', scope),
+    \   'endfunction',
+    \ ]
+  elseif context ==# 'example'
+    return ['endfunction']
+  endif
+  return []
+endfunction
+
 function! s:translate_script(lines)
   let result = [
   \   'let s:themis_vimspec_bundles = []',
@@ -23,103 +129,30 @@ function! s:translate_script(lines)
 
     let tokens = matchlist(line, '^\s*\([Dd]escribe\|[Cc]ontext\)\s*\(.*\)$')
     if !empty(tokens)
-      let [command, description] = tokens[1 : 2]
-      if description ==# ''
-        throw printf('vimspec:%d::%s must take an argument', lnum, command)
-      endif
-      if description =~# '^\s*\([''"]\).*\1\s*$'
-        let description = eval(description)
-      endif
-
-      let bundle_new = printf(
-      \   empty(context_stack) ?
-      \     'themis#bundle(%s)' :
-      \     'themis#bundle#new(%s, s:themis_vimspec_bundles[-1])',
-      \   string(description)
-      \ )
-
-      let funcname = printf('s:themis_vimspec_scope_%d', current_scope_id)
-      let result += [
-      \   printf('function! %s()', funcname),
-      \   printf('let s:themis_vimspec_bundles += [%s]', bundle_new),
-      \   'let s:themis_vimspec_bundles[-1]._vimspec_hooks = {}',
-      \ ]
-      let context_stack += [['describe', lnum, funcname, current_scope_id]]
+      let result +=
+      \   s:parse_describe(tokens, lnum, context_stack, current_scope_id)
       let current_scope_id += 1
       continue
     endif
 
     let tokens = matchlist(line, '^\s*\([Ii]t\)\s*\(.*\)$')
     if !empty(tokens)
-      let [command, example] = tokens[1 : 2]
-      if example ==# ''
-        throw printf('vimspec:%d::%s must take an argument', lnum, command)
-      endif
-      if empty(context_stack) || context_stack[-1][0] !=# 'describe'
-        throw printf('vimspec:%d::%s must put on :describe or :context block',
-        \            lnum, command)
-      endif
-      let scope = context_stack[-1][3]
-      let result += [
-      \   printf('let s:themis_vimspec_bundles[-1].suite_descriptions["T_%05d"] = %s', current_func_id, string(example)),
-      \   printf('function! s:themis_vimspec_bundles[-1].suite.T_%05d()', current_func_id),
-      \   printf('execute s:themis_vimspec_scopes.extend("s:themis_vimspec_scopes.scope(%d)")', scope),
-      \ ]
-      let context_stack += [['example', lnum]]
+      let result +=
+      \   s:parse_example(tokens, lnum, context_stack, current_func_id)
       let current_func_id += 1
       continue
     endif
 
-    let tokens = matchlist(line, '^\s*\([Bb]efore\|[Aa]fter\)\%(\s\+\(.*\)\)\?$')
+    let tokens = matchlist(line,
+    \                      '^\s*\([Bb]efore\|[Aa]fter\)\%(\s\+\(.*\)\)\?$')
     if !empty(tokens)
-      let [command, timing] = tokens[1 : 2]
-      if empty(context_stack) || context_stack[-1][0] !=# 'describe'
-        throw printf('vimspec:%d::%s must put on :describe or :context block',
-        \            lnum, command)
-      endif
-      if timing ==# ''
-        let timing = 'each'
-      endif
-      if timing !~# '^\%(each\|all\)$'
-        throw printf('vimspec:%d:Invalid argument for "%s"', lnum, command)
-      endif
-      let hook_point = printf('%s_%s', tolower(command), timing)
-      let scope = context_stack[-1][3]
-      let result += [
-      \   printf('function! s:themis_vimspec_bundles[-1]._vimspec_hooks.%s()', hook_point),
-      \   printf('execute s:themis_vimspec_scopes.extend("s:themis_vimspec_scopes.scope(%d)")', scope),
-      \ ]
-      let context_stack += [['hook', lnum]]
+      let result += s:parse_hook(tokens, lnum, context_stack)
       continue
     endif
 
     let tokens = matchlist(line, '^\s*\([Ee]nd\)\s*$')
     if !empty(tokens)
-      if empty(context_stack)
-        let command = tokens[1]
-        throw printf('vimspec:%d:There is :%s, but not opened', lnum, command)
-      endif
-      let [context, lnum; rest] = remove(context_stack, -1)
-      if context ==# 'describe'
-        let [funcname, scope_id] = rest
-        let parent_scope = empty(context_stack) ? -1 : context_stack[-1][3]
-        let result += [
-        \   printf('call s:themis_vimspec_scopes.push(copy(l:), %d, %d)', scope_id, parent_scope),
-        \   'call themis#util#adjust_func_line(s:themis_vimspec_bundles[-1]._vimspec_hooks, -1)',
-        \   'call themis#util#adjust_func_line(s:themis_vimspec_bundles[-1].suite, -1)',
-        \   'call remove(s:themis_vimspec_bundles, -1)',
-        \   'endfunction',
-        \   printf('call %s()', funcname),
-        \ ]
-      elseif context ==# 'hook'
-        let scope = context_stack[-1][3]
-        let result += [
-        \   printf('call s:themis_vimspec_scopes.back(%d, l:)', scope),
-        \   'endfunction',
-        \ ]
-      elseif context ==# 'example'
-        let result += ['endfunction']
-      endif
+      let result += s:parse_end(tokens, lnum, context_stack)
       continue
     endif
 
