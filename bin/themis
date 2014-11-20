@@ -8,7 +8,8 @@
 
 if ! type realpath >/dev/null 2>&1; then
 	realpath() {
-		${THEMIS_VIM} -u NONE -i NONE -N -V1 -e -s --cmd "echon resolve(argv(0))" --cmd "echo ''" --cmd quit "$1" 2>&1
+		# NOTE: use X to avoid "XSMP opening connection" message.
+		${THEMIS_VIM} -u NONE -i NONE -N -X -V1 -e -s --cmd "echon resolve(argv(0))" --cmd "echo ''" --cmd quit "$1" 2>&1
 	}
 fi
 
