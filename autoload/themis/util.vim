@@ -27,6 +27,10 @@ function! s:StackInfo.fill_info() abort
     let self.exists = 1
     let self.filename = self.stack
     let self.type = 'file'
+  else
+    let self.exists = 0
+    let self.funcname = self.stack
+    let self.type = 'unknown'
   endif
   let self.filled = 1
 endfunction
