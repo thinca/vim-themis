@@ -15,6 +15,10 @@ function! SampleFunctionForUtil(foo, bar, ...) abort
   echo "lastline"
 endfunction
 
+function! s:is_indication_of_attribute_supported() abort
+  return  (v:version == 703 && has('patch1136')) || 703 < v:version
+endfunction
+
 
 Describe util
   Describe #parse_callstack()
@@ -81,7 +85,12 @@ Describe util
         Assert Equals(self.data.funcname, 'SampleFunctionForUtil')
       End
       It contains signature info
-        Assert Equals(self.data.signature, 'function SampleFunctionForUtil(foo, bar, ...) abort')
+        if s:is_indication_of_attribute_supported()
+          let expected = 'function SampleFunctionForUtil(foo, bar, ...) abort'
+        else
+          let expected = 'function SampleFunctionForUtil(foo, bar, ...)'
+        endif
+        Assert Equals(self.data.signature, expected)
       End
       It contains arguments info
         Assert Equals(self.data.arguments, ['foo', 'bar', '...'])
@@ -96,7 +105,11 @@ Describe util
         Assert False(self.data.is_dict)
       End
       It contains is_abort flag
-        Assert True(self.data.is_abort)
+        if s:is_indication_of_attribute_supported()
+          Assert True(self.data.is_abort)
+        else
+          Assert False(self.data.is_abort)
+        endif
       End
       It contains has_range flag
         Assert False(self.data.has_range)
