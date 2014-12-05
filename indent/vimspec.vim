@@ -1,5 +1,5 @@
 " Vimspec indent plugin
-" Version: 1.3
+" Version: 1.4
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 

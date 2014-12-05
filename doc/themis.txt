@@ -1,6 +1,6 @@
 *themis.txt*	A testing framework for Vim script.
 
-Version: 1.3
+Version: 1.4
 Author : thinca <thinca+vim@gmail.com>
 License: zlib License
 
@@ -896,7 +896,7 @@ When all characters of {type} are uppercase, a test treated as "pending".
 ==============================================================================
 CHANGELOG					*themis-changelog*
 
-1.4	Roadmap
+1.4	2014-12-05
 	- Lexical scope support for |themis-style-vimspec|.
 	- Add |themis#func_alias()|.
 
