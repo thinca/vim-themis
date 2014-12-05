@@ -1,5 +1,5 @@
 " themis: style: basic: Basic style.
-" Version: 1.3
+" Version: 1.4
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
@@ -17,11 +17,11 @@ let s:describe_pattern = '^__.\+__$'
 
 let s:event = {}
 
-function! s:event.script_loaded(runner)
+function! s:event.script_loaded(runner) abort
   call s:load_nested_bundle(a:runner, a:runner.root_bundle)
 endfunction
 
-function! s:load_nested_bundle(runner, bundle)
+function! s:load_nested_bundle(runner, bundle) abort
   let a:runner.in_bundle(a:bundle)
   let suite = copy(a:bundle.suite)
   call filter(suite, 'v:key =~# s:describe_pattern')
@@ -37,13 +37,13 @@ function! s:load_nested_bundle(runner, bundle)
   let a:runner.out_bundle()
 endfunction
 
-function! s:event.before_suite(bundle)
+function! s:event.before_suite(bundle) abort
   if has_key(a:bundle.suite, 'before')
     call a:bundle.suite.before()
   endif
 endfunction
 
-function! s:event.before_test(bundle, name)
+function! s:event.before_test(bundle, name) abort
   if has_key(a:bundle, 'parent')
     call self.before_test(a:bundle.parent, a:name)
   endif
@@ -52,13 +52,13 @@ function! s:event.before_test(bundle, name)
   endif
 endfunction
 
-function! s:event.after_suite(bundle)
+function! s:event.after_suite(bundle) abort
   if has_key(a:bundle.suite, 'after')
     call a:bundle.suite.after()
   endif
 endfunction
 
-function! s:event.after_test(bundle, name)
+function! s:event.after_test(bundle, name) abort
   if has_key(a:bundle.suite, 'after_each')
     call a:bundle.suite.after_each()
   endif
@@ -72,7 +72,7 @@ let s:style = {
 \   'event': s:event,
 \ }
 
-function! s:style.get_test_names(bundle)
+function! s:style.get_test_names(bundle) abort
   let suite = copy(a:bundle.suite)
   call filter(suite, 'type(v:val) == s:func_t')
   call filter(suite, 'index(s:special_names, v:key) < 0')
@@ -80,32 +80,32 @@ function! s:style.get_test_names(bundle)
   return s:names_by_defined_order(suite)
 endfunction
 
-function! s:names_by_defined_order(suite)
+function! s:names_by_defined_order(suite) abort
   let s:suite_for_sort = a:suite
   let result = sort(keys(a:suite), 's:test_compare')
   unlet s:suite_for_sort
   return result
 endfunction
 
-function! s:test_compare(a, b)
+function! s:test_compare(a, b) abort
   let a_order = s:to_i(themis#util#funcname(s:suite_for_sort[a:a]))
   let b_order = s:to_i(themis#util#funcname(s:suite_for_sort[a:b]))
   return a_order ==# b_order ? 0 : b_order < a_order ? 1 : -1
 endfunction
 
-function! s:to_i(value)
+function! s:to_i(value) abort
   return a:value =~# '^\d\+$' ? str2nr(a:value) : a:value
 endfunction
 
-function! s:style.can_handle(filename)
+function! s:style.can_handle(filename) abort
   return fnamemodify(a:filename, ':e') ==? 'vim'
 endfunction
 
-function! s:style.load_script(filename)
+function! s:style.load_script(filename) abort
   source `=a:filename`
 endfunction
 
-function! themis#style#basic#new()
+function! themis#style#basic#new() abort
   return deepcopy(s:style)
 endfunction
 

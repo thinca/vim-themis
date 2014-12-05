@@ -1,5 +1,5 @@
 " Themis option utilities.
-" Version: 1.3
+" Version: 1.4
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
@@ -15,11 +15,11 @@ let s:default_options = {
 \   'exclude': [],
 \ }
 
-function! themis#option#default()
+function! themis#option#default() abort
   return deepcopy(s:default_options)
 endfunction
 
-function! themis#option#empty_options()
+function! themis#option#empty_options() abort
   let options = deepcopy(s:default_options)
   let list_t = type([])
   call filter(options, 'type(v:val) == list_t')
@@ -27,7 +27,7 @@ function! themis#option#empty_options()
   return options
 endfunction
 
-function! themis#option#merge(base, overwriter)
+function! themis#option#merge(base, overwriter) abort
   let merged = copy(a:base)
   for [name, value] in items(a:overwriter)
     if type(value) == type([]) && has_key(merged, name)

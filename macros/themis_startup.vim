@@ -1,11 +1,11 @@
 " Startup script for external themis command.
-" Version: 1.3
+" Version: 1.4
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
 let s:themis_home = expand('<sfile>:h:h')
 
-function! s:append_rtp(path)
+function! s:append_rtp(path) abort
   if isdirectory(a:path)
     let path = substitute(a:path, '\\\+', '/', 'g')
     let path = substitute(path, '/$', '', 'g')
@@ -17,7 +17,7 @@ function! s:append_rtp(path)
   endif
 endfunction
 
-function! s:start()
+function! s:start() abort
   let g:themis#cmdline = 1
   call s:append_rtp(s:themis_home)
   let args = argv()
@@ -29,7 +29,7 @@ function! s:start()
   return themis#command#start(args)
 endfunction
 
-function! s:dump_error(throwpoint, exception)
+function! s:dump_error(throwpoint, exception) abort
   new
   try
     if $THEMIS_DEBUG == 1 || a:exception =~# '^Vim'
@@ -39,8 +39,9 @@ function! s:dump_error(throwpoint, exception)
       let funcs = matchstr(a:throwpoint, '^function\s*\zs.\+\ze,')
       let f = get(split(funcs, '\.\.'), -1)
       if f
-        let body = themis#util#funcbody(f, 1)
-        $ put =body
+        let data = themis#util#funcdata(f)
+        $ put =data.signature
+        $ put =data.body
       endif
     endif
     $ put ='ERROR: ' . matchstr(a:exception, '^\%(themis:\s*\)\?\zs.*')
@@ -50,7 +51,7 @@ function! s:dump_error(throwpoint, exception)
   endtry
 endfunction
 
-function! s:main()
+function! s:main() abort
   " This :visual is needed for 2 purpose.
   " 1. To Start test in Normal mode.
   " 2. Exit code is set to 1, whenever it ends Vim from Ex mode after an error

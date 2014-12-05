@@ -1,5 +1,5 @@
 " themis: reporter: Report with xUnit style.
-" Version: 1.3
+" Version: 1.4
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
@@ -8,27 +8,27 @@ set cpo&vim
 
 let s:reporter = {}
 
-function! s:reporter.init(runner)
+function! s:reporter.init(runner) abort
   let self.stats = a:runner.supporter('stats')
   let self.pending_list = []
   let self.failure_list = []
 endfunction
 
-function! s:reporter.pass(report)
+function! s:reporter.pass(report) abort
   call themis#logn('.')
 endfunction
 
-function! s:reporter.fail(report)
+function! s:reporter.fail(report) abort
   let self.failure_list += [a:report]
   call themis#logn('F')
 endfunction
 
-function! s:reporter.pending(report)
+function! s:reporter.pending(report) abort
   let self.pending_list += [a:report]
   call themis#logn('P')
 endfunction
 
-function! s:reporter.end(runner)
+function! s:reporter.end(runner) abort
   call themis#log("\n")
 
   call s:print_reports('Pending', self.pending_list)
@@ -37,7 +37,7 @@ function! s:reporter.end(runner)
   call themis#log(self.stats.stat())
 endfunction
 
-function! s:reporter.error(phase, info)
+function! s:reporter.error(phase, info) abort
   call themis#log('')
   call themis#log(printf('Error occurred in %s.', a:phase))
   if has_key(a:info, 'stacktrace')
@@ -46,7 +46,7 @@ function! s:reporter.error(phase, info)
   call themis#log(a:info.exception)
 endfunction
 
-function! s:print_reports(title, reports)
+function! s:print_reports(title, reports) abort
   if empty(a:reports)
     return
   endif
@@ -59,12 +59,12 @@ function! s:print_reports(title, reports)
   endfor
 endfunction
 
-function! s:print_report(n, report)
+function! s:print_report(n, report) abort
   call themis#log(printf('%3d) %s', a:n, a:report.get_full_title()))
   call themis#log(map(split(a:report.message, "\n"), '"     " . v:val'))
 endfunction
 
-function! themis#reporter#dot#new()
+function! themis#reporter#dot#new() abort
   return deepcopy(s:reporter)
 endfunction
 

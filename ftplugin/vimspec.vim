@@ -1,9 +1,9 @@
 " Vimspec filetype plugin
-" Version: 1.3
+" Version: 1.4
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
-if exists("b:did_ftplugin")
+if exists('b:did_ftplugin')
   finish
 endif
 

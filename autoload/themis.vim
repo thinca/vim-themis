@@ -1,5 +1,5 @@
 " A testing framework for Vim script.
-" Version: 1.3
+" Version: 1.4
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
@@ -14,13 +14,13 @@ if exists('s:version')
   finish
 endif
 
-let s:version = '1.3'
+let s:version = '1.4'
 
-function! themis#version()
+function! themis#version() abort
   return s:version
 endfunction
 
-function! themis#run(paths, ...)
+function! themis#run(paths, ...) abort
   let s:current_runner = themis#runner#new()
   try
     let options = get(a:000, 0, themis#option#empty_options())
@@ -32,27 +32,27 @@ endfunction
 
 " -- Utilities for test
 
-function! s:runner()
+function! s:runner() abort
   if !exists('s:current_runner')
     throw 'themis: Test is not running.'
   endif
   return s:current_runner
 endfunction
 
-function! themis#bundle(title)
+function! themis#bundle(title) abort
   return s:runner().add_new_bundle(a:title)
 endfunction
 
-function! themis#suite(...)
+function! themis#suite(...) abort
   let title = get(a:000, 0, '')
   return themis#bundle(title).suite
 endfunction
 
-function! themis#helper(name)
+function! themis#helper(name) abort
   return themis#helper#{a:name}#new(s:runner())
 endfunction
 
-function! themis#option(...)
+function! themis#option(...) abort
   if !exists('s:custom_options')
     let s:custom_options = themis#option#default()
   endif
@@ -73,16 +73,20 @@ function! themis#option(...)
   endif
 endfunction
 
-function! themis#exception(type, message)
+function! themis#func_alias(dict) abort
+  call themis#util#func_alias(a:dict, [])
+endfunction
+
+function! themis#exception(type, message) abort
   return printf('themis: %s: %s', a:type, themis#message(a:message))
 endfunction
 
-function! themis#log(expr, ...)
+function! themis#log(expr, ...) abort
   let mes = themis#message(a:expr) . "\n"
   call call('themis#logn', [mes] + a:000)
 endfunction
 
-function! themis#logn(expr, ...)
+function! themis#logn(expr, ...) abort
   let string = themis#message(a:expr)
   if !empty(a:000)
     let string = call('printf', [string] + a:000)
@@ -96,7 +100,7 @@ function! themis#logn(expr, ...)
   endif
 endfunction
 
-function! themis#message(expr)
+function! themis#message(expr) abort
   let t = type(a:expr)
   return
   \  t == type('') ? a:expr :
@@ -104,7 +108,7 @@ function! themis#message(expr)
   \                  string(a:expr)
 endfunction
 
-function! themis#failure(expr)
+function! themis#failure(expr) abort
   return 'themis: report: failure: ' . themis#message(a:expr)
 endfunction
 

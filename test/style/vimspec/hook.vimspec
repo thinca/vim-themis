@@ -16,22 +16,22 @@ Describe vimspec-style
     End
 
     It is called in order
-      function! self.suite.before()
+      function! self.suite.before() abort
         let self.called += ['before']
       endfunction
-      function! self.suite.before_each()
+      function! self.suite.before_each() abort
         let self.called += ['before_each']
       endfunction
-      function! self.suite.test1()
+      function! self.suite.test1() abort
         let self.called += ['test1']
       endfunction
-      function! self.suite.test2()
+      function! self.suite.test2() abort
         let self.called += ['test2']
       endfunction
-      function! self.suite.after_each()
+      function! self.suite.after_each() abort
         let self.called += ['after_each']
       endfunction
-      function! self.suite.after()
+      function! self.suite.after() abort
         let self.called += ['after']
       endfunction
 
@@ -52,40 +52,40 @@ Describe vimspec-style
     End
 
     It with parent is called in order
-      function! self.suite.before()
+      function! self.suite.before() abort
         let self.called += ['parent_before']
       endfunction
-      function! self.suite.before_each()
+      function! self.suite.before_each() abort
         let self.called += ['parent_before_each']
       endfunction
-      function! self.suite.parent_test()
+      function! self.suite.parent_test() abort
         let self.called += ['parent_test']
       endfunction
-      function! self.suite.after_each()
+      function! self.suite.after_each() abort
         let self.called += ['parent_after_each']
       endfunction
-      function! self.suite.after()
+      function! self.suite.after() abort
         let self.called += ['parent_after']
       endfunction
 
       let child = themis#bundle#new()
       let child.suite.called = self.suite.called
-      function! child.suite.before()
+      function! child.suite.before() abort
         let self.called += ['child_before']
       endfunction
-      function! child.suite.before_each()
+      function! child.suite.before_each() abort
         let self.called += ['child_before_each']
       endfunction
-      function! child.suite.parent_test1()
+      function! child.suite.parent_test1() abort
         let self.called += ['child_test1']
       endfunction
-      function! child.suite.parent_test2()
+      function! child.suite.parent_test2() abort
         let self.called += ['child_test2']
       endfunction
-      function! child.suite.after_each()
+      function! child.suite.after_each() abort
         let self.called += ['child_after_each']
       endfunction
-      function! child.suite.after()
+      function! child.suite.after() abort
         let self.called += ['child_after']
       endfunction
       call self.bundle.add_child(child)

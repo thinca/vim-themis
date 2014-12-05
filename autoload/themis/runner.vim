@@ -1,5 +1,5 @@
 " themis: Test runner
-" Version: 1.3
+" Version: 1.4
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
@@ -8,7 +8,7 @@ set cpo&vim
 
 let s:runner = {}
 
-function! s:runner.init()
+function! s:runner.init() abort
   call self.init_bundle()
   let self._events = []
   let self._suppporters = {}
@@ -22,7 +22,7 @@ function! s:runner.init()
   call self.add_event(style_event)
 endfunction
 
-function! s:runner.run(paths, options)
+function! s:runner.run(paths, options) abort
   call self.init()
   let paths = type(a:paths) == type([]) ? a:paths : [a:paths]
 
@@ -97,28 +97,28 @@ function! s:runner.run(paths, options)
   return error_count
 endfunction
 
-function! s:runner.init_bundle()
+function! s:runner.init_bundle() abort
   let self.root_bundle = themis#bundle#new()
   let self.bundle_stacks = [self.root_bundle]
 endfunction
 
-function! s:runner.get_current_bundle()
+function! s:runner.get_current_bundle() abort
   return self.bundle_stacks[-1]
 endfunction
 
-function! s:runner.in_bundle(bundle)
+function! s:runner.in_bundle(bundle) abort
   let self.bundle_stacks += [a:bundle]
 endfunction
 
-function! s:runner.out_bundle()
+function! s:runner.out_bundle() abort
   call remove(self.bundle_stacks, -1)
 endfunction
 
-function! s:runner.add_new_bundle(title)
+function! s:runner.add_new_bundle(title) abort
   return self.add_bundle(themis#bundle#new(a:title))
 endfunction
 
-function! s:runner.add_bundle(bundle)
+function! s:runner.add_bundle(bundle) abort
   if has_key(self, '_current')
     let a:bundle.filename = self._current.filename
     let a:bundle.style_name = self._current.style_name
@@ -127,7 +127,7 @@ function! s:runner.add_bundle(bundle)
   return a:bundle
 endfunction
 
-function! s:runner.load_scripts(files_with_styles)
+function! s:runner.load_scripts(files_with_styles) abort
   let self.phase = 'script loading'
   for [filename, style_name] in items(a:files_with_styles)
     if !filereadable(filename)
@@ -144,11 +144,11 @@ function! s:runner.load_scripts(files_with_styles)
   unlet self.phase
 endfunction
 
-function! s:runner.run_all()
+function! s:runner.run_all() abort
   call self.run_bundle(self.root_bundle)
 endfunction
 
-function! s:runner.run_bundle(bundle)
+function! s:runner.run_bundle(bundle) abort
   let test_names = self.get_test_names(a:bundle)
   let has_style = a:bundle.get_style_name() !=# ''
   call self.in_bundle(a:bundle)
@@ -165,7 +165,7 @@ function! s:runner.run_bundle(bundle)
   call self.out_bundle()
 endfunction
 
-function! s:runner.run_suite(bundle, test_names)
+function! s:runner.run_suite(bundle, test_names) abort
   for name in a:test_names
     let report = themis#report#new(a:bundle, name)
     call self.emit('before_test', a:bundle, name)
@@ -184,7 +184,7 @@ function! s:runner.run_suite(bundle, test_names)
   endfor
 endfunction
 
-function! s:runner.get_test_names(bundle)
+function! s:runner.get_test_names(bundle) abort
   let style = get(self._styles, a:bundle.get_style_name(), {})
   if empty(style)
     return []
@@ -197,29 +197,29 @@ function! s:runner.get_test_names(bundle)
   return names
 endfunction
 
-function! s:runner.get_current_style()
+function! s:runner.get_current_style() abort
   return get(self._styles, self.get_current_bundle().get_style_name(), {})
 endfunction
 
-function! s:runner.supporter(name)
+function! s:runner.supporter(name) abort
   if !has_key(self._suppporters, a:name)
     let self._suppporters[a:name] = themis#module#supporter(a:name, self)
   endif
   return self._suppporters[a:name]
 endfunction
 
-function! s:runner.add_event(event)
+function! s:runner.add_event(event) abort
   call add(self._events, a:event)
   call s:call(a:event, 'init', [self])
 endfunction
 
-function! s:runner.total_test_count(...)
+function! s:runner.total_test_count(...) abort
   let bundle = a:0 ? a:1 : self.root_bundle
   return len(self.get_test_names(bundle))
   \    + s:sum(map(copy(bundle.children), 'self.total_test_count(v:val)'))
 endfunction
 
-function! s:runner.emit(name, ...)
+function! s:runner.emit(name, ...) abort
   let self.phase = a:name
   for event in self._events
     call s:call(event, a:name, a:000)
@@ -227,7 +227,7 @@ function! s:runner.emit(name, ...)
   unlet self.phase
 endfunction
 
-function! s:call(obj, key, args)
+function! s:call(obj, key, args) abort
   if has_key(a:obj, a:key)
     call call(a:obj[a:key], a:args, a:obj)
   elseif has_key(a:obj, '_')
@@ -236,7 +236,7 @@ function! s:call(obj, key, args)
 endfunction
 
 let s:style_event = {}
-function! s:style_event._(event, args)
+function! s:style_event._(event, args) abort
   let current_style = self.runner.get_current_style()
   if !empty(current_style)
     if has_key(current_style, 'event')
@@ -249,7 +249,7 @@ function! s:style_event._(event, args)
   endif
 endfunction
 
-function! s:test_fail(report, exception, throwpoint)
+function! s:test_fail(report, exception, throwpoint) abort
   if a:exception =~? '^themis:\_s*report:'
     let result = matchstr(a:exception, '\c^themis:\_s*report:\_s*\zs.*')
     let [a:report.type, a:report.message] =
@@ -268,7 +268,7 @@ function! s:test_fail(report, exception, throwpoint)
   endif
 endfunction
 
-function! s:append_rtp(path)
+function! s:append_rtp(path) abort
   let appended = []
   if isdirectory(a:path)
     let path = substitute(a:path, '\\\+', '/', 'g')
@@ -284,14 +284,14 @@ function! s:append_rtp(path)
   return appended
 endfunction
 
-function! s:load_themisrc(paths)
+function! s:load_themisrc(paths) abort
   let themisrcs = themis#util#find_files(a:paths, '.themisrc')
   for themisrc in themisrcs
     execute 'source' fnameescape(themisrc)
   endfor
 endfunction
 
-function! s:paths2files(paths, recursive)
+function! s:paths2files(paths, recursive) abort
   let files = []
   let target_pattern = a:recursive ? '**/*' : '*'
   for path in a:paths
@@ -305,7 +305,7 @@ function! s:paths2files(paths, recursive)
   return filter(map(files, 'fnamemodify(v:val, mods)'), '!isdirectory(v:val)')
 endfunction
 
-function! s:can_handle(styles, file)
+function! s:can_handle(styles, file) abort
   for style in a:styles
     if style.can_handle(a:file)
       return style.name
@@ -314,14 +314,16 @@ function! s:can_handle(styles, file)
   return ''
 endfunction
 
-function! s:sum(list)
+function! s:sum(list) abort
   return empty(a:list) ? 0 : eval(join(a:list, '+'))
 endfunction
 
-function! themis#runner#new()
+function! themis#runner#new() abort
   let runner = deepcopy(s:runner)
   return runner
 endfunction
+
+call themis#func_alias({'vital/Runner': s:runner})
 
 
 let &cpo = s:save_cpo

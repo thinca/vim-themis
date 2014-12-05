@@ -1,11 +1,11 @@
 let s:hook = themis#suite('hook')
 
-function! s:hook.before()
+function! s:hook.before() abort
   let self.runner = themis#runner#new()
   call self.runner.init()
 endfunction
 
-function! s:hook.before_each()
+function! s:hook.before_each() abort
   call self.runner.init_bundle()
   let self.bundle = self.runner.add_new_bundle('sample')
   let self.bundle.style_name = 'basic'
@@ -13,23 +13,23 @@ function! s:hook.before_each()
   let self.suite.called = []
 endfunction
 
-function! s:hook.is_called_in_order()
-  function! self.suite.before()
+function! s:hook.is_called_in_order() abort
+  function! self.suite.before() abort
     let self.called += ['before']
   endfunction
-  function! self.suite.before_each()
+  function! self.suite.before_each() abort
     let self.called += ['before_each']
   endfunction
-  function! self.suite.test1()
+  function! self.suite.test1() abort
     let self.called += ['test1']
   endfunction
-  function! self.suite.test2()
+  function! self.suite.test2() abort
     let self.called += ['test2']
   endfunction
-  function! self.suite.after_each()
+  function! self.suite.after_each() abort
     let self.called += ['after_each']
   endfunction
-  function! self.suite.after()
+  function! self.suite.after() abort
     let self.called += ['after']
   endfunction
 
@@ -49,41 +49,41 @@ function! s:hook.is_called_in_order()
   \ ])
 endfunction
 
-function! s:hook.with_parent_is_called_in_order()
-  function! self.suite.before()
+function! s:hook.with_parent_is_called_in_order() abort
+  function! self.suite.before() abort
     let self.called += ['parent_before']
   endfunction
-  function! self.suite.before_each()
+  function! self.suite.before_each() abort
     let self.called += ['parent_before_each']
   endfunction
-  function! self.suite.parent_test()
+  function! self.suite.parent_test() abort
     let self.called += ['parent_test']
   endfunction
-  function! self.suite.after_each()
+  function! self.suite.after_each() abort
     let self.called += ['parent_after_each']
   endfunction
-  function! self.suite.after()
+  function! self.suite.after() abort
     let self.called += ['parent_after']
   endfunction
 
   let child = themis#bundle#new()
   let child.suite.called = self.suite.called
-  function! child.suite.before()
+  function! child.suite.before() abort
     let self.called += ['child_before']
   endfunction
-  function! child.suite.before_each()
+  function! child.suite.before_each() abort
     let self.called += ['child_before_each']
   endfunction
-  function! child.suite.parent_test1()
+  function! child.suite.parent_test1() abort
     let self.called += ['child_test1']
   endfunction
-  function! child.suite.parent_test2()
+  function! child.suite.parent_test2() abort
     let self.called += ['child_test2']
   endfunction
-  function! child.suite.after_each()
+  function! child.suite.after_each() abort
     let self.called += ['child_after_each']
   endfunction
-  function! child.suite.after()
+  function! child.suite.after() abort
     let self.called += ['child_after']
   endfunction
   call self.bundle.add_child(child)
