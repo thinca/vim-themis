@@ -19,7 +19,14 @@ if exists('*GetVimspecIndent')
 endif
 
 function! GetVimspecIndent() abort
-  let indent = GetVimIndent()
+  try
+    " Old Vim's indent plugin has a bug that uses =~
+    let ignorecase_save = &ignorecase
+    set noignorecase
+    let indent = GetVimIndent()
+  finally
+    let &ignorecase = ignorecase_save
+  endtry
 
   let base_lnum = prevnonblank(v:lnum - 1)
   let line = getline(base_lnum)
