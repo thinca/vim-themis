@@ -26,6 +26,7 @@ function! s:StackInfo.fill_info() abort
   elseif filereadable(self.stack)
     let self.exists = 1
     let self.filename = self.stack
+    let self.funcname = ''
     let self.type = 'file'
   else
     let self.exists = 0
