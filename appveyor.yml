@@ -1,0 +1,23 @@
+version: '{build}'
+clone_depth: 1
+environment:
+  matrix:
+  - VIM_URL: http://files.kaoriya.net/vim/vim74-kaoriya-win64.zip
+  - VIM_URL: http://files.kaoriya.net/vim/2011/vim73-kaoriya-win64-20110306.zip
+install:
+- ps: |
+    $zip = $Env:APPVEYOR_BUILD_FOLDER + '\vim.zip'
+    $vim = $Env:APPVEYOR_BUILD_FOLDER + '\vim\'
+
+    (New-Object Net.WebClient).DownloadFile($Env:VIM_URL, $zip)
+
+    [Reflection.Assembly]::LoadWithPartialName('System.IO.Compression.FileSystem') > $null
+    [System.IO.Compression.ZipFile]::ExtractToDirectory($zip, $vim)
+
+    $Env:THEMIS_VIM = $vim + (Get-ChildItem $vim).Name + '\vim.exe'
+build: off
+test_script:
+- ps: |
+    & $Env:THEMIS_VIM --version
+    .\bin\themis.bat --reporter dot
+deploy: off
