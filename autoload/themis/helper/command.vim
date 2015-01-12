@@ -61,7 +61,7 @@ function! s:not_thrown(lnum, expected_exception, result) abort
 endfunction
 
 function! s:check_exception(lnum, thrown_expection, expected_exception) abort
-  if a:expected_exception != '' && a:thrown_expection !~# a:expected_exception
+  if a:expected_exception !=# '' && a:thrown_expection !~# a:expected_exception
     let stack = themis#util#parse_callstack(expand('<sfile>'))[-2]
     throw themis#failure([
     \   'An exception was expected, but not thrown.',
