@@ -6,8 +6,6 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-let s:helper = {}
-
 function! s:assert_fail(mes) abort
   throw themis#failure(a:mes)
 endfunction
