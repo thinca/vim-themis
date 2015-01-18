@@ -276,46 +276,6 @@ function! s:assert_exists(expr, ...) abort
   return 1
 endfunction
 
-" TODO: validate()
-function! s:assert_validate(expr, rule) abort
-  let result = s:validate(a:expr, a:rule)
-  if !empty(result)
-    throw themis#failure([
-    \   'expected rule: ' . string(a:rule),
-    \   '    got value: ' . string(a:expr),
-    \ ])
-  endif
-  return 1
-endfunction
-
-function! s:validate(expr, rule) abort
-  let rule_type = type(a:rule)
-
-  if rule_type == type([])
-    for r in a:rule
-      let result = s:validate(a:expr, r)
-      if empty(result)
-        return ''
-      endif
-    endfor
-    return 'does not match to rule'
-  endif
-
-  if rule_type == type('')
-    let rule = {
-    \   'type': matchstr(rule_str, '^\w\+'),
-    \   'omittable': matchstr(rule_str, '?$') ==# '?',
-    \ }
-  elseif rule_type == type({})
-    let rule = a:rule
-  else
-    return 'invalid rule: ' . string(a:rule)
-  endif
-
-  for [key, rule_of_key] in items(rule)
-  endfor
-endfunction
-
 
 function! s:equals(a, b) abort
   return a:a ==# a:b

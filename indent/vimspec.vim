@@ -3,7 +3,7 @@
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
-if exists("b:did_indent")
+if exists('b:did_indent')
   finish
 endif
 
