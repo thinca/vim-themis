@@ -519,6 +519,46 @@ Describe helper-assert
     End
   End
 
+  Describe .key_exists()
+    It checks key exists in dict
+      call s:assert.key_exists({'foo': 0}, 'foo')
+    End
+    It throws a report when key is not exist in dict
+      call s:check_throw('key_exists', [{}, 'foo'], 'It was expected that a key exists in the dictionary')
+    End
+    It throws a report when first argumentis not dict
+      call s:check_throw('key_exists', ['foo', 0], 'The type of value was expected to be dictionary')
+    End
+    It returns truthy value when check was successful
+      call s:assert.truthy(s:assert.key_exists({'foo': 0}, 'foo'))
+    End
+    It accepts an optional message
+      call s:assert.key_exists({'foo': 0}, 'foo', 'error message')
+      call s:check_throw('key_exists', [{}, 'foo', 'error message'], 'error message')
+      call s:check_throw('key_exists', ['foo', 0, 'error message'], 'error message')
+    End
+  End
+
+  Describe .key_not_exists()
+    It checks key does not exist in dict
+      call s:assert.key_not_exists({'foo': 0}, 'bar')
+    End
+    It throws a report when key exists in dict
+      call s:check_throw('key_not_exists', [{'foo': 0}, 'foo'], 'It was expected that a key does not exist in the dictionary')
+    End
+    It throws a report when first argument is not dict
+      call s:check_throw('key_not_exists', ['foo', 0], 'The type of value was expected to be dictionary')
+    End
+    It returns truthy value when check was successful
+      call s:assert.truthy(s:assert.key_not_exists({'foo': 0}, 'bar'))
+    End
+    It accepts an optional message
+      call s:assert.key_not_exists({'foo': 0}, 'bar', 'error message')
+      call s:check_throw('key_not_exists', [{'foo': 0}, 'foo', 'error message'], 'error message')
+      call s:check_throw('key_not_exists', ['foo', 0, 'error message'], 'error message')
+    End
+  End
+
   Describe .exists()
     It throws report when the value does not exists
       call s:check_throw('exists', ['g:the_value_which_does_not_exist'], 'The target was expected to exist')

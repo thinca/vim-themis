@@ -263,6 +263,32 @@ function! s:assert_has_key(value, key, ...) abort
   return 1
 endfunction
 
+function! s:assert_key_exists(value, key, ...) abort
+  call call('s:assert_is_dict', [a:value] + a:000)
+  if !has_key(a:value, a:key)
+    throw s:failure([
+    \   'It was expected that a key exists in the dictionary, but it did not exist.',
+    \   '',
+    \   '      dictionary: ' . string(a:value),
+    \   '    expected key: ' . string(a:key),
+    \ ], a:000)
+  endif
+  return 1
+endfunction
+
+function! s:assert_key_not_exists(value, key, ...) abort
+  call call('s:assert_is_dict', [a:value] + a:000)
+  if has_key(a:value, a:key)
+    throw s:failure([
+    \   'It was expected that a key does not exist in the dictionary, but it did exist.',
+    \   '',
+    \   '      dictionary: ' . string(a:value),
+    \   '    expected key: ' . string(a:key),
+    \ ], a:000)
+  endif
+  return 1
+endfunction
+
 function! s:assert_exists(expr, ...) abort
   if !exists(a:expr)
     throw s:failure([
