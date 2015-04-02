@@ -6,4 +6,4 @@ build:
         code: |-
           vim --version
     - thinca/themis:
-        version: v1.4.1
+        itself: true
