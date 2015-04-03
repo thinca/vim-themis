@@ -90,6 +90,7 @@ call themis#helper#expect#define_matcher('to_be_same', 'a:1 is a:2')
 call themis#helper#expect#define_matcher('to_match', 'type(a:1) == type("") && type(a:2) == type("") && a:1 =~# a:2')
 call themis#helper#expect#define_matcher('to_have_length', '(type(a:1) ==# type("") || type(a:1) == type([]) || type(a:1) == type({})) && len(a:1) == a:2')
 call themis#helper#expect#define_matcher('to_exist', function('exists'))
+call themis#helper#expect#define_matcher('to_be_empty', function('empty'))
 call themis#helper#expect#define_matcher('to_have_key', 'type(a:1) ==# type([]) ? 0 <= a:2 && a:2 < len(a:1) : has_key(a:1, a:2)')
 
 call themis#helper#expect#define_matcher('to_be_number', 'type(a:1) ==# type(0)')

@@ -300,6 +300,27 @@ function! s:assert_exists(expr, ...) abort
   return 1
 endfunction
 
+function! s:assert_empty(expr, ...) abort
+  if !empty(a:expr)
+    throw s:failure([
+    \   'The target was expected to be empty, but it wasn''t.',
+    \   '',
+    \   '    target: ' . string(a:expr),
+    \ ], a:000)
+  endif
+  return 1
+endfunction
+
+function! s:assert_not_empty(expr, ...) abort
+  if empty(a:expr)
+    throw s:failure([
+    \   'The target was expected not to be empty, but it was.',
+    \   '',
+    \   '    target: ' . string(a:expr),
+    \ ], a:000)
+  endif
+  return 1
+endfunction
 
 function! s:equals(a, b) abort
   return a:a ==# a:b

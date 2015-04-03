@@ -351,6 +351,8 @@ Others
 |themis-helper-assert-key_exists()| / |themis-helper-assert-key_exists()|
 |themis-helper-assert-has_key()|
 |themis-helper-assert-exists()|
+|themis-helper-assert-empty()|
+|themis-helper-assert-not_empty()|
 
 
 Command Helper >
@@ -383,6 +385,7 @@ Check types
 |themis-helper-expect-to_be_dict()| / |themis-helper-expect-to_be_float()|
 Others
 |themis-helper-expect-to_exist()|
+|themis-helper-expect-to_be_empty()|
 |themis-helper-expect-to_have_length()|
 |themis-helper-expect-to_have_key()|
 Invert results
@@ -652,6 +655,11 @@ assert.exists({expr} [, {message}])	*themis-helper-assert-exists()*
 	Checks {expr} by |exists()|.
 	Note that this can not use for |local-variable| and |script-variable|.
 
+assert.empty({expr} [, {message}])	*themis-helper-assert-empty()*
+	Checks {expr} by |empty()|.
+
+assert.not_empty({expr} [, {message}])	*themis-helper-assert-not_empty()*
+	Checks {expr} is not empty.
 
 ------------------------------------------------------------------------------
 COMMAND						*themis-helper-command*
@@ -792,6 +800,9 @@ expect({expr}).to_exist()		*themis-helper-expect-to_exist()*
 	Checks length of {value} is {length}.
 	{value} is a String, a List, or a Dictionary.
 	|len()| is used for length of {value}.
+
+expect({expr}).to_be_empty()		*themis-helper-expect-to_be_empty()*
+	Checks {value} is empty by |empty()|.
 
 expect({dict}).to_have_key({key})	*themis-helper-expect-to_have_key()*
 expect({list}).to_have_key({index})
