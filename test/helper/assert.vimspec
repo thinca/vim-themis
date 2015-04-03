@@ -579,6 +579,44 @@ Describe helper-assert
     End
   End
 
+  Describe .empty()
+    It throws report when the value is not empty
+      call s:check_throw('empty', [[1, 2, 3]], 'The target was expected to be empty')
+    End
+    It passes when the value is empty
+      call s:assert.empty([])
+      call s:assert.empty({})
+      call s:assert.empty('')
+    End
+    It returns truthy value when check was successful
+      call s:assert.truthy(s:assert.empty([]))
+    End
+    It accepts an optional message
+      call s:assert.empty([], 'error message')
+      call s:check_throw('empty', [[1, 2, 3], 'error message'], 'error message')
+    End
+  End
+
+  Describe .not_empty()
+    It throws report when the value is empty
+      call s:check_throw('not_empty', [[]], 'The target was expected not to be empty')
+      call s:check_throw('not_empty', [{}], 'The target was expected not to be empty')
+      call s:check_throw('not_empty', [''], 'The target was expected not to be empty')
+    End
+    It passes when the value is empty
+      call s:assert.not_empty([1, 2, 3])
+      call s:assert.not_empty({1 : 'a'})
+      call s:assert.not_empty('foo')
+    End
+    It returns truthy value when check was successful
+      call s:assert.truthy(s:assert.not_empty([1, 2, 3]))
+    End
+    It accepts an optional message
+      call s:assert.not_empty([1, 2, 3], 'error message')
+      call s:check_throw('not_empty', [[], 'error message'], 'error message')
+    End
+  End
+
 End
 
 function! s:check_throw(target, args, ...) abort

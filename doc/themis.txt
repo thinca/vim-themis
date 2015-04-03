@@ -351,6 +351,8 @@ Others
 |themis-helper-assert-key_exists()| / |themis-helper-assert-key_exists()|
 |themis-helper-assert-has_key()|
 |themis-helper-assert-exists()|
+|themis-helper-assert-empty()|
+|themis-helper-assert-not_empty()|
 
 
 Command Helper >
@@ -652,6 +654,11 @@ assert.exists({expr} [, {message}])	*themis-helper-assert-exists()*
 	Checks {expr} by |exists()|.
 	Note that this can not use for |local-variable| and |script-variable|.
 
+assert.empty({expr} [, {message}])	*themis-helper-assert-empty()*
+	Checks {expr} by |empty()|.
+
+assert.not_empty({expr} [, {message}])	*themis-helper-assert-not_empty()*
+	Checks {expr} is not empty.
 
 ------------------------------------------------------------------------------
 COMMAND						*themis-helper-command*
