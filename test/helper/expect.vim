@@ -144,6 +144,18 @@ function! s:helper.__expect__() abort
     endfunction
   endfunction
 
+  function! expect.__to_be_empty__() abort
+    let to_be_empty = themis#suite('.to_be_empty()')
+    function! to_be_empty.checks_empty() abort
+      call s:expect([]).to_be_empty()
+      call s:expect({}).to_be_empty()
+      call s:expect('').to_be_empty()
+    endfunction
+    function! to_be_empty.throws_report_when_the_value_is_not_empty() abort
+      call s:check_throw('to_be_empty', [1, 2, 3])
+    endfunction
+  endfunction
+
   function! expect.__comparison__() abort
     let comparison = themis#suite('.to_be_greater_than(_or_equal)/.to_be_less_than(_or_equal)')
     function! comparison.checks_value_compared_with_the_other() abort
