@@ -1,5 +1,5 @@
 " themis: Utility functions.
-" Version: 1.4.1
+" Version: 1.5dev
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
