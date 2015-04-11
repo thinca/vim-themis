@@ -6,7 +6,14 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-let s:aliases = {}
+let s:aliases = {
+\   'equal': 'equals',
+\   'not_equal': 'not_equals',
+\   'is_func': 'is_function',
+\   'is_not_func': 'is_not_function',
+\   'is_dict': 'is_dictionary',
+\   'is_not_dict': 'is_not_dictionary',
+\ }
 
 function! s:assert_fail(mes) abort
   throw themis#failure(a:mes)
@@ -182,11 +189,11 @@ function! s:assert_is_not_string(value, ...) abort
   return s:check_type(a:value, 'String', 1, a:000)
 endfunction
 
-function! s:assert_is_func(value, ...) abort
+function! s:assert_is_function(value, ...) abort
   return s:check_type(a:value, 'Funcref', 0, a:000)
 endfunction
 
-function! s:assert_is_not_func(value, ...) abort
+function! s:assert_is_not_function(value, ...) abort
   return s:check_type(a:value, 'Funcref', 1, a:000)
 endfunction
 
@@ -198,11 +205,11 @@ function! s:assert_is_not_list(value, ...) abort
   return s:check_type(a:value, 'List', 1, a:000)
 endfunction
 
-function! s:assert_is_dict(value, ...) abort
+function! s:assert_is_dictionary(value, ...) abort
   return s:check_type(a:value, 'Dictionary', 0, a:000)
 endfunction
 
-function! s:assert_is_not_dict(value, ...) abort
+function! s:assert_is_not_dictionary(value, ...) abort
   return s:check_type(a:value, 'Dictionary', 1, a:000)
 endfunction
 
@@ -266,7 +273,7 @@ function! s:assert_has_key(value, key, ...) abort
 endfunction
 
 function! s:assert_key_exists(value, key, ...) abort
-  call call('s:assert_is_dict', [a:value] + a:000)
+  call call('s:assert_is_dictionary', [a:value] + a:000)
   if !has_key(a:value, a:key)
     throw s:failure([
     \   'It was expected that a key exists in the dictionary, but it did not exist.',
@@ -279,7 +286,7 @@ function! s:assert_key_exists(value, key, ...) abort
 endfunction
 
 function! s:assert_key_not_exists(value, key, ...) abort
-  call call('s:assert_is_dict', [a:value] + a:000)
+  call call('s:assert_is_dictionary', [a:value] + a:000)
   if has_key(a:value, a:key)
     throw s:failure([
     \   'It was expected that a key does not exist in the dictionary, but it did exist.',

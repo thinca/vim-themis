@@ -558,11 +558,15 @@ assert.compare({left}, {op}, {right} [, {message}])
 	assert.compare(10, '<', 20)
 <
 					*themis-helper-assert-equals()*
+					*themis-helper-assert-equal()*
 assert.equals({actual}, {expect} [, {message}])
+	alias: equal()
 	Checks an {actual} equals to an {expect}.  (|==#|)
 
 					*themis-helper-assert-not_equals()*
+					*themis-helper-assert-not_equal()*
 assert.not_equals({actual}, {expect} [, {message}])
+	alias: not_equal()
 	Checks an {actual} not equals to an {expect}.  (|!=#|)
 
 					*themis-helper-assert-same()*
@@ -595,11 +599,16 @@ assert.is_string({value} [, {message}])	*themis-helper-assert-is_string()*
 assert.is_not_string({value} [, {message}])
 	Checks type of {value} is not String.
 
-assert.is_func({value} [, {message}])	*themis-helper-assert-is_func()*
+					*themis-helper-assert-is_function()*
+					*themis-helper-assert-is_func()*
+assert.is_function({value} [, {message}])
+	alias: is_func()
 	Checks type of {value} is |Funcref|.
 
-					*themis-helper-assert-is_not_func()*
-assert.is_not_func({value} [, {message}])
+				*themis-helper-assert-is_not_function()*
+				*themis-helper-assert-is_not_func()*
+assert.is_not_function({value} [, {message}])
+	alias: is_not_func()
 	Checks type of {value} is not |Funcref|.
 
 assert.is_list({value} [, {message}])	*themis-helper-assert-is_list()*
@@ -609,11 +618,16 @@ assert.is_list({value} [, {message}])	*themis-helper-assert-is_list()*
 assert.is_not_list({value} [, {message}])
 	Checks type of {value} is not |List|.
 
-assert.is_dict({value} [, {message}])	*themis-helper-assert-is_dict()*
+					*themis-helper-assert-is_dictionary()*
+					*themis-helper-assert-is_dict()*
+assert.is_dictionary({value} [, {message}])
+	alias: is_dict()
 	Checks type of {value} is |Dictionary|.
 
-					*themis-helper-assert-is_not_dict()*
-assert.is_not_dict({value} [, {message}])
+				*themis-helper-assert-is_not_dictionary()*
+				*themis-helper-assert-is_not_dict()*
+assert.is_not_dictionary({value} [, {message}])
+	alias: is_not_dict
 	Checks type of {value} is not |Dictionary|.
 
 assert.is_float({value} [, {message}])	*themis-helper-assert-is_float()*
