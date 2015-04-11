@@ -6,6 +6,8 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
+let s:aliases = {}
+
 function! s:assert_fail(mes) abort
   throw themis#failure(a:mes)
 endfunction
@@ -417,6 +419,9 @@ function! s:make_helper() abort
   for func in functions
     let name = matchstr(func, '<SNR>\d\+_assert_\zs\w\+')
     let helper[name] = function(func)
+  endfor
+  for [name, from] in items(s:aliases)
+    let helper[name] = helper[from]
   endfor
   return helper
 endfunction
