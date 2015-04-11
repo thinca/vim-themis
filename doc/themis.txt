@@ -933,7 +933,7 @@ CHANGELOG					*themis-changelog*
 
 1.5	Roadmap
 	- [Yet] Add |themis-helper-scope|.
-	- [Yet] Add some aliases to |themis-helper-assert|.
+	- Add some aliases to |themis-helper-assert|.
 	- [Yet] Skip test group.
 	- [Yet] Some bug fixes.
 
