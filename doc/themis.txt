@@ -792,17 +792,18 @@ expect({value}).to_be_dict()		*themis-helper-expect-to_be_dict()*
 expect({value}).to_be_float()		*themis-helper-expect-to_be_float()*
 	Checks type of {value} is |Float|.
 
-expect({expr}).to_have_length()		*themis-helper-expect-to_have_length()*
+expect({expr}).to_exist()		*themis-helper-expect-to_exist()*
 	Checks {expr} by |exists()|.
 	Note that this can not use for |local-variable| and |script-variable|.
 
-expect({expr}).to_exist()		*themis-helper-expect-to_exist()*
+expect({expr}).to_be_empty()		*themis-helper-expect-to_be_empty()*
+	Checks {value} is empty by |empty()|.
+
+					*themis-helper-expect-to_have_length()*
+expect({expr}).to_have_length({length})
 	Checks length of {value} is {length}.
 	{value} is a String, a List, or a Dictionary.
 	|len()| is used for length of {value}.
-
-expect({expr}).to_be_empty()		*themis-helper-expect-to_be_empty()*
-	Checks {value} is empty by |empty()|.
 
 expect({dict}).to_have_key({key})	*themis-helper-expect-to_have_key()*
 expect({list}).to_have_key({index})
