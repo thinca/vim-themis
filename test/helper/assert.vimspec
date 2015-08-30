@@ -139,6 +139,12 @@ Describe helper-assert
       call s:check_throw('equals', [1 + 1, 11], 'The equivalent values were expected')
       call s:check_throw('equals', ['hoge', 'HOGE'], 'The equivalent values were expected')
     End
+    Context with string and number
+      It checks string is valid as number
+        call s:check_throw('equals', ['', 0], 'The equivalent values were expected')
+        call s:check_throw('equals', [0, ''], 'The equivalent values were expected')
+      End
+    End
     It returns truthy value when check was successful
       call s:assert.truthy(s:assert.equals(1, 1))
     End
@@ -157,6 +163,12 @@ Describe helper-assert
     It throws a report when values are equivalent
       call s:check_throw('not_equals', [1 + 1, 2], 'Not the equivalent values were expected')
       call s:check_throw('not_equals', ['hoge', 'hoge'], 'Not the equivalent values were expected')
+    End
+    Context with string and number
+      It checks string is valid as number
+        call s:assert.not_equals('', 0)
+        call s:assert.not_equals(0, '')
+      End
     End
     It returns truthy value when check was successful
       call s:assert.truthy(s:assert.not_equals(0, 1))

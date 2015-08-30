@@ -332,7 +332,16 @@ function! s:assert_not_empty(expr, ...) abort
 endfunction
 
 function! s:equals(a, b) abort
+  if s:is_invalid_string_as_num(a:a, a:b) ||
+  \  s:is_invalid_string_as_num(a:b, a:a)
+    return 0
+  endif
   return a:a ==# a:b
+endfunction
+
+function! s:is_invalid_string_as_num(a, b) abort
+  return type(a:a) == type('') &&
+  \      type(a:b) == type(0) && a:a !~# '^-\?\d\+$'
 endfunction
 
 function! s:match(str, pattern) abort

@@ -562,12 +562,18 @@ assert.compare({left}, {op}, {right} [, {message}])
 assert.equals({actual}, {expect} [, {message}])
 	alias: equal()
 	Checks an {actual} equals to an {expect}.  (|==#|)
-
+	When this checks string and number, this also checks the string seems
+	to a number.
+	This means the following check fails: >
+	assert.equals('', 0)
+<
 					*themis-helper-assert-not_equals()*
 					*themis-helper-assert-not_equal()*
 assert.not_equals({actual}, {expect} [, {message}])
 	alias: not_equal()
 	Checks an {actual} not equals to an {expect}.  (|!=#|)
+	When this checks string and number, this also checks the string seems
+	to a number.
 
 					*themis-helper-assert-same()*
 assert.same({actual}, {expect} [, {message}])
