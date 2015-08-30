@@ -80,7 +80,7 @@ function! themis#bundle#new(...) abort
   return bundle
 endfunction
 
-call themis#func_alias({'vital/Bundle': s:bundle})
+call themis#func_alias({'themis/Bundle': s:bundle})
 
 
 let &cpo = s:save_cpo

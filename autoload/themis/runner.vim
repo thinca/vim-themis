@@ -323,7 +323,7 @@ function! themis#runner#new() abort
   return runner
 endfunction
 
-call themis#func_alias({'vital/Runner': s:runner})
+call themis#func_alias({'themis/Runner': s:runner})
 
 
 let &cpo = s:save_cpo

@@ -291,7 +291,7 @@ function! themis#style#vimspec#new() abort
   return deepcopy(s:style)
 endfunction
 
-call themis#func_alias({'vital/style.vimspec.ScopeKeeper': s:ScopeKeeper})
+call themis#func_alias({'themis/style.vimspec.ScopeKeeper': s:ScopeKeeper})
 
 let &cpo = s:save_cpo
 unlet s:save_cpo

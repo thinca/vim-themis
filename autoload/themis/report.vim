@@ -33,7 +33,7 @@ function! themis#report#new(bundle, name) abort
   return report
 endfunction
 
-call themis#func_alias({'vital/Report': s:report})
+call themis#func_alias({'themis/Report': s:report})
 
 
 let &cpo = s:save_cpo
