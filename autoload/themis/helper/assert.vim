@@ -336,12 +336,25 @@ function! s:equals(a, b) abort
   \  s:is_invalid_string_as_num(a:b, a:a)
     return 0
   endif
-  return a:a ==# a:b
+  return s:is_comparable(a:a, a:b) && a:a ==# a:b
 endfunction
 
 function! s:is_invalid_string_as_num(a, b) abort
   return type(a:a) == type('') &&
   \      type(a:b) == type(0) && a:a !~# '^-\?\d\+$'
+endfunction
+
+function! s:is_comparable(a, b) abort
+  let tname1 = s:type(a:a)
+  let tname2 = s:type(a:b)
+  return s:_is_comparable(tname1, tname2) && s:_is_comparable(tname2, tname1)
+endfunction
+
+function! s:_is_comparable(tname1, tname2) abort
+  if a:tname1 ==# 'list' || a:tname1 ==# 'dictionary' || a:tname1 ==# 'funcref'
+    return a:tname1 ==# a:tname2
+  endif
+  return 1
 endfunction
 
 function! s:match(str, pattern) abort
