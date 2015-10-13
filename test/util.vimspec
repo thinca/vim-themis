@@ -21,6 +21,26 @@ endfunction
 
 
 Describe util
+  Describe #stack_info()
+    It can parse tail line number
+      let info = themis#util#stack_info('<SNR>567_foo, line 5')
+      Assert Equals(info.stack, '<SNR>567_foo')
+      Assert Equals(info.line, 5)
+    End
+
+    It can parse nested function line number
+      let info = themis#util#stack_info('<SNR>567_foo[5]')
+      Assert Equals(info.stack, '<SNR>567_foo')
+      Assert Equals(info.line, 5)
+    End
+
+    It accepts old stacktrace
+      let info = themis#util#stack_info('<SNR>567_foo')
+      Assert Equals(info.stack, '<SNR>567_foo')
+      Assert Equals(info.line, 0)
+    End
+  End
+
   Describe #parse_callstack()
     It can parse sfile
       let stacks = themis#util#parse_callstack(ExecuteCmd('return expand("<sfile>")'))

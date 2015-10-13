@@ -108,6 +108,16 @@ endfunction
 function! themis#util#stack_info(stack) abort
   let info = deepcopy(s:StackInfo)
   let info.stack = a:stack
+
+  let patterns = ['^\(.\+\),.\{-}\(\d\+\)', '^\(.\{-}\)\[\(\d\+\)\]$']
+  for pat in patterns
+    let matched = matchlist(a:stack, pat)
+    if !empty(matched)
+      let info.stack = matched[1]
+      let info.line = matched[2] - 0
+    endif
+  endfor
+
   return info
 endfunction
 
@@ -159,16 +169,8 @@ endfunction
 
 function! themis#util#parse_callstack(callstack) abort
   let callstack_line = matchstr(a:callstack, '^\%(function\s\+\)\?\zs.*')
-  if callstack_line =~# ',.*\d'
-    let pat = '^\(.\+\),.\{-}\(\d\+\)'
-    let [callstack_line, line] = matchlist(callstack_line, pat)[1 : 2]
-  else
-    let line = 0
-  endif
   let stack_infos = split(callstack_line, '\.\.')
-  call map(stack_infos, 'themis#util#stack_info(v:val)')
-  let stack_infos[-1].line = line - 0
-  return stack_infos
+  return map(stack_infos, 'themis#util#stack_info(v:val)')
 endfunction
 
 function! themis#util#funcdata(func) abort
