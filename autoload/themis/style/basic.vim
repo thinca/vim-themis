@@ -22,7 +22,7 @@ function! s:event.script_loaded(runner) abort
 endfunction
 
 function! s:load_nested_bundle(runner, bundle) abort
-  let a:runner.in_bundle(a:bundle)
+  call a:runner.in_bundle(a:bundle)
   let suite = copy(a:bundle.suite)
   call filter(suite, 'v:key =~# s:describe_pattern')
   for name in s:names_by_defined_order(suite)
@@ -34,7 +34,7 @@ function! s:load_nested_bundle(runner, bundle) abort
   for child in a:bundle.children
     call s:load_nested_bundle(a:runner, child)
   endfor
-  let a:runner.out_bundle()
+  call a:runner.out_bundle()
 endfunction
 
 function! s:event.before_suite(bundle) abort
