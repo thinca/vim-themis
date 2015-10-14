@@ -23,7 +23,6 @@ function! s:runner.init() abort
 endfunction
 
 function! s:runner.run(paths, options) abort
-  call self.init()
   let paths = type(a:paths) == type([]) ? a:paths : [a:paths]
 
   call s:load_themisrc(paths)
@@ -334,6 +333,7 @@ endfunction
 
 function! themis#runner#new() abort
   let runner = deepcopy(s:runner)
+  call runner.init()
   return runner
 endfunction
 
