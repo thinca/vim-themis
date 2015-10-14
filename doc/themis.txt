@@ -941,7 +941,7 @@ CHANGELOG					*themis-changelog*
 	- [Yet] Add |themis-helper-scope|.
 	- Add some aliases to |themis-helper-assert|.
 	- [Yet] Skip test group.
-	- [Yet] Some bug fixes.
+	- Some bug fixes.
 
 1.4.1	2015-03-14
 	- Add setting examples for CI services.
