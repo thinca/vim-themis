@@ -72,9 +72,7 @@ function! s:runner.run(paths, options) abort
   try
     call self.load_scripts(files_with_styles)
     call self.emit('script_loaded', self)
-    call self.emit('start', self)
     call self.run_all()
-    call self.emit('end', self)
     let error_count = stats.fail()
   catch
     let phase = get(self,  'phase', 'core')
@@ -144,12 +142,28 @@ function! s:runner.load_scripts(files_with_styles) abort
   unlet self.phase
 endfunction
 
+function! s:runner.collect_test_names(bundle) abort
+  let a:bundle.test_names = self.get_test_names(a:bundle)
+  let is_empty = empty(a:bundle.test_names)
+  for child in a:bundle.children
+    call self.collect_test_names(child)
+    let is_empty = is_empty && child.is_empty
+  endfor
+  let a:bundle.is_empty = is_empty
+endfunction
+
 function! s:runner.run_all() abort
+  call self.collect_test_names(self.root_bundle)
+  call self.emit('start', self)
   call self.run_bundle(self.root_bundle)
+  call self.emit('end', self)
 endfunction
 
 function! s:runner.run_bundle(bundle) abort
-  let test_names = self.get_test_names(a:bundle)
+  if a:bundle.is_empty
+    return
+  endif
+  let test_names = a:bundle.test_names
   let has_style = a:bundle.get_style_name() !=# ''
   call self.in_bundle(a:bundle)
   if has_style
