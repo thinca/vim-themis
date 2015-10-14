@@ -182,18 +182,18 @@ endfunction
 function! s:runner.run_suite(bundle, test_names) abort
   for name in a:test_names
     let report = themis#report#new(a:bundle, name)
-    call self.emit('before_test', a:bundle, name)
     try
+      call self.emit('before_test', a:bundle, name)
       let start_time = reltime()
       call a:bundle.run_test(name)
       let end_time = reltime(start_time)
       let report.result = 'pass'
       let report.time = str2float(reltimestr(end_time))
+      call self.emit('after_test', a:bundle, name)
     catch
       call s:test_fail(report, v:exception, v:throwpoint)
     finally
       call self.emit(report.result, report)
-      call self.emit('after_test', a:bundle, name)
     endtry
   endfor
 endfunction
