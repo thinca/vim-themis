@@ -944,7 +944,7 @@ CHANGELOG					*themis-changelog*
 1.5	Roadmap
 	- [Yet] Add |themis-helper-scope|.
 	- Add some aliases to |themis-helper-assert|.
-	- [Yet] Skip test group.
+	- Skip test group.
 	- Some bug fixes.
 
 1.4.1	2015-03-14
