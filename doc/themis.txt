@@ -418,8 +418,10 @@ Some test names have a special meaning.  They are called in special situation.
   - This is called before a first test of this suite.
 - before_each()
   - This is called before each test of this suite.
+  - You can make test fail/pending from this function.
 - after_each()
   - This is called after each test of this suite.
+  - You can make test fail/pending from this function.
 - after()
   - This is called after a last test of this suite.
 - __XXX__()
@@ -502,6 +504,7 @@ All special commands can start with lowercase. >
 :Before [each]
 :End
 	Defines a block which is run before each test.
+	You can make test fail/pending from this block.
 
 :After all				*themis-style-vimspec-:After*
 :End
@@ -510,6 +513,7 @@ All special commands can start with lowercase. >
 :After [each]
 :End
 	Defines a block which is run after each test.
+	You can make test fail/pending from this block.
 
 
 
