@@ -958,7 +958,7 @@ When all characters of {type} are uppercase, a test treated as "pending".
 CHANGELOG					*themis-changelog*
 
 1.5	Roadmap
-	- [Yet] Add |themis-helper-scope|.
+	- Add |themis-helper-scope|.
 	- Add some aliases to |themis-helper-assert|.
 	- Skip test group.
 	- Some bug fixes.
