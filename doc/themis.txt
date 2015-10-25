@@ -176,7 +176,7 @@ themis#func_alias({dict})			*themis#func_alias()*
 >
 	function 78() dict  Line:1  (/tmp/vAonMgS/0)
 <
-	However, you can get the following tacktrace when you use
+	However, you can get the following stacktrace when you use
 	|themis#func_alias()|: >
 
 	function MyClass.useful_function() dict  Line:1  (/tmp/vAonMgS/0)
