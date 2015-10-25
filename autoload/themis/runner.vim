@@ -11,7 +11,7 @@ let s:runner = {}
 function! s:runner.init() abort
   call self.init_bundle()
   let self._events = []
-  let self._suppporters = {}
+  let self._supporters = {}
   let self._styles = {}
   for style_name in themis#module#list('style')
     let self._styles[style_name] = themis#module#style(style_name)
@@ -234,10 +234,10 @@ function! s:runner.get_current_style() abort
 endfunction
 
 function! s:runner.supporter(name) abort
-  if !has_key(self._suppporters, a:name)
-    let self._suppporters[a:name] = themis#module#supporter(a:name, self)
+  if !has_key(self._supporters, a:name)
+    let self._supporters[a:name] = themis#module#supporter(a:name, self)
   endif
-  return self._suppporters[a:name]
+  return self._supporters[a:name]
 endfunction
 
 function! s:runner.add_event(event) abort
