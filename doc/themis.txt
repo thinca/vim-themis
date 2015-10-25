@@ -24,6 +24,7 @@ HELPER				|themis-helper|
   ASSERT			  |themis-helper-assert|
   COMMAND			  |themis-helper-command|
   EXPECT			  |themis-helper-expect|
+  SCOPE				  |themis-helper-scope|
 REPORTER			|themis-reporter|
 TEST RULE			|themis-test-rule|
   EXCEPTION			  |themis-rule-exception|
@@ -527,6 +528,7 @@ To use a helper, writes as follows. >
 - |themis-helper-assert|
 - |themis-helper-command|
 - |themis-helper-expect|
+- |themis-helper-scope|
 
 ------------------------------------------------------------------------------
 ASSERT						*themis-helper-assert*
@@ -890,6 +892,20 @@ themis#helper#expect#define_matcher({name}, {predicate} [, {meesageexpr}])
 	call themis#helper#expect#define_matcher('to_equal3', 'a:1 ==# a:2',
 	\ 'printf("You tested %s with %s and %s but failed",
 	\ (a:not ? "not " : "") . a:name, a:1, a:2)')
+
+------------------------------------------------------------------------------
+SCOPE						*themis-helper-scope*
+
+Scope-helper provides a feature that to access to script-local functions.
+
+scope.funcs({path})			*themis-helper-scope-funcs()*
+	Returns a dictionary which contains |script-local| functions with
+	{path}.
+	{path} is a full path or relative path from 'runtimepath'.
+>
+	let s:scope = themis#helper('scope')
+	let s:myfuncs = s:scope.funcs('autoload/myfuncs.vim')
+	call s:myfuncs.foo()  " calls s:foo() in myfuncs.vim
 
 
 
