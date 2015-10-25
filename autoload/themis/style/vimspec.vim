@@ -226,17 +226,11 @@ function! s:event.before_suite(bundle) abort
 endfunction
 
 function! s:event.before_test(bundle, name) abort
-  if has_key(a:bundle, 'parent')
-    call self.before_test(a:bundle.parent, a:name)
-  endif
   call s:call_hook(a:bundle, 'before_each')
 endfunction
 
 function! s:event.after_test(bundle, name) abort
   call s:call_hook(a:bundle, 'after_each')
-  if has_key(a:bundle, 'parent')
-    call self.after_test(a:bundle.parent, a:name)
-  endif
 endfunction
 
 function! s:event.after_suite(bundle) abort

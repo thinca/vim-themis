@@ -44,9 +44,6 @@ function! s:event.before_suite(bundle) abort
 endfunction
 
 function! s:event.before_test(bundle, name) abort
-  if has_key(a:bundle, 'parent')
-    call self.before_test(a:bundle.parent, a:name)
-  endif
   if has_key(a:bundle.suite, 'before_each')
     call a:bundle.suite.before_each()
   endif
@@ -61,9 +58,6 @@ endfunction
 function! s:event.after_test(bundle, name) abort
   if has_key(a:bundle.suite, 'after_each')
     call a:bundle.suite.after_each()
-  endif
-  if has_key(a:bundle, 'parent')
-    call self.after_test(a:bundle.parent, a:name)
   endif
 endfunction
 

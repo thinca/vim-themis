@@ -188,18 +188,32 @@ endfunction
 function! s:runner.run_test(bundle, test_name) abort
   let report = themis#report#new(a:bundle, a:test_name)
   try
-    call self.emit('before_test', a:bundle, a:test_name)
+    call self.emit_before_test(a:bundle, a:test_name)
     let start_time = reltime()
     call a:bundle.run_test(a:test_name)
     let end_time = reltime(start_time)
     let report.result = 'pass'
     let report.time = str2float(reltimestr(end_time))
-    call self.emit('after_test', a:bundle, a:test_name)
+    call self.emit_after_test(a:bundle, a:test_name)
   catch
     call s:test_fail(report, v:exception, v:throwpoint)
   finally
     call self.emit(report.result, report)
   endtry
+endfunction
+
+function! s:runner.emit_before_test(bundle, test_name) abort
+  if has_key(a:bundle, 'parent')
+    call self.emit_before_test(a:bundle.parent, a:test_name)
+  endif
+  call self.emit('before_test', a:bundle, a:test_name)
+endfunction
+
+function! s:runner.emit_after_test(bundle, test_name) abort
+  call self.emit('after_test', a:bundle, a:test_name)
+  if has_key(a:bundle, 'parent')
+    call self.emit_after_test(a:bundle.parent, a:test_name)
+  endif
 endfunction
 
 function! s:runner.get_test_names(bundle) abort
