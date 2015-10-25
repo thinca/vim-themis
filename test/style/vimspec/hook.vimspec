@@ -1,5 +1,3 @@
-let s:hook = themis#suite('hook')
-
 Describe vimspec-style
   Describe hook
     Before all
