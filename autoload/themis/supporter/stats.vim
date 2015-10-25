@@ -18,7 +18,7 @@ function! s:receiver.init(runner) abort
   let self._pendings = 0
 endfunction
 
-function! s:receiver.before_test(bundle, title) abort
+function! s:receiver.start_test(bundle, title) abort
   let self._count += 1
 endfunction
 
