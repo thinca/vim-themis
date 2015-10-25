@@ -180,6 +180,7 @@ endfunction
 
 function! s:runner.run_suite(bundle, test_names) abort
   for name in a:test_names
+    call self.emit('start_test', a:bundle, name)
     call self.run_test(a:bundle, name)
   endfor
 endfunction
