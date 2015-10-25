@@ -14,6 +14,8 @@ if exists('s:version')
   finish
 endif
 
+let g:themis#vital = vital#of('themis')
+
 let s:version = '1.5dev'
 
 function! themis#version() abort
