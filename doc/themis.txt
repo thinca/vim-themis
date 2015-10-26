@@ -395,6 +395,13 @@ Define custom matcher
 |themis#helper#expect#define_matcher()|
 
 
+Scope Helper >
+	let s:scope = themis#helper('scope')
+
+Access to script-local functions.
+|themis-helper-scope-funcs()|
+
+
 
 ==============================================================================
 STYLE						*themis-style*
