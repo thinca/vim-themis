@@ -697,6 +697,9 @@ assert.not_empty({expr} [, {message}])	*themis-helper-assert-not_empty()*
 ------------------------------------------------------------------------------
 COMMAND						*themis-helper-command*
 
+Command-helper provides some useful commands for checking value or exception.
+An advantage of command is to show the test line directly in result.
+
 command.prefix({prefix})		*themis-helper-command-prefix()*
 	Use prefix to commands.
 	The prefix must start with an uppercase letter.
