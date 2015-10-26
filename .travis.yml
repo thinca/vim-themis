@@ -17,15 +17,34 @@ addons:
       - liblua5.1-0-dev
       - lua5.1
 
+cache:
+  directories:
+    - /tmp/vim
+
 install:
   - |
-    if [ x"$HEAD" = "xyes" ]; then
-      git clone --depth 1 --single-branch https://github.com/vim/vim /tmp/vim
-      cd /tmp/vim
-      ./configure --prefix="$HOME/vim" --with-features=huge \
-        --enable-perlinterp --enable-pythoninterp --enable-python3interp \
-        --enable-rubyinterp --enable-luainterp --enable-fail-if-missing
-      make -j2
+    if [ x"${HEAD}" = "xyes" ]; then
+      if [ -d /tmp/vim/.git ]; then
+        cd /tmp/vim
+        git fetch
+        if git diff --exit-code --quiet ..origin/master; then
+          need_build=0
+        else
+          git reset --hard origin/master
+          git clean -dfx
+          need_build=1
+        fi
+      else
+        git clone --depth 1 --single-branch https://github.com/vim/vim /tmp/vim
+        cd /tmp/vim
+        need_build=1
+      fi
+      if [ "${need_build}" = "1" ]; then
+        ./configure --prefix="$HOME/vim" --with-features=huge \
+          --enable-perlinterp --enable-pythoninterp --enable-python3interp \
+          --enable-rubyinterp --enable-luainterp --enable-fail-if-missing
+        make -j2
+      fi
       make install
       export PATH=$HOME/vim/bin:$PATH
       cd "${TRAVIS_BUILD_DIR}"
