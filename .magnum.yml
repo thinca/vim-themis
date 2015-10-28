@@ -1,11 +1,11 @@
 before_install:
-  - git clone --quiet --depth 1 https://github.com/vim-jp/vim.git vim
-  - cd vim
-  - ./configure --prefix=$PWD/build --with-features=huge --enable-multibyte
-  - make
+  - git clone --quiet --depth 1 --single-branch https://github.com/vim/vim.git /tmp/vim
+  - cd /tmp/vim
+  - ./configure --prefix=$PWD/build --with-features=huge
+  - make -j2
   - make install
   - export PATH=$PWD/build/bin:$PATH
-  - cd ..
+  - cd -
 
 before_script:
   - vim --version

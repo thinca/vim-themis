@@ -1,5 +1,5 @@
 " themis: A report of test.
-" Version: 1.4.1
+" Version: 1.5
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
@@ -33,7 +33,7 @@ function! themis#report#new(bundle, name) abort
   return report
 endfunction
 
-call themis#func_alias({'vital/Report': s:report})
+call themis#func_alias({'themis/Report': s:report})
 
 
 let &cpo = s:save_cpo

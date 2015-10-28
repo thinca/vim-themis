@@ -1,5 +1,5 @@
 " themis: style: vimspec: Spec style.
-" Version: 1.4.1
+" Version: 1.5
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
@@ -226,17 +226,11 @@ function! s:event.before_suite(bundle) abort
 endfunction
 
 function! s:event.before_test(bundle, name) abort
-  if has_key(a:bundle, 'parent')
-    call self.before_test(a:bundle.parent, a:name)
-  endif
   call s:call_hook(a:bundle, 'before_each')
 endfunction
 
 function! s:event.after_test(bundle, name) abort
   call s:call_hook(a:bundle, 'after_each')
-  if has_key(a:bundle, 'parent')
-    call self.after_test(a:bundle.parent, a:name)
-  endif
 endfunction
 
 function! s:event.after_suite(bundle) abort
@@ -291,7 +285,7 @@ function! themis#style#vimspec#new() abort
   return deepcopy(s:style)
 endfunction
 
-call themis#func_alias({'vital/style.vimspec.ScopeKeeper': s:ScopeKeeper})
+call themis#func_alias({'themis/style.vimspec.ScopeKeeper': s:ScopeKeeper})
 
 let &cpo = s:save_cpo
 unlet s:save_cpo

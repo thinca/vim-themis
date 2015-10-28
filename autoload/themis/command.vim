@@ -1,5 +1,5 @@
 " Themis command line processer.
-" Version: 1.4.1
+" Version: 1.5
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 

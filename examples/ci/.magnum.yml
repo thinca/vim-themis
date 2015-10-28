@@ -1,13 +1,13 @@
 before_install:
-  - git clone --quiet --single-branch --depth 1 https://github.com/vim-jp/vim.git /tmp/vim
+  - git clone --quiet --depth 1 --single-branch https://github.com/vim/vim.git /tmp/vim
   - cd /tmp/vim
-  - ./configure --prefix=$PWD/build --with-features=huge --enable-multibyte
-  - make
+  - ./configure --prefix=$PWD/build --with-features=huge
+  - make -j2
   - make install
   - export PATH=$PWD/build/bin:$PATH
   - cd -
 
-  - git clone https://github.com/thinca/vim-themis --quiet --branch v1.4.1 --single-branch --depth 1 /tmp/vim-themis
+  - git clone https://github.com/thinca/vim-themis --quiet --branch v1.5 --single-branch --depth 1 /tmp/vim-themis
 
 before_script:
   - vim --version

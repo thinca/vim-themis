@@ -1,10 +1,7 @@
-let s:hook = themis#suite('hook')
-
 Describe vimspec-style
   Describe hook
     Before all
       let self.runner = themis#runner#new()
-      call self.runner.init()
     End
 
     Before each

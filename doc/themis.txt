@@ -1,6 +1,6 @@
 *themis.txt*	A testing framework for Vim script.
 
-Version: 1.4.1
+Version: 1.5
 Author : thinca <thinca+vim@gmail.com>
 License: zlib License
 
@@ -24,6 +24,7 @@ HELPER				|themis-helper|
   ASSERT			  |themis-helper-assert|
   COMMAND			  |themis-helper-command|
   EXPECT			  |themis-helper-expect|
+  SCOPE				  |themis-helper-scope|
 REPORTER			|themis-reporter|
 TEST RULE			|themis-test-rule|
   EXCEPTION			  |themis-rule-exception|
@@ -176,7 +177,7 @@ themis#func_alias({dict})			*themis#func_alias()*
 >
 	function 78() dict  Line:1  (/tmp/vAonMgS/0)
 <
-	However, you can get the following tacktrace when you use
+	However, you can get the following stacktrace when you use
 	|themis#func_alias()|: >
 
 	function MyClass.useful_function() dict  Line:1  (/tmp/vAonMgS/0)
@@ -394,6 +395,13 @@ Define custom matcher
 |themis#helper#expect#define_matcher()|
 
 
+Scope Helper >
+	let s:scope = themis#helper('scope')
+
+Access to script-local functions.
+|themis-helper-scope-funcs()|
+
+
 
 ==============================================================================
 STYLE						*themis-style*
@@ -418,8 +426,10 @@ Some test names have a special meaning.  They are called in special situation.
   - This is called before a first test of this suite.
 - before_each()
   - This is called before each test of this suite.
+  - You can make test fail/pending from this function.
 - after_each()
   - This is called after each test of this suite.
+  - You can make test fail/pending from this function.
 - after()
   - This is called after a last test of this suite.
 - __XXX__()
@@ -502,6 +512,7 @@ All special commands can start with lowercase. >
 :Before [each]
 :End
 	Defines a block which is run before each test.
+	You can make test fail/pending from this block.
 
 :After all				*themis-style-vimspec-:After*
 :End
@@ -510,6 +521,7 @@ All special commands can start with lowercase. >
 :After [each]
 :End
 	Defines a block which is run after each test.
+	You can make test fail/pending from this block.
 
 
 
@@ -523,6 +535,7 @@ To use a helper, writes as follows. >
 - |themis-helper-assert|
 - |themis-helper-command|
 - |themis-helper-expect|
+- |themis-helper-scope|
 
 ------------------------------------------------------------------------------
 ASSERT						*themis-helper-assert*
@@ -558,12 +571,22 @@ assert.compare({left}, {op}, {right} [, {message}])
 	assert.compare(10, '<', 20)
 <
 					*themis-helper-assert-equals()*
+					*themis-helper-assert-equal()*
 assert.equals({actual}, {expect} [, {message}])
+	alias: equal()
 	Checks an {actual} equals to an {expect}.  (|==#|)
-
+	When this checks string and number, this also checks the string seems
+	to a number.
+	This means the following check fails: >
+	assert.equals('', 0)
+<
 					*themis-helper-assert-not_equals()*
+					*themis-helper-assert-not_equal()*
 assert.not_equals({actual}, {expect} [, {message}])
+	alias: not_equal()
 	Checks an {actual} not equals to an {expect}.  (|!=#|)
+	When this checks string and number, this also checks the string seems
+	to a number.
 
 					*themis-helper-assert-same()*
 assert.same({actual}, {expect} [, {message}])
@@ -595,11 +618,16 @@ assert.is_string({value} [, {message}])	*themis-helper-assert-is_string()*
 assert.is_not_string({value} [, {message}])
 	Checks type of {value} is not String.
 
-assert.is_func({value} [, {message}])	*themis-helper-assert-is_func()*
+					*themis-helper-assert-is_function()*
+					*themis-helper-assert-is_func()*
+assert.is_function({value} [, {message}])
+	alias: is_func()
 	Checks type of {value} is |Funcref|.
 
-					*themis-helper-assert-is_not_func()*
-assert.is_not_func({value} [, {message}])
+				*themis-helper-assert-is_not_function()*
+				*themis-helper-assert-is_not_func()*
+assert.is_not_function({value} [, {message}])
+	alias: is_not_func()
 	Checks type of {value} is not |Funcref|.
 
 assert.is_list({value} [, {message}])	*themis-helper-assert-is_list()*
@@ -609,11 +637,16 @@ assert.is_list({value} [, {message}])	*themis-helper-assert-is_list()*
 assert.is_not_list({value} [, {message}])
 	Checks type of {value} is not |List|.
 
-assert.is_dict({value} [, {message}])	*themis-helper-assert-is_dict()*
+					*themis-helper-assert-is_dictionary()*
+					*themis-helper-assert-is_dict()*
+assert.is_dictionary({value} [, {message}])
+	alias: is_dict()
 	Checks type of {value} is |Dictionary|.
 
-					*themis-helper-assert-is_not_dict()*
-assert.is_not_dict({value} [, {message}])
+				*themis-helper-assert-is_not_dictionary()*
+				*themis-helper-assert-is_not_dict()*
+assert.is_not_dictionary({value} [, {message}])
+	alias: is_not_dict
 	Checks type of {value} is not |Dictionary|.
 
 assert.is_float({value} [, {message}])	*themis-helper-assert-is_float()*
@@ -663,6 +696,9 @@ assert.not_empty({expr} [, {message}])	*themis-helper-assert-not_empty()*
 
 ------------------------------------------------------------------------------
 COMMAND						*themis-helper-command*
+
+Command-helper provides some useful commands for checking value or exception.
+An advantage of command is to show the test line directly in result.
 
 command.prefix({prefix})		*themis-helper-command-prefix()*
 	Use prefix to commands.
@@ -867,6 +903,20 @@ themis#helper#expect#define_matcher({name}, {predicate} [, {meesageexpr}])
 	\ 'printf("You tested %s with %s and %s but failed",
 	\ (a:not ? "not " : "") . a:name, a:1, a:2)')
 
+------------------------------------------------------------------------------
+SCOPE						*themis-helper-scope*
+
+Scope-helper provides a feature that to access to script-local functions.
+
+scope.funcs({path})			*themis-helper-scope-funcs()*
+	Returns a dictionary which contains |script-local| functions with
+	{path}.
+	{path} is a full path or relative path from 'runtimepath'.
+>
+	let s:scope = themis#helper('scope')
+	let s:myfuncs = s:scope.funcs('autoload/myfuncs.vim')
+	call s:myfuncs.foo()  " calls s:foo() in myfuncs.vim
+
 
 
 ==============================================================================
@@ -916,6 +966,12 @@ When all characters of {type} are uppercase, a test treated as "pending".
 
 ==============================================================================
 CHANGELOG					*themis-changelog*
+
+1.5	2015-10-28
+	- Add |themis-helper-scope|.
+	- Add some aliases to |themis-helper-assert|.
+	- Skip test group.
+	- Some bug fixes.
 
 1.4.1	2015-03-14
 	- Add setting examples for CI services.

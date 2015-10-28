@@ -1,5 +1,5 @@
 " themis: supporter: stats: Record test stats.
-" Version: 1.4.1
+" Version: 1.5
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
@@ -18,7 +18,7 @@ function! s:receiver.init(runner) abort
   let self._pendings = 0
 endfunction
 
-function! s:receiver.before_test(bundle, title) abort
+function! s:receiver.start_test(bundle, title) abort
   let self._count += 1
 endfunction
 

@@ -1,5 +1,5 @@
 " themis: Test bundle.
-" Version: 1.4.1
+" Version: 1.5
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
@@ -80,7 +80,7 @@ function! themis#bundle#new(...) abort
   return bundle
 endfunction
 
-call themis#func_alias({'vital/Bundle': s:bundle})
+call themis#func_alias({'themis/Bundle': s:bundle})
 
 
 let &cpo = s:save_cpo

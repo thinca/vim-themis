@@ -1,5 +1,5 @@
 " themis: Test runner
-" Version: 1.4.1
+" Version: 1.5
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
@@ -11,7 +11,7 @@ let s:runner = {}
 function! s:runner.init() abort
   call self.init_bundle()
   let self._events = []
-  let self._suppporters = {}
+  let self._supporters = {}
   let self._styles = {}
   for style_name in themis#module#list('style')
     let self._styles[style_name] = themis#module#style(style_name)
@@ -23,7 +23,6 @@ function! s:runner.init() abort
 endfunction
 
 function! s:runner.run(paths, options) abort
-  call self.init()
   let paths = type(a:paths) == type([]) ? a:paths : [a:paths]
 
   call s:load_themisrc(paths)
@@ -72,9 +71,7 @@ function! s:runner.run(paths, options) abort
   try
     call self.load_scripts(files_with_styles)
     call self.emit('script_loaded', self)
-    call self.emit('start', self)
     call self.run_all()
-    call self.emit('end', self)
     let error_count = stats.fail()
   catch
     let phase = get(self,  'phase', 'core')
@@ -144,12 +141,28 @@ function! s:runner.load_scripts(files_with_styles) abort
   unlet self.phase
 endfunction
 
+function! s:runner.collect_test_names(bundle) abort
+  let a:bundle.test_names = self.get_test_names(a:bundle)
+  let is_empty = empty(a:bundle.test_names)
+  for child in a:bundle.children
+    call self.collect_test_names(child)
+    let is_empty = is_empty && child.is_empty
+  endfor
+  let a:bundle.is_empty = is_empty
+endfunction
+
 function! s:runner.run_all() abort
+  call self.collect_test_names(self.root_bundle)
+  call self.emit('start', self)
   call self.run_bundle(self.root_bundle)
+  call self.emit('end', self)
 endfunction
 
 function! s:runner.run_bundle(bundle) abort
-  let test_names = self.get_test_names(a:bundle)
+  if a:bundle.is_empty
+    return
+  endif
+  let test_names = a:bundle.test_names
   let has_style = a:bundle.get_style_name() !=# ''
   call self.in_bundle(a:bundle)
   if has_style
@@ -167,21 +180,40 @@ endfunction
 
 function! s:runner.run_suite(bundle, test_names) abort
   for name in a:test_names
-    let report = themis#report#new(a:bundle, name)
-    call self.emit('before_test', a:bundle, name)
-    try
-      let start_time = reltime()
-      call a:bundle.run_test(name)
-      let end_time = reltime(start_time)
-      let report.result = 'pass'
-      let report.time = str2float(reltimestr(end_time))
-    catch
-      call s:test_fail(report, v:exception, v:throwpoint)
-    finally
-      call self.emit(report.result, report)
-      call self.emit('after_test', a:bundle, name)
-    endtry
+    call self.emit('start_test', a:bundle, name)
+    call self.run_test(a:bundle, name)
   endfor
+endfunction
+
+function! s:runner.run_test(bundle, test_name) abort
+  let report = themis#report#new(a:bundle, a:test_name)
+  try
+    call self.emit_before_test(a:bundle, a:test_name)
+    let start_time = reltime()
+    call a:bundle.run_test(a:test_name)
+    let end_time = reltime(start_time)
+    let report.result = 'pass'
+    let report.time = str2float(reltimestr(end_time))
+    call self.emit_after_test(a:bundle, a:test_name)
+  catch
+    call s:test_fail(report, v:exception, v:throwpoint)
+  finally
+    call self.emit(report.result, report)
+  endtry
+endfunction
+
+function! s:runner.emit_before_test(bundle, test_name) abort
+  if has_key(a:bundle, 'parent')
+    call self.emit_before_test(a:bundle.parent, a:test_name)
+  endif
+  call self.emit('before_test', a:bundle, a:test_name)
+endfunction
+
+function! s:runner.emit_after_test(bundle, test_name) abort
+  call self.emit('after_test', a:bundle, a:test_name)
+  if has_key(a:bundle, 'parent')
+    call self.emit_after_test(a:bundle.parent, a:test_name)
+  endif
 endfunction
 
 function! s:runner.get_test_names(bundle) abort
@@ -202,10 +234,10 @@ function! s:runner.get_current_style() abort
 endfunction
 
 function! s:runner.supporter(name) abort
-  if !has_key(self._suppporters, a:name)
-    let self._suppporters[a:name] = themis#module#supporter(a:name, self)
+  if !has_key(self._supporters, a:name)
+    let self._supporters[a:name] = themis#module#supporter(a:name, self)
   endif
-  return self._suppporters[a:name]
+  return self._supporters[a:name]
 endfunction
 
 function! s:runner.add_event(event) abort
@@ -320,10 +352,11 @@ endfunction
 
 function! themis#runner#new() abort
   let runner = deepcopy(s:runner)
+  call runner.init()
   return runner
 endfunction
 
-call themis#func_alias({'vital/Runner': s:runner})
+call themis#func_alias({'themis/Runner': s:runner})
 
 
 let &cpo = s:save_cpo

@@ -1,10 +1,19 @@
 " themis: helper: Assert utilities.
-" Version: 1.4.1
+" Version: 1.5
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
 let s:save_cpo = &cpo
 set cpo&vim
+
+let s:aliases = {
+\   'equal': 'equals',
+\   'not_equal': 'not_equals',
+\   'is_func': 'is_function',
+\   'is_not_func': 'is_not_function',
+\   'is_dict': 'is_dictionary',
+\   'is_not_dict': 'is_not_dictionary',
+\ }
 
 function! s:assert_fail(mes) abort
   throw themis#failure(a:mes)
@@ -180,11 +189,11 @@ function! s:assert_is_not_string(value, ...) abort
   return s:check_type(a:value, 'String', 1, a:000)
 endfunction
 
-function! s:assert_is_func(value, ...) abort
+function! s:assert_is_function(value, ...) abort
   return s:check_type(a:value, 'Funcref', 0, a:000)
 endfunction
 
-function! s:assert_is_not_func(value, ...) abort
+function! s:assert_is_not_function(value, ...) abort
   return s:check_type(a:value, 'Funcref', 1, a:000)
 endfunction
 
@@ -196,11 +205,11 @@ function! s:assert_is_not_list(value, ...) abort
   return s:check_type(a:value, 'List', 1, a:000)
 endfunction
 
-function! s:assert_is_dict(value, ...) abort
+function! s:assert_is_dictionary(value, ...) abort
   return s:check_type(a:value, 'Dictionary', 0, a:000)
 endfunction
 
-function! s:assert_is_not_dict(value, ...) abort
+function! s:assert_is_not_dictionary(value, ...) abort
   return s:check_type(a:value, 'Dictionary', 1, a:000)
 endfunction
 
@@ -264,7 +273,7 @@ function! s:assert_has_key(value, key, ...) abort
 endfunction
 
 function! s:assert_key_exists(value, key, ...) abort
-  call call('s:assert_is_dict', [a:value] + a:000)
+  call call('s:assert_is_dictionary', [a:value] + a:000)
   if !has_key(a:value, a:key)
     throw s:failure([
     \   'It was expected that a key exists in the dictionary, but it did not exist.',
@@ -277,7 +286,7 @@ function! s:assert_key_exists(value, key, ...) abort
 endfunction
 
 function! s:assert_key_not_exists(value, key, ...) abort
-  call call('s:assert_is_dict', [a:value] + a:000)
+  call call('s:assert_is_dictionary', [a:value] + a:000)
   if has_key(a:value, a:key)
     throw s:failure([
     \   'It was expected that a key does not exist in the dictionary, but it did exist.',
@@ -323,7 +332,29 @@ function! s:assert_not_empty(expr, ...) abort
 endfunction
 
 function! s:equals(a, b) abort
-  return a:a ==# a:b
+  if s:is_invalid_string_as_num(a:a, a:b) ||
+  \  s:is_invalid_string_as_num(a:b, a:a)
+    return 0
+  endif
+  return s:is_comparable(a:a, a:b) && a:a ==# a:b
+endfunction
+
+function! s:is_invalid_string_as_num(a, b) abort
+  return type(a:a) == type('') &&
+  \      type(a:b) == type(0) && a:a !~# '^-\?\d\+$'
+endfunction
+
+function! s:is_comparable(a, b) abort
+  let tname1 = s:type(a:a)
+  let tname2 = s:type(a:b)
+  return s:_is_comparable(tname1, tname2) && s:_is_comparable(tname2, tname1)
+endfunction
+
+function! s:_is_comparable(tname1, tname2) abort
+  if a:tname1 ==# 'list' || a:tname1 ==# 'dictionary' || a:tname1 ==# 'funcref'
+    return a:tname1 ==# a:tname2
+  endif
+  return 1
 endfunction
 
 function! s:match(str, pattern) abort
@@ -417,6 +448,9 @@ function! s:make_helper() abort
   for func in functions
     let name = matchstr(func, '<SNR>\d\+_assert_\zs\w\+')
     let helper[name] = function(func)
+  endfor
+  for [name, from] in items(s:aliases)
+    let helper[name] = helper[from]
   endfor
   return helper
 endfunction

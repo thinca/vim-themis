@@ -1,5 +1,5 @@
 " themis: style: basic: Basic style.
-" Version: 1.4.1
+" Version: 1.5
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
@@ -22,7 +22,7 @@ function! s:event.script_loaded(runner) abort
 endfunction
 
 function! s:load_nested_bundle(runner, bundle) abort
-  let a:runner.in_bundle(a:bundle)
+  call a:runner.in_bundle(a:bundle)
   let suite = copy(a:bundle.suite)
   call filter(suite, 'v:key =~# s:describe_pattern')
   for name in s:names_by_defined_order(suite)
@@ -34,7 +34,7 @@ function! s:load_nested_bundle(runner, bundle) abort
   for child in a:bundle.children
     call s:load_nested_bundle(a:runner, child)
   endfor
-  let a:runner.out_bundle()
+  call a:runner.out_bundle()
 endfunction
 
 function! s:event.before_suite(bundle) abort
@@ -44,9 +44,6 @@ function! s:event.before_suite(bundle) abort
 endfunction
 
 function! s:event.before_test(bundle, name) abort
-  if has_key(a:bundle, 'parent')
-    call self.before_test(a:bundle.parent, a:name)
-  endif
   if has_key(a:bundle.suite, 'before_each')
     call a:bundle.suite.before_each()
   endif
@@ -61,9 +58,6 @@ endfunction
 function! s:event.after_test(bundle, name) abort
   if has_key(a:bundle.suite, 'after_each')
     call a:bundle.suite.after_each()
-  endif
-  if has_key(a:bundle, 'parent')
-    call self.after_test(a:bundle.parent, a:name)
   endif
 endfunction
 

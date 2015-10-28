@@ -1,5 +1,5 @@
 " themis: Module loader.
-" Version: 1.4.1
+" Version: 1.5
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
@@ -22,7 +22,7 @@ function! themis#module#load(type, name, args) abort
     let module = call(printf('themis#%s#%s#new', a:type, a:name), a:args)
     " XXX: It may perform two or more times.
     call themis#func_alias(
-    \   {printf('vital/%s[%s]', a:type, string(a:name)): module})
+    \   {printf('themis/%s[%s]', a:type, string(a:name)): module})
     let module.type = a:type
     let module.name = a:name
     return module
