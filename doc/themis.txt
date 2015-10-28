@@ -1,6 +1,6 @@
 *themis.txt*	A testing framework for Vim script.
 
-Version: 1.5dev
+Version: 1.5
 Author : thinca <thinca+vim@gmail.com>
 License: zlib License
 
@@ -967,7 +967,7 @@ When all characters of {type} are uppercase, a test treated as "pending".
 ==============================================================================
 CHANGELOG					*themis-changelog*
 
-1.5	Roadmap
+1.5	2015-10-28
 	- Add |themis-helper-scope|.
 	- Add some aliases to |themis-helper-assert|.
 	- Skip test group.

@@ -1,5 +1,5 @@
 " Vimspec filetype plugin
-" Version: 1.5dev
+" Version: 1.5
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
