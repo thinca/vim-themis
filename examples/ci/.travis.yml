@@ -40,13 +40,13 @@ install:
         need_build=1
       fi
       if [ "${need_build}" = "1" ]; then
-        ./configure --prefix="$HOME/vim" --with-features=huge \
+        ./configure --prefix="$PWD/build" --with-features=huge \
           --enable-perlinterp --enable-pythoninterp --enable-python3interp \
           --enable-rubyinterp --enable-luainterp --enable-fail-if-missing
         make -j2
+        make install
       fi
-      make install
-      export PATH=$HOME/vim/bin:$PATH
+      export PATH=$PWD/build/bin:$PATH
       cd "${TRAVIS_BUILD_DIR}"
     fi
 
