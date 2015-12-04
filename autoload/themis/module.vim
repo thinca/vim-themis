@@ -1,5 +1,5 @@
 " themis: Module loader.
-" Version: 1.5.1
+" Version: 1.5.2dev
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
