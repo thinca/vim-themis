@@ -967,6 +967,11 @@ When all characters of {type} are uppercase, a test treated as "pending".
 ==============================================================================
 CHANGELOG					*themis-changelog*
 
+1.5.2	Roadmap
+	- Refactoring.
+	- Add more test for themis itself.
+	- Support Vim builtin assert functions.
+
 1.5.1	2016-03-23
 	- Add workaround for Vim 7.4.1068
 	- Add symlink support of themis command on MS Windows(Thanks Milly).
