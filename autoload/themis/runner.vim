@@ -68,6 +68,7 @@ function! s:runner.run(paths, options) abort
   let stats = self.supporter('stats')
   let reporter = themis#module#reporter(options.reporter)
   call self.add_event(reporter)
+  call self.emit('init', self)
   try
     call self.load_scripts(files_with_styles)
     call self.emit('script_loaded', self)
@@ -242,7 +243,6 @@ endfunction
 
 function! s:runner.add_event(event) abort
   call add(self._events, a:event)
-  call s:call(a:event, 'init', [self])
 endfunction
 
 function! s:runner.total_test_count(...) abort
