@@ -10,7 +10,7 @@ let s:runner = {}
 
 function! s:runner.init() abort
   call self.init_bundle()
-  let self._events = []
+  let self._emitter = themis#emitter#new()
   let self._supporters = {}
   let self._styles = {}
   for style_name in themis#module#list('style')
@@ -75,7 +75,10 @@ function! s:runner.run(paths, options) abort
     call self.run_all()
     let error_count = stats.fail()
   catch
-    let phase = get(self,  'phase', 'core')
+    let phase = self._emitter.emitting()
+    if phase ==# ''
+      let phase = 'core'
+    endif
     if v:exception =~# '^themis:'
       let info = {
       \   'exception': matchstr(v:exception, '\C^themis:\s*\zs.*'),
@@ -126,7 +129,6 @@ function! s:runner.add_bundle(bundle) abort
 endfunction
 
 function! s:runner.load_scripts(files_with_styles) abort
-  let self.phase = 'script loading'
   for [filename, style_name] in items(a:files_with_styles)
     if !filereadable(filename)
       throw printf('themis: Target file was not found: %s', filename)
@@ -139,7 +141,6 @@ function! s:runner.load_scripts(files_with_styles) abort
     call style.load_script(filename)
     unlet self._current
   endfor
-  unlet self.phase
 endfunction
 
 function! s:runner.collect_test_names(bundle) abort
@@ -241,8 +242,8 @@ function! s:runner.supporter(name) abort
   return self._supporters[a:name]
 endfunction
 
-function! s:runner.add_event(event) abort
-  call add(self._events, a:event)
+function! s:runner.add_event(listener) abort
+  call self._emitter.add_listener(a:listener)
 endfunction
 
 function! s:runner.total_test_count(...) abort
@@ -252,19 +253,7 @@ function! s:runner.total_test_count(...) abort
 endfunction
 
 function! s:runner.emit(name, ...) abort
-  let self.phase = a:name
-  for event in self._events
-    call s:call(event, a:name, a:000)
-  endfor
-  unlet self.phase
-endfunction
-
-function! s:call(obj, key, args) abort
-  if has_key(a:obj, a:key)
-    call call(a:obj[a:key], a:args, a:obj)
-  elseif has_key(a:obj, '_')
-    call call(a:obj['_'], [a:key, a:args], a:obj)
-  endif
+  call call(self._emitter.emit, [a:name] + a:000, self._emitter)
 endfunction
 
 let s:style_event = {}
@@ -272,11 +261,11 @@ function! s:style_event._(event, args) abort
   let current_style = self.runner.get_current_style()
   if !empty(current_style)
     if has_key(current_style, 'event')
-      call s:call(current_style.event, a:event, a:args)
-    end
+      call themis#emitter#fire(current_style.event, a:event, a:args)
+    endif
   else
     for style in values(self.runner._styles)
-      call s:call(style.event, a:event, a:args)
+      call themis#emitter#fire(style.event, a:event, a:args)
     endfor
   endif
 endfunction
