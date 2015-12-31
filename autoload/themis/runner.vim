@@ -65,13 +65,18 @@ function! s:runner.run(paths, options) abort
 
   let self.target_pattern = join(options.target, '\m\|')
 
+  try
+    call self.load_scripts(files_with_styles)
+    call self.emit('script_loaded', self)
+  catch
+    call self.on_error('script loading', v:exception, v:throwpoint)
+  endtry
+
   let stats = self.supporter('stats')
   let reporter = themis#module#reporter(options.reporter)
   call self.add_event(reporter)
   call self.emit('init', self)
   try
-    call self.load_scripts(files_with_styles)
-    call self.emit('script_loaded', self)
     call self.run_all()
     let error_count = stats.fail()
   catch
