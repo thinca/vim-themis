@@ -75,21 +75,7 @@ function! s:runner.run(paths, options) abort
     call self.run_all()
     let error_count = stats.fail()
   catch
-    let phase = self._emitter.emitting()
-    if phase ==# ''
-      let phase = 'core'
-    endif
-    if v:exception =~# '^themis:'
-      let info = {
-      \   'exception': matchstr(v:exception, '\C^themis:\s*\zs.*'),
-      \ }
-    else
-      let info = {
-      \   'exception': v:exception,
-      \   'stacktrace': themis#util#callstack(v:throwpoint, -1),
-      \ }
-    endif
-    call self.emit('error', phase, info)
+    call self.on_error('running', v:exception, v:throwpoint)
     let error_count = 1
   finally
     let &runtimepath = save_runtimepath
@@ -254,6 +240,24 @@ endfunction
 
 function! s:runner.emit(name, ...) abort
   call call(self._emitter.emit, [a:name] + a:000, self._emitter)
+endfunction
+
+function! s:runner.on_error(phase, exception, throwpoint) abort
+  let phase = self._emitter.emitting()
+  if phase ==# ''
+    let phase = a:phase
+  endif
+  if a:exception =~# '^themis:'
+    let info = {
+    \   'exception': matchstr(a:exception, '\C^themis:\s*\zs.*'),
+    \ }
+  else
+    let info = {
+    \   'exception': a:exception,
+    \   'stacktrace': themis#util#callstack(a:throwpoint, -1),
+    \ }
+  endif
+  call self.emit('error', a:phase, info)
 endfunction
 
 let s:style_event = {}
