@@ -26,7 +26,7 @@ function! themis#run(paths, ...) abort
   let s:current_runner = themis#runner#new()
   try
     let options = get(a:000, 0, themis#option#empty_options())
-    return s:current_runner.run(a:paths, options)
+    return s:current_runner.start(a:paths, options)
   finally
     unlet! s:current_runner
   endtry

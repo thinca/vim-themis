@@ -22,22 +22,59 @@ function! s:runner.init() abort
   call self.add_event(style_event)
 endfunction
 
-function! s:runner.run(paths, options) abort
-  let paths = type(a:paths) == type([]) ? a:paths : [a:paths]
+function! s:runner.start(paths, options) abort
+  try
+    let save_runtimepath = &runtimepath
 
-  call s:load_themisrc(paths)
+    let paths = type(a:paths) == type([]) ? a:paths : [a:paths]
 
-  let options = themis#option#merge(themis#option(), a:options)
+    call s:load_themisrc(paths)
 
-  let files = s:paths2files(paths, options.recursive)
+    let options = themis#option#merge(themis#option(), a:options)
 
-  let excludes = join(filter(copy(options.exclude), '!empty(v:val)'), '\|\m')
-  if !empty(excludes)
-    call filter(files, 'v:val !~# excludes')
+    let files = self.get_target_files(paths, options)
+
+    let self.target_pattern = join(a:options.target, '\m\|')
+
+    call self.load_plugins(options.runtimepath)
+
+    call self.load(files)
+
+    let reporter = themis#module#reporter(options.reporter)
+    return self.run(reporter)
+  finally
+    let &runtimepath = save_runtimepath
+  endtry
+endfunction
+
+function! s:runner.get_target_files(paths, options) abort
+  let files = s:paths2files(a:paths, a:options.recursive)
+
+  let exclude_options = filter(copy(a:options.exclude), '!empty(v:val)')
+  let exclude_pattern = join(exclude_options, '\|\m')
+  if !empty(exclude_pattern)
+    call filter(files, 'v:val !~# exclude_pattern')
+  endif
+  return files
+endfunction
+
+function! s:runner.load_plugins(runtimepaths) abort
+  let appended = [getcwd()]
+  if !empty(a:runtimepaths)
+    for rtp in a:runtimepaths
+      let appended += s:append_rtp(rtp)
+    endfor
   endif
 
+  let plugins = globpath(join(appended, ','), 'plugin/**/*.vim', 1)
+  for plugin in split(plugins, "\n")
+    execute 'source' fnameescape(plugin)
+  endfor
+endfunction
+
+function! s:runner.load(files) abort
   let files_with_styles = {}
-  for file in files
+  for file in a:files
     let style = s:can_handle(values(self._styles), file)
     if style !=# ''
       let files_with_styles[file] = style
@@ -48,34 +85,19 @@ function! s:runner.run(paths, options) abort
     throw 'themis: Target file not found.'
   endif
 
-  let error_count = 0
-  let save_runtimepath = &runtimepath
-
-  let appended = [getcwd()]
-  if !empty(options.runtimepath)
-    for rtp in options.runtimepath
-      let appended += s:append_rtp(rtp)
-    endfor
-  endif
-
-  let plugins = globpath(join(appended, ','), 'plugin/**/*.vim', 1)
-  for plugin in split(plugins, "\n")
-    execute 'source' fnameescape(plugin)
-  endfor
-
-  let self.target_pattern = join(options.target, '\m\|')
-
   try
     call self.load_scripts(files_with_styles)
     call self.emit('script_loaded', self)
   catch
     call self.on_error('script loading', v:exception, v:throwpoint)
   endtry
+endfunction
 
+function! s:runner.run(reporter) abort
   let stats = self.supporter('stats')
-  let reporter = themis#module#reporter(options.reporter)
-  call self.add_event(reporter)
+  call self.add_event(a:reporter)
   call self.emit('init', self)
+  let error_count = 0
   try
     call self.run_all()
     let error_count = stats.fail()
@@ -83,7 +105,6 @@ function! s:runner.run(paths, options) abort
     call self.on_error('running', v:exception, v:throwpoint)
     let error_count = 1
   finally
-    let &runtimepath = save_runtimepath
     call self.emit('finish', self)
   endtry
   return error_count
