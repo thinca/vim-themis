@@ -14,6 +14,10 @@ function! s:Emitter.add_listener(listener) abort
   call add(self._listeners, a:listener)
 endfunction
 
+function! s:Emitter.get_listeners() abort
+  return copy(self._listeners)
+endfunction
+
 function! s:Emitter.emit(event, ...) abort
   let self._emitting = a:event
   for listener in self._listeners
