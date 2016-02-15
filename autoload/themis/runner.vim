@@ -163,18 +163,13 @@ function! s:runner.run_bundle(bundle) abort
     return
   endif
   let test_names = a:bundle.test_names
-  let has_style = a:bundle.get_style_name() !=# ''
   call self.in_bundle(a:bundle)
-  if has_style
-    call self.emit('before_suite', a:bundle)
-  endif
+  call self.emit('before_suite', a:bundle)
   call self.run_suite(a:bundle, test_names)
   for child in a:bundle.children
     call self.run_bundle(child)
   endfor
-  if has_style
-    call self.emit('after_suite', a:bundle)
-  endif
+  call self.emit('after_suite', a:bundle)
   call self.out_bundle()
 endfunction
 
