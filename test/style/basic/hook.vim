@@ -7,7 +7,7 @@ endfunction
 function! s:hook.before_each() abort
   call self.runner.init_bundle()
   let self.bundle = themis#bundle#new('sample', self.runner.root_bundle)
-  let self.bundle.style_name = 'basic'
+  let self.bundle.style = themis#module#style('basic')
   let self.suite = self.bundle.suite
   let self.suite.called = []
 endfunction

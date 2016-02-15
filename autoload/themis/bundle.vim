@@ -36,14 +36,14 @@ function! s:bundle.get_description(name) abort
   return get(self.suite_descriptions, a:name, '')
 endfunction
 
-function! s:bundle.get_style_name() abort
-  if has_key(self, 'style_name')
-    return self.style_name
+function! s:bundle.get_style() abort
+  if has_key(self, 'style')
+    return self.style
   endif
   if has_key(self, 'parent')
-    return self.parent.get_style_name()
+    return self.parent.get_style()
   endif
-  return ''
+  return {}
 endfunction
 
 function! s:bundle.add_child(bundle) abort

@@ -134,7 +134,7 @@ function! s:runner.load_scripts(files_with_styles) abort
     endif
     let style = self._styles[style_name]
     let base = themis#bundle#new('', self.root_bundle)
-    let base.style_name = style_name
+    let base.style = style
     call themis#_set_base_bundle(base)
     call style.load_script(filename, base)
     call themis#_unset_base_bundle()
@@ -212,7 +212,7 @@ function! s:runner.emit_after_test(bundle, test_name) abort
 endfunction
 
 function! s:runner.get_test_names(bundle) abort
-  let style = get(self._styles, a:bundle.get_style_name(), {})
+  let style = a:bundle.get_style()
   if empty(style)
     return []
   endif
@@ -225,7 +225,7 @@ function! s:runner.get_test_names(bundle) abort
 endfunction
 
 function! s:runner.get_current_style() abort
-  return get(self._styles, self.get_current_bundle().get_style_name(), {})
+  return self.get_current_bundle().get_style()
 endfunction
 
 function! s:runner.supporter(name) abort
