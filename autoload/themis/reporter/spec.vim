@@ -27,12 +27,18 @@ function! s:reporter.start(runner) abort
 endfunction
 
 function! s:reporter.before_suite(bundle) abort
-  call self.print(a:bundle.get_title())
-  let self.indent += 1
+  let title = a:bundle.get_title()
+  if title !=# ''
+    call self.print(title)
+    let self.indent += 1
+  endif
 endfunction
 
 function! s:reporter.after_suite(bundle) abort
-  let self.indent -= 1
+  let title = a:bundle.get_title()
+  if title !=# ''
+    let self.indent -= 1
+  endif
 endfunction
 
 function! s:reporter.pass(report) abort
