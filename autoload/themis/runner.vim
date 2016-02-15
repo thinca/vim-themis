@@ -127,31 +127,17 @@ function! s:runner.out_bundle() abort
   call remove(self.bundle_stacks, -1)
 endfunction
 
-function! s:runner.add_new_bundle(title) abort
-  return self.add_bundle(themis#bundle#new(a:title))
-endfunction
-
-function! s:runner.add_bundle(bundle) abort
-  if has_key(self, '_current')
-    let a:bundle.filename = self._current.filename
-    let a:bundle.style_name = self._current.style_name
-  endif
-  call self.get_current_bundle().add_child(a:bundle)
-  return a:bundle
-endfunction
-
 function! s:runner.load_scripts(files_with_styles) abort
   for [filename, style_name] in items(a:files_with_styles)
     if !filereadable(filename)
       throw printf('themis: Target file was not found: %s', filename)
     endif
     let style = self._styles[style_name]
-    let self._current = {
-    \   'filename': filename,
-    \   'style_name': style_name,
-    \ }
-    call style.load_script(filename)
-    unlet self._current
+    let base = themis#bundle#new('', self.root_bundle)
+    let base.style_name = style_name
+    call themis#_set_base_bundle(base)
+    call style.load_script(filename, base)
+    call themis#_unset_base_bundle()
   endfor
 endfunction
 

@@ -265,7 +265,7 @@ function! s:style.can_handle(filename) abort
   return fnamemodify(a:filename, ':e') ==? 'vimspec'
 endfunction
 
-function! s:style.load_script(filename) abort
+function! s:style.load_script(filename, base_bundle) abort
   let compiled_specfile_path = tempname()
   call add(self.event._converted_files, compiled_specfile_path)
   try

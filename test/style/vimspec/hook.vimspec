@@ -6,7 +6,7 @@ Describe vimspec-style
 
     Before each
       call self.runner.init_bundle()
-      let self.bundle = self.runner.add_new_bundle('sample')
+      let self.bundle = themis#bundle#new('sample', self.runner.root_bundle)
       let self.bundle.style_name = 'basic'
       let self.suite = self.bundle.suite
       let self.suite.called = []
