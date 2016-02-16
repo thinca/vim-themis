@@ -110,19 +110,6 @@ endfunction
 
 function! s:runner.init_bundle() abort
   let self.root_bundle = themis#bundle#new()
-  let self.bundle_stacks = [self.root_bundle]
-endfunction
-
-function! s:runner.get_current_bundle() abort
-  return self.bundle_stacks[-1]
-endfunction
-
-function! s:runner.in_bundle(bundle) abort
-  let self.bundle_stacks += [a:bundle]
-endfunction
-
-function! s:runner.out_bundle() abort
-  call remove(self.bundle_stacks, -1)
 endfunction
 
 function! s:runner.load_scripts(files_with_styles) abort
@@ -154,14 +141,12 @@ endfunction
 
 function! s:runner.run_bundle(bundle) abort
   let test_names = a:bundle.test_names
-  call self.in_bundle(a:bundle)
   call self.emit('before_suite', a:bundle)
   call self.run_suite(a:bundle, test_names)
   for child in a:bundle.children
     call self.run_bundle(child)
   endfor
   call self.emit('after_suite', a:bundle)
-  call self.out_bundle()
 endfunction
 
 function! s:runner.run_suite(bundle, test_names) abort
@@ -215,10 +200,6 @@ function! s:runner.get_test_names(bundle) abort
   return names
 endfunction
 
-function! s:runner.get_current_style() abort
-  return self.get_current_bundle().get_style()
-endfunction
-
 function! s:runner.supporter(name) abort
   if !has_key(self._supporters, a:name)
     let self._supporters[a:name] = themis#module#supporter(a:name, self)
@@ -260,14 +241,17 @@ endfunction
 
 let s:style_event = {}
 function! s:style_event._(event, args) abort
-  let current_style = self.runner.get_current_style()
-  if !empty(current_style)
-    if has_key(current_style, 'event')
-      call themis#emitter#fire(current_style.event, a:event, a:args)
+  if themis#bundle#is_bundle(get(a:args, 0))
+    let bundle = a:args[0]
+    let style = bundle.get_style()
+    if has_key(style, 'event')
+      call themis#emitter#fire(style.event, a:event, a:args)
     endif
   else
     for style in values(self.runner._styles)
-      call themis#emitter#fire(style.event, a:event, a:args)
+      if has_key(style, 'event')
+        call themis#emitter#fire(style.event, a:event, a:args)
+      endif
     endfor
   endif
 endfunction

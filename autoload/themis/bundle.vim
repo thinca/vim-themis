@@ -80,6 +80,11 @@ function! themis#bundle#new(...) abort
   return bundle
 endfunction
 
+function! themis#bundle#is_bundle(obj) abort
+  return type(a:obj) == type({}) &&
+  \   get(a:obj, 'run_test') is s:bundle.run_test
+endfunction
+
 call themis#func_alias({'themis/Bundle': s:bundle})
 
 
