@@ -32,14 +32,12 @@ function! s:runner.start(paths, options) abort
 
     let options = themis#option#merge(themis#option(), a:options)
 
-    let files = self.get_target_files(paths, options)
-
-    let self.target_pattern = join(a:options.target, '\m\|')
-
     call self.load_plugins(options.runtimepath)
 
+    let files = self.get_target_files(paths, options)
     call self.load(files)
 
+    let self.target_pattern = join(a:options.target, '\m\|')
     let reporter = themis#module#reporter(options.reporter)
     return self.run(reporter)
   finally
