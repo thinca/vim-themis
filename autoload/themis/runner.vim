@@ -143,12 +143,8 @@ endfunction
 
 function! s:runner.collect_test_names(bundle) abort
   let a:bundle.test_names = self.get_test_names(a:bundle)
-  let is_empty = empty(a:bundle.test_names)
-  for child in a:bundle.children
-    call self.collect_test_names(child)
-    let is_empty = is_empty && child.is_empty
-  endfor
-  let a:bundle.is_empty = is_empty
+  call filter(a:bundle.children, 'self.collect_test_names(v:val)')
+  return !empty(a:bundle.test_names) || !empty(a:bundle.children)
 endfunction
 
 function! s:runner.run_all() abort
@@ -159,9 +155,6 @@ function! s:runner.run_all() abort
 endfunction
 
 function! s:runner.run_bundle(bundle) abort
-  if a:bundle.is_empty
-    return
-  endif
   let test_names = a:bundle.test_names
   call self.in_bundle(a:bundle)
   call self.emit('before_suite', a:bundle)
