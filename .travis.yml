@@ -1,5 +1,9 @@
 language: generic
 
+os:
+  - linux
+  - osx
+
 env:
   - HEAD=yes
   - HEAD=no
@@ -23,31 +27,40 @@ cache:
 
 install:
   - |
-    if [ x"${HEAD}" = "xyes" ]; then
-      if [ -d /tmp/vim/.git ]; then
-        cd /tmp/vim
-        git fetch
-        if git diff --exit-code --quiet ..origin/master; then
-          need_build=0
+    if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+      if [ x"${HEAD}" = "xyes" ]; then
+        if [ -d /tmp/vim/.git ]; then
+          cd /tmp/vim
+          git fetch
+          if git diff --exit-code --quiet ..origin/master; then
+            need_build=0
+          else
+            git reset --hard origin/master
+            git clean -dfx
+            need_build=1
+          fi
         else
-          git reset --hard origin/master
-          git clean -dfx
+          git clone --depth 1 --single-branch https://github.com/vim/vim /tmp/vim
+          cd /tmp/vim
           need_build=1
         fi
+        if [ "${need_build}" = "1" ]; then
+          ./configure --prefix="$PWD/build" --with-features=huge \
+            --enable-perlinterp --enable-pythoninterp --enable-python3interp \
+            --enable-rubyinterp --enable-luainterp --enable-fail-if-missing
+          make -j2
+          make install
+        fi
+        export PATH=$PWD/build/bin:$PATH
+        cd "${TRAVIS_BUILD_DIR}"
+      fi
+    else
+      brew update
+      if [ x"${HEAD}" = "xyes" ]; then
+        brew install macvim --with-lua --with-override-system-vim --HEAD
       else
-        git clone --depth 1 --single-branch https://github.com/vim/vim /tmp/vim
-        cd /tmp/vim
-        need_build=1
+        brew install macvim --with-lua --with-override-system-vim
       fi
-      if [ "${need_build}" = "1" ]; then
-        ./configure --prefix="$PWD/build" --with-features=huge \
-          --enable-perlinterp --enable-pythoninterp --enable-python3interp \
-          --enable-rubyinterp --enable-luainterp --enable-fail-if-missing
-        make -j2
-        make install
-      fi
-      export PATH=$PWD/build/bin:$PATH
-      cd "${TRAVIS_BUILD_DIR}"
     fi
 
 script:
