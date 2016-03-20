@@ -84,7 +84,7 @@ Describe util
       let obj = {}
       function! obj.func() abort
       endfunction
-      let funcname = matchstr(string(obj.func), 'function(''\zs.\{-}\ze'')')
+      let funcname = matchstr(string(obj.func), '^function(''\zs[^'']\{-}\ze''')
       unlet obj
       Assert False(themis#util#funcdata(funcname).exists)
     End

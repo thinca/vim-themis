@@ -222,7 +222,19 @@ function! themis#util#is_funcname(name) abort
 endfunction
 
 function! themis#util#funcname(funcref) abort
-  return matchstr(string(a:funcref), '^function(''\zs.*\ze'')$')
+  if has('patch-7.4.1608')
+    " From Vim 7.4.1608, the result of string() with Partial
+    " (a kind of Funcref) contains {arglist} and {self} as follows
+    "
+    " function('100', [1], {'method': function('100')})
+    "
+    " E724 occurs if the {arglist} or {self} contains a circular reference
+    " Ignore this error with :silent!
+    silent! let str = string(function(a:funcref, {}))
+  else
+    let str = string(a:funcref)
+  endif
+  return matchstr(str, '^function(''\zs[^'']\{-}\ze''')
 endfunction
 
 function! themis#util#get_full_title(obj, ...) abort
