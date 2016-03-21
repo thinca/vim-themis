@@ -2,14 +2,19 @@ version: '{build}'
 clone_depth: 1
 environment:
   matrix:
-  - VIM_URL: http://files.kaoriya.net/vim/vim74-kaoriya-win64.zip
-  - VIM_URL: http://files.kaoriya.net/vim/2011/vim73-kaoriya-win64-20110306.zip
+  - VIM_URL: http://vim-jp.org/redirects/koron/vim-kaoriya/latest/win64/
+  - VIM_URL: http://vim-jp.org/redirects/koron/vim-kaoriya/vim73/oldest/win64/
+  # To test with 7.3 final +kaoriya Vim binary, uncomment below line.
+  #- VIM_URL: http://vim-jp.org/redirects/koron/vim-kaoriya/vim73/final/win64/
+  # To test with latest official Vim binary, uncomment below line.
+  #- VIM_URL: http://vim-jp.org/redirects/vim/vim-win32-installer/latest/x64/
 install:
 - ps: |
     $zip = $Env:APPVEYOR_BUILD_FOLDER + '\vim.zip'
     $vim = $Env:APPVEYOR_BUILD_FOLDER + '\vim\'
 
-    (New-Object Net.WebClient).DownloadFile($Env:VIM_URL, $zip)
+    $redirect = Invoke-WebRequest -URI $Env:VIM_URL
+    (New-Object Net.WebClient).DownloadFile($redirect.Links[0].href, $zip)
 
     [Reflection.Assembly]::LoadWithPartialName('System.IO.Compression.FileSystem') > $null
     [System.IO.Compression.ZipFile]::ExtractToDirectory($zip, $vim)
