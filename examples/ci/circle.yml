@@ -2,7 +2,7 @@ dependencies:
   cache_directories:
     - "~/vim-themis"
   override:
-    - git clone https://github.com/thinca/vim-themis --quiet --branch v1.5 --single-branch --depth 1 ~/vim-themis
+    - git clone https://github.com/thinca/vim-themis --quiet --branch v1.5.1 --single-branch --depth 1 ~/vim-themis
 test:
   pre:
     - vim --version

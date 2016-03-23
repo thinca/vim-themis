@@ -1,5 +1,5 @@
 " Syntax file for vimspec
-" Version: 1.5
+" Version: 1.5.1
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 

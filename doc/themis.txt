@@ -1,6 +1,6 @@
 *themis.txt*	A testing framework for Vim script.
 
-Version: 1.5
+Version: 1.5.1
 Author : thinca <thinca+vim@gmail.com>
 License: zlib License
 
@@ -966,6 +966,11 @@ When all characters of {type} are uppercase, a test treated as "pending".
 
 ==============================================================================
 CHANGELOG					*themis-changelog*
+
+1.5.1	2016-03-23
+	- Add workaround for Vim 7.4.1068
+	- Add symlink support of themis command on MS Windows(Thanks Milly).
+	- Fix a bug by which a swapfile is created.
 
 1.5	2015-10-28
 	- Add |themis-helper-scope|.
