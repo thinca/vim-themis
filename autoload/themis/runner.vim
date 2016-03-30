@@ -40,7 +40,8 @@ function! s:Runner.start(paths, options) abort
     call bundle.select_tests_recursive(target_pattern)
 
     let reporter = themis#module#reporter(options.reporter)
-    return self.run(bundle, reporter)
+    call self.add_event(reporter)
+    return self.run(bundle)
   finally
     let &runtimepath = save_runtimepath
   endtry
@@ -94,9 +95,8 @@ function! s:Runner.load_scripts(files_with_styles, target_bundle) abort
   endfor
 endfunction
 
-function! s:Runner.run(bundle, reporter) abort
+function! s:Runner.run(bundle) abort
   let stats = self.supporter('stats')
-  call self.add_event(a:reporter)
   call self.emit('init', self, a:bundle)
   let error_count = 0
   try
