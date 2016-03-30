@@ -93,10 +93,9 @@ function! s:runner.load_bundle_from_files(files) abort
 endfunction
 
 function! s:runner.run(bundle, reporter) abort
-  let self.root_bundle = a:bundle
   let stats = self.supporter('stats')
   call self.add_event(a:reporter)
-  call self.emit('init', self)
+  call self.emit('init', self, a:bundle)
   let error_count = 0
   try
     call self.run_all(a:bundle)
@@ -209,10 +208,9 @@ function! s:runner.add_event(listener) abort
   call self._emitter.add_listener(a:listener)
 endfunction
 
-function! s:runner.total_test_count(...) abort
-  let bundle = a:0 ? a:1 : self.root_bundle
-  return len(self.get_test_names(bundle))
-  \    + s:sum(map(copy(bundle.children), 'self.total_test_count(v:val)'))
+function! s:runner.total_test_count(bundle) abort
+  return len(self.get_test_names(a:bundle))
+  \    + s:sum(map(copy(a:bundle.children), 'self.total_test_count(v:val)'))
 endfunction
 
 function! s:runner.emit(name, ...) abort

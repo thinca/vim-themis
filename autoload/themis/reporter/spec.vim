@@ -18,7 +18,7 @@ endif
 
 let s:reporter = {}
 
-function! s:reporter.init(runner) abort
+function! s:reporter.init(runner, root_bundle) abort
   let self.stats = a:runner.supporter('stats')
   let self.indent = 0
 endfunction

@@ -8,12 +8,13 @@ set cpo&vim
 
 let s:reporter = {}
 
-function! s:reporter.init(runner) abort
+function! s:reporter.init(runner, root_bundle) abort
   let self.stats = a:runner.supporter('stats')
+  let self.root_bundle = a:root_bundle
 endfunction
 
 function! s:reporter.start(runner) abort
-  call themis#log('1..' . a:runner.total_test_count())
+  call themis#log('1..' . a:runner.total_test_count(self.root_bundle))
 endfunction
 
 function! s:reporter.pass(report) abort

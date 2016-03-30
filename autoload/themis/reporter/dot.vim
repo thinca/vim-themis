@@ -8,7 +8,7 @@ set cpo&vim
 
 let s:reporter = {}
 
-function! s:reporter.init(runner) abort
+function! s:reporter.init(runner, root_bundle) abort
   let self.stats = a:runner.supporter('stats')
   let self.pending_list = []
   let self.failure_list = []
