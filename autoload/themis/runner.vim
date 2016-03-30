@@ -9,7 +9,6 @@ set cpo&vim
 let s:runner = {}
 
 function! s:runner.init() abort
-  call self.init_bundle()
   let self._emitter = themis#emitter#new()
   let self._supporters = {}
   let self._styles = {}
@@ -35,11 +34,11 @@ function! s:runner.start(paths, options) abort
     call self.load_plugins(options.runtimepath)
 
     let files = self.get_target_files(paths, options)
-    call self.load(files)
+    let bundle = self.load_bundle_from_files(files)
 
     let self.target_pattern = join(a:options.target, '\m\|')
     let reporter = themis#module#reporter(options.reporter)
-    return self.run(reporter)
+    return self.run(bundle, reporter)
   finally
     let &runtimepath = save_runtimepath
   endtry
@@ -70,7 +69,7 @@ function! s:runner.load_plugins(runtimepaths) abort
   endfor
 endfunction
 
-function! s:runner.load(files) abort
+function! s:runner.load_bundle_from_files(files) abort
   let files_with_styles = {}
   for file in a:files
     let style = s:can_handle(values(self._styles), file)
@@ -83,21 +82,24 @@ function! s:runner.load(files) abort
     throw 'themis: Target file not found.'
   endif
 
+  let bundle = themis#bundle#new()
   try
-    call self.load_scripts(files_with_styles)
+    call self.load_scripts(files_with_styles, bundle)
     call self.emit('script_loaded', self)
   catch
     call self.on_error('script loading', v:exception, v:throwpoint)
   endtry
+  return bundle
 endfunction
 
-function! s:runner.run(reporter) abort
+function! s:runner.run(bundle, reporter) abort
+  let self.root_bundle = a:bundle
   let stats = self.supporter('stats')
   call self.add_event(a:reporter)
   call self.emit('init', self)
   let error_count = 0
   try
-    call self.run_all()
+    call self.run_all(a:bundle)
     let error_count = stats.fail()
   catch
     call self.on_error('running', v:exception, v:throwpoint)
@@ -108,17 +110,13 @@ function! s:runner.run(reporter) abort
   return error_count
 endfunction
 
-function! s:runner.init_bundle() abort
-  let self.root_bundle = themis#bundle#new()
-endfunction
-
-function! s:runner.load_scripts(files_with_styles) abort
+function! s:runner.load_scripts(files_with_styles, target_bundle) abort
   for [filename, style_name] in items(a:files_with_styles)
     if !filereadable(filename)
       throw printf('themis: Target file was not found: %s', filename)
     endif
     let style = self._styles[style_name]
-    let base = themis#bundle#new('', self.root_bundle)
+    let base = themis#bundle#new('', a:target_bundle)
     let base.style = style
     call themis#_set_base_bundle(base)
     call style.load_script(filename, base)
@@ -132,10 +130,10 @@ function! s:runner.collect_test_names(bundle) abort
   return !empty(a:bundle.test_names) || !empty(a:bundle.children)
 endfunction
 
-function! s:runner.run_all() abort
-  call self.collect_test_names(self.root_bundle)
+function! s:runner.run_all(bundle) abort
+  call self.collect_test_names(a:bundle)
   call self.emit('start', self)
-  call self.run_bundle(self.root_bundle)
+  call self.run_bundle(a:bundle)
   call self.emit('end', self)
 endfunction
 

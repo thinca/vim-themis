@@ -3,7 +3,8 @@ Describe supporter-stats
     let runner = themis#runner#new()
     let stats = runner.supporter('stats')
 
-    let suite = NewBasicSuite('sample', runner)
+    let bundle = NewBasicSuite('sample', runner)
+    let suite = bundle.suite
     function! suite.success1() abort
     endfunction
     function! suite.success2() abort
@@ -20,7 +21,7 @@ Describe supporter-stats
       Skip pending test
     endfunction
 
-    call runner.run({})
+    call runner.run(bundle, {})
   End
 
   It counts number of total tests

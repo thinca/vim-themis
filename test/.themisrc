@@ -4,7 +4,7 @@ call themis#option('exclude', ['test/fixture/'])
 call themis#helper('command').with(themis#helper('assert'))
 
 function! NewBasicSuite(name, runner) abort
-  let bundle = themis#bundle#new(a:name, a:runner.root_bundle)
+  let bundle = themis#bundle#new(a:name)
   let bundle.style = a:runner._styles['basic']
-  return bundle.suite
+  return bundle
 endfunction
