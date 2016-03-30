@@ -67,6 +67,11 @@ function! s:Bundle.remove_child(child) abort
   call filter(self.children, 'v:val isnot a:child')
 endfunction
 
+function! s:Bundle.total_test_count() abort
+  return len(self.get_test_entries())
+  \    + s:sum(map(copy(self.children), 'v:val.total_test_count()'))
+endfunction
+
 function! s:Bundle.get_test_entries() abort
   if !has_key(self, 'test_entries')
     let self.test_entries = self.all_test_entries()
@@ -100,6 +105,10 @@ endfunction
 
 function! s:Bundle.run_test(entry) abort
   call self.suite[a:entry]()
+endfunction
+
+function! s:sum(list) abort
+  return empty(a:list) ? 0 : eval(join(a:list, '+'))
 endfunction
 
 function! themis#bundle#new(...) abort

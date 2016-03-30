@@ -14,7 +14,7 @@ function! s:reporter.init(runner, root_bundle) abort
 endfunction
 
 function! s:reporter.start(runner) abort
-  call themis#log('1..' . a:runner.total_test_count(self.root_bundle))
+  call themis#log('1..' . self.root_bundle.total_test_count())
 endfunction
 
 function! s:reporter.pass(report) abort

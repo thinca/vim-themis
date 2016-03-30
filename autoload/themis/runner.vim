@@ -176,11 +176,6 @@ function! s:Runner.add_event(listener) abort
   call self._emitter.add_listener(a:listener)
 endfunction
 
-function! s:Runner.total_test_count(bundle) abort
-  return len(a:bundle.get_test_entries())
-  \    + s:sum(map(copy(a:bundle.children), 'self.total_test_count(v:val)'))
-endfunction
-
 function! s:Runner.emit(name, ...) abort
   call call(self._emitter.emit, [a:name] + a:000, self._emitter)
 endfunction
@@ -297,10 +292,6 @@ function! s:can_handle(styles, file) abort
     endif
   endfor
   return ''
-endfunction
-
-function! s:sum(list) abort
-  return empty(a:list) ? 0 : eval(join(a:list, '+'))
 endfunction
 
 function! themis#runner#new() abort
