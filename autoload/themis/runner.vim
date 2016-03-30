@@ -31,7 +31,7 @@ function! s:Runner.start(paths, options) abort
 
     let options = themis#option#merge(themis#option(), a:options)
 
-    call self.load_plugins(options.runtimepath)
+    call s:load_plugins(options.runtimepath)
 
     let files = self.get_target_files(paths, options)
     let bundle = self.load_bundle_from_files(files)
@@ -57,7 +57,7 @@ function! s:Runner.get_target_files(paths, options) abort
   return files
 endfunction
 
-function! s:Runner.load_plugins(runtimepaths) abort
+function! s:load_plugins(runtimepaths) abort
   let appended = [getcwd()]
   if !empty(a:runtimepaths)
     for rtp in a:runtimepaths
