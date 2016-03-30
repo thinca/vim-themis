@@ -80,6 +80,20 @@ function! s:Runner.load_bundle_from_files(files) abort
   return bundle
 endfunction
 
+function! s:Runner.load_scripts(files_with_styles, target_bundle) abort
+  for [filename, style_name] in items(a:files_with_styles)
+    if !filereadable(filename)
+      throw printf('themis: Target file was not found: %s', filename)
+    endif
+    let style = self._styles[style_name]
+    let base = themis#bundle#new('', a:target_bundle)
+    let base.style = style
+    call themis#_set_base_bundle(base)
+    call style.load_script(filename, base)
+    call themis#_unset_base_bundle()
+  endfor
+endfunction
+
 function! s:Runner.run(bundle, reporter) abort
   let stats = self.supporter('stats')
   call self.add_event(a:reporter)
@@ -95,20 +109,6 @@ function! s:Runner.run(bundle, reporter) abort
     call self.emit('finish', self)
   endtry
   return error_count
-endfunction
-
-function! s:Runner.load_scripts(files_with_styles, target_bundle) abort
-  for [filename, style_name] in items(a:files_with_styles)
-    if !filereadable(filename)
-      throw printf('themis: Target file was not found: %s', filename)
-    endif
-    let style = self._styles[style_name]
-    let base = themis#bundle#new('', a:target_bundle)
-    let base.style = style
-    call themis#_set_base_bundle(base)
-    call style.load_script(filename, base)
-    call themis#_unset_base_bundle()
-  endfor
 endfunction
 
 function! s:Runner.run_all(bundle) abort
