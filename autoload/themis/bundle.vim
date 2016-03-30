@@ -100,7 +100,7 @@ function! s:Bundle.all_test_entries() abort
 endfunction
 
 function! s:Bundle.is_empty() abort
-  return empty(self.test_entries) && empty(self.children)
+  return empty(self.get_test_entries()) && empty(self.children)
 endfunction
 
 function! s:Bundle.run_test(entry) abort
