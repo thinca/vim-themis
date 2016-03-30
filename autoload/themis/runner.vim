@@ -57,20 +57,6 @@ function! s:Runner.get_target_files(paths, options) abort
   return files
 endfunction
 
-function! s:load_plugins(runtimepaths) abort
-  let appended = [getcwd()]
-  if !empty(a:runtimepaths)
-    for rtp in a:runtimepaths
-      let appended += s:append_rtp(rtp)
-    endfor
-  endif
-
-  let plugins = globpath(join(appended, ','), 'plugin/**/*.vim', 1)
-  for plugin in split(plugins, "\n")
-    execute 'source' fnameescape(plugin)
-  endfor
-endfunction
-
 function! s:Runner.load_bundle_from_files(files) abort
   let files_with_styles = {}
   for file in a:files
@@ -273,6 +259,20 @@ function! s:load_themisrc(paths) abort
   let themisrcs = themis#util#find_files(a:paths, '.themisrc')
   for themisrc in themisrcs
     execute 'source' fnameescape(themisrc)
+  endfor
+endfunction
+
+function! s:load_plugins(runtimepaths) abort
+  let appended = [getcwd()]
+  if !empty(a:runtimepaths)
+    for rtp in a:runtimepaths
+      let appended += s:append_rtp(rtp)
+    endfor
+  endif
+
+  let plugins = globpath(join(appended, ','), 'plugin/**/*.vim', 1)
+  for plugin in split(plugins, "\n")
+    execute 'source' fnameescape(plugin)
   endfor
 endfunction
 
