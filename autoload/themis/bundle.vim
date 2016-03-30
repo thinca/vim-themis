@@ -67,6 +67,37 @@ function! s:bundle.remove_child(child) abort
   call filter(self.children, 'v:val isnot a:child')
 endfunction
 
+function! s:bundle.get_test_entries() abort
+  if !has_key(self, 'test_entries')
+    let self.test_entries = self.all_test_entries()
+  endif
+  return self.test_entries
+endfunction
+
+function! s:bundle.select_tests_recursive(pattern) abort
+  call filter(self.children, 'v:val.select_tests_recursive(a:pattern)')
+  call self.select_tests(a:pattern)
+  return !self.is_empty()
+endfunction
+
+function! s:bundle.select_tests(pattern) abort
+  let test_entries = self.all_test_entries()
+  call filter(test_entries, 'self.get_test_full_title(v:val) =~# a:pattern')
+  let self.test_entries = test_entries
+endfunction
+
+function! s:bundle.all_test_entries() abort
+  let style = self.get_style()
+  if empty(style)
+    return []
+  endif
+  return style.get_test_names(self)
+endfunction
+
+function! s:bundle.is_empty() abort
+  return empty(self.test_entries) && empty(self.children)
+endfunction
+
 function! s:bundle.run_test(name) abort
   call self.suite[a:name]()
 endfunction

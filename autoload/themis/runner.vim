@@ -36,7 +36,9 @@ function! s:runner.start(paths, options) abort
     let files = self.get_target_files(paths, options)
     let bundle = self.load_bundle_from_files(files)
 
-    let self.target_pattern = join(a:options.target, '\m\|')
+    let target_pattern = join(a:options.target, '\m\|')
+    call bundle.select_tests_recursive(target_pattern)
+
     let reporter = themis#module#reporter(options.reporter)
     return self.run(bundle, reporter)
   finally
@@ -123,21 +125,14 @@ function! s:runner.load_scripts(files_with_styles, target_bundle) abort
   endfor
 endfunction
 
-function! s:runner.collect_test_names(bundle) abort
-  let a:bundle.test_names = self.get_test_names(a:bundle)
-  call filter(a:bundle.children, 'self.collect_test_names(v:val)')
-  return !empty(a:bundle.test_names) || !empty(a:bundle.children)
-endfunction
-
 function! s:runner.run_all(bundle) abort
-  call self.collect_test_names(a:bundle)
   call self.emit('start', self)
   call self.run_bundle(a:bundle)
   call self.emit('end', self)
 endfunction
 
 function! s:runner.run_bundle(bundle) abort
-  let test_names = a:bundle.test_names
+  let test_names = a:bundle.get_test_entries()
   call self.emit('before_suite', a:bundle)
   call self.run_suite(a:bundle, test_names)
   for child in a:bundle.children
@@ -184,19 +179,6 @@ function! s:runner.emit_after_test(bundle, test_name) abort
   endif
 endfunction
 
-function! s:runner.get_test_names(bundle) abort
-  let style = a:bundle.get_style()
-  if empty(style)
-    return []
-  endif
-  let names = style.get_test_names(a:bundle)
-  if get(self, 'target_pattern', '') !=# ''
-    let pat = self.target_pattern
-    call filter(names, 'a:bundle.get_test_full_title(v:val) =~# pat')
-  endif
-  return names
-endfunction
-
 function! s:runner.supporter(name) abort
   if !has_key(self._supporters, a:name)
     let self._supporters[a:name] = themis#module#supporter(a:name, self)
@@ -209,7 +191,7 @@ function! s:runner.add_event(listener) abort
 endfunction
 
 function! s:runner.total_test_count(bundle) abort
-  return len(self.get_test_names(a:bundle))
+  return len(a:bundle.get_test_entries())
   \    + s:sum(map(copy(a:bundle.children), 'self.total_test_count(v:val)'))
 endfunction
 
