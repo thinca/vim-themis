@@ -132,32 +132,32 @@ function! s:runner.run_all(bundle) abort
 endfunction
 
 function! s:runner.run_bundle(bundle) abort
-  let test_names = a:bundle.get_test_entries()
+  let test_entries = a:bundle.get_test_entries()
   call self.emit('before_suite', a:bundle)
-  call self.run_suite(a:bundle, test_names)
+  call self.run_suite(a:bundle, test_entries)
   for child in a:bundle.children
     call self.run_bundle(child)
   endfor
   call self.emit('after_suite', a:bundle)
 endfunction
 
-function! s:runner.run_suite(bundle, test_names) abort
-  for name in a:test_names
-    call self.emit('start_test', a:bundle, name)
-    call self.run_test(a:bundle, name)
+function! s:runner.run_suite(bundle, test_entries) abort
+  for entry in a:test_entries
+    call self.emit('start_test', a:bundle, entry)
+    call self.run_test(a:bundle, entry)
   endfor
 endfunction
 
-function! s:runner.run_test(bundle, test_name) abort
-  let report = themis#report#new(a:bundle, a:test_name)
+function! s:runner.run_test(bundle, test_entry) abort
+  let report = themis#report#new(a:bundle, a:test_entry)
   try
-    call self.emit_before_test(a:bundle, a:test_name)
+    call self.emit_before_test(a:bundle, a:test_entry)
     let start_time = reltime()
-    call a:bundle.run_test(a:test_name)
+    call a:bundle.run_test(a:test_entry)
     let end_time = reltime(start_time)
     let report.result = 'pass'
     let report.time = str2float(reltimestr(end_time))
-    call self.emit_after_test(a:bundle, a:test_name)
+    call self.emit_after_test(a:bundle, a:test_entry)
   catch
     call s:test_fail(report, v:exception, v:throwpoint)
   finally
@@ -165,17 +165,17 @@ function! s:runner.run_test(bundle, test_name) abort
   endtry
 endfunction
 
-function! s:runner.emit_before_test(bundle, test_name) abort
+function! s:runner.emit_before_test(bundle, test_entry) abort
   if has_key(a:bundle, 'parent')
-    call self.emit_before_test(a:bundle.parent, a:test_name)
+    call self.emit_before_test(a:bundle.parent, a:test_entry)
   endif
-  call self.emit('before_test', a:bundle, a:test_name)
+  call self.emit('before_test', a:bundle, a:test_entry)
 endfunction
 
-function! s:runner.emit_after_test(bundle, test_name) abort
-  call self.emit('after_test', a:bundle, a:test_name)
+function! s:runner.emit_after_test(bundle, test_entry) abort
+  call self.emit('after_test', a:bundle, a:test_entry)
   if has_key(a:bundle, 'parent')
-    call self.emit_after_test(a:bundle.parent, a:test_name)
+    call self.emit_after_test(a:bundle.parent, a:test_entry)
   endif
 endfunction
 

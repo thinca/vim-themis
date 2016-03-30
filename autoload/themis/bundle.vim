@@ -23,17 +23,17 @@ function! s:bundle.get_title() abort
   return ''
 endfunction
 
-function! s:bundle.get_test_full_title(name) abort
-  return themis#util#get_full_title(self, [self.get_test_title(a:name)])
+function! s:bundle.get_test_full_title(entry) abort
+  return themis#util#get_full_title(self, [self.get_test_title(a:entry)])
 endfunction
 
-function! s:bundle.get_test_title(name) abort
-  let description = self.get_description(a:name)
-  return description !=# '' ? description : a:name
+function! s:bundle.get_test_title(entry) abort
+  let description = self.get_description(a:entry)
+  return description !=# '' ? description : a:entry
 endfunction
 
-function! s:bundle.get_description(name) abort
-  return get(self.suite_descriptions, a:name, '')
+function! s:bundle.get_description(entry) abort
+  return get(self.suite_descriptions, a:entry, '')
 endfunction
 
 function! s:bundle.get_style() abort
@@ -98,8 +98,8 @@ function! s:bundle.is_empty() abort
   return empty(self.test_entries) && empty(self.children)
 endfunction
 
-function! s:bundle.run_test(name) abort
-  call self.suite[a:name]()
+function! s:bundle.run_test(entry) abort
+  call self.suite[a:entry]()
 endfunction
 
 function! themis#bundle#new(...) abort
