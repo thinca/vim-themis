@@ -239,11 +239,11 @@ function! s:append_rtp(path) abort
   if isdirectory(a:path)
     let path = substitute(a:path, '\\\+', '/', 'g')
     let path = substitute(path, '/$', '', 'g')
-    let &runtimepath = escape(path, '\,') . ',' . &runtimepath
+    let &runtimepath = escape(path, ',') . ',' . &runtimepath
     let appended += [path]
     let after = path . '/after'
     if isdirectory(after)
-      let &runtimepath .= ',' . after
+      let &runtimepath .= ',' . escape(after, ',')
       let appended += [after]
     endif
   endif
