@@ -33,14 +33,17 @@ function! s:Runner.start(paths, options) abort
 
     call s:load_plugins(options.runtimepath)
 
+    let reporter = themis#module#reporter(options.reporter)
+    call self.add_event(reporter)
+
     let files = self.get_target_files(paths, options)
     let bundle = self.load_bundle_from_files(files)
+    if !themis#bundle#is_bundle(bundle)
+      return 1
+    endif
 
     let target_pattern = join(a:options.target, '\m\|')
     call bundle.select_tests_recursive(target_pattern)
-
-    let reporter = themis#module#reporter(options.reporter)
-    call self.add_event(reporter)
     return self.run(bundle)
   finally
     let &runtimepath = save_runtimepath
@@ -77,6 +80,7 @@ function! s:Runner.load_bundle_from_files(files) abort
     call self.emit('script_loaded', self)
   catch
     call self.on_error('script loading', v:exception, v:throwpoint)
+    return {}
   endtry
   return bundle
 endfunction
