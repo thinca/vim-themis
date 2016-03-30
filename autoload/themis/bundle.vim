@@ -122,7 +122,7 @@ endfunction
 
 function! themis#bundle#is_bundle(obj) abort
   return type(a:obj) == type({}) &&
-  \   get(a:obj, 'run_test') is s:Bundle.run_test
+  \   get(a:obj, 'run_test') is get(s:Bundle, 'run_test')
 endfunction
 
 call themis#func_alias({'themis/Bundle': s:Bundle})
