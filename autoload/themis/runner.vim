@@ -6,9 +6,9 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-let s:runner = {}
+let s:Runner = {}
 
-function! s:runner.init() abort
+function! s:Runner.init() abort
   let self._emitter = themis#emitter#new()
   let self._supporters = {}
   let self._styles = {}
@@ -21,7 +21,7 @@ function! s:runner.init() abort
   call self.add_event(style_event)
 endfunction
 
-function! s:runner.start(paths, options) abort
+function! s:Runner.start(paths, options) abort
   try
     let save_runtimepath = &runtimepath
 
@@ -46,7 +46,7 @@ function! s:runner.start(paths, options) abort
   endtry
 endfunction
 
-function! s:runner.get_target_files(paths, options) abort
+function! s:Runner.get_target_files(paths, options) abort
   let files = s:paths2files(a:paths, a:options.recursive)
 
   let exclude_options = filter(copy(a:options.exclude), '!empty(v:val)')
@@ -57,7 +57,7 @@ function! s:runner.get_target_files(paths, options) abort
   return files
 endfunction
 
-function! s:runner.load_plugins(runtimepaths) abort
+function! s:Runner.load_plugins(runtimepaths) abort
   let appended = [getcwd()]
   if !empty(a:runtimepaths)
     for rtp in a:runtimepaths
@@ -71,7 +71,7 @@ function! s:runner.load_plugins(runtimepaths) abort
   endfor
 endfunction
 
-function! s:runner.load_bundle_from_files(files) abort
+function! s:Runner.load_bundle_from_files(files) abort
   let files_with_styles = {}
   for file in a:files
     let style = s:can_handle(values(self._styles), file)
@@ -94,7 +94,7 @@ function! s:runner.load_bundle_from_files(files) abort
   return bundle
 endfunction
 
-function! s:runner.run(bundle, reporter) abort
+function! s:Runner.run(bundle, reporter) abort
   let stats = self.supporter('stats')
   call self.add_event(a:reporter)
   call self.emit('init', self, a:bundle)
@@ -111,7 +111,7 @@ function! s:runner.run(bundle, reporter) abort
   return error_count
 endfunction
 
-function! s:runner.load_scripts(files_with_styles, target_bundle) abort
+function! s:Runner.load_scripts(files_with_styles, target_bundle) abort
   for [filename, style_name] in items(a:files_with_styles)
     if !filereadable(filename)
       throw printf('themis: Target file was not found: %s', filename)
@@ -125,13 +125,13 @@ function! s:runner.load_scripts(files_with_styles, target_bundle) abort
   endfor
 endfunction
 
-function! s:runner.run_all(bundle) abort
+function! s:Runner.run_all(bundle) abort
   call self.emit('start', self)
   call self.run_bundle(a:bundle)
   call self.emit('end', self)
 endfunction
 
-function! s:runner.run_bundle(bundle) abort
+function! s:Runner.run_bundle(bundle) abort
   let test_entries = a:bundle.get_test_entries()
   call self.emit('before_suite', a:bundle)
   call self.run_suite(a:bundle, test_entries)
@@ -141,14 +141,14 @@ function! s:runner.run_bundle(bundle) abort
   call self.emit('after_suite', a:bundle)
 endfunction
 
-function! s:runner.run_suite(bundle, test_entries) abort
+function! s:Runner.run_suite(bundle, test_entries) abort
   for entry in a:test_entries
     call self.emit('start_test', a:bundle, entry)
     call self.run_test(a:bundle, entry)
   endfor
 endfunction
 
-function! s:runner.run_test(bundle, test_entry) abort
+function! s:Runner.run_test(bundle, test_entry) abort
   let report = themis#report#new(a:bundle, a:test_entry)
   try
     call self.emit_before_test(a:bundle, a:test_entry)
@@ -165,41 +165,41 @@ function! s:runner.run_test(bundle, test_entry) abort
   endtry
 endfunction
 
-function! s:runner.emit_before_test(bundle, test_entry) abort
+function! s:Runner.emit_before_test(bundle, test_entry) abort
   if has_key(a:bundle, 'parent')
     call self.emit_before_test(a:bundle.parent, a:test_entry)
   endif
   call self.emit('before_test', a:bundle, a:test_entry)
 endfunction
 
-function! s:runner.emit_after_test(bundle, test_entry) abort
+function! s:Runner.emit_after_test(bundle, test_entry) abort
   call self.emit('after_test', a:bundle, a:test_entry)
   if has_key(a:bundle, 'parent')
     call self.emit_after_test(a:bundle.parent, a:test_entry)
   endif
 endfunction
 
-function! s:runner.supporter(name) abort
+function! s:Runner.supporter(name) abort
   if !has_key(self._supporters, a:name)
     let self._supporters[a:name] = themis#module#supporter(a:name, self)
   endif
   return self._supporters[a:name]
 endfunction
 
-function! s:runner.add_event(listener) abort
+function! s:Runner.add_event(listener) abort
   call self._emitter.add_listener(a:listener)
 endfunction
 
-function! s:runner.total_test_count(bundle) abort
+function! s:Runner.total_test_count(bundle) abort
   return len(a:bundle.get_test_entries())
   \    + s:sum(map(copy(a:bundle.children), 'self.total_test_count(v:val)'))
 endfunction
 
-function! s:runner.emit(name, ...) abort
+function! s:Runner.emit(name, ...) abort
   call call(self._emitter.emit, [a:name] + a:000, self._emitter)
 endfunction
 
-function! s:runner.on_error(phase, exception, throwpoint) abort
+function! s:Runner.on_error(phase, exception, throwpoint) abort
   let phase = self._emitter.emitting()
   if phase ==# ''
     let phase = a:phase
@@ -304,12 +304,12 @@ function! s:sum(list) abort
 endfunction
 
 function! themis#runner#new() abort
-  let runner = deepcopy(s:runner)
+  let runner = deepcopy(s:Runner)
   call runner.init()
   return runner
 endfunction
 
-call themis#func_alias({'themis/Runner': s:runner})
+call themis#func_alias({'themis/Runner': s:Runner})
 
 
 let &cpo = s:save_cpo
