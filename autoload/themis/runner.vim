@@ -118,9 +118,11 @@ function! s:Runner.run_all(bundle) abort
 endfunction
 
 function! s:Runner.run_bundle(bundle) abort
-  let test_entries = a:bundle.get_test_entries()
+  if a:bundle.is_empty()
+    return
+  endif
   call self.emit('before_suite', a:bundle)
-  call self.run_suite(a:bundle, test_entries)
+  call self.run_suite(a:bundle, a:bundle.get_test_entries())
   for child in a:bundle.children
     call self.run_bundle(child)
   endfor
