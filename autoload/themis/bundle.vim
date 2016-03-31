@@ -46,6 +46,14 @@ function! s:Bundle.get_style() abort
   return {}
 endfunction
 
+function! s:Bundle.has_parent() abort
+  return has_key(self, 'parent')
+endfunction
+
+function! s:Bundle.get_parent() abort
+  return get(self, 'parent', {})
+endfunction
+
 function! s:Bundle.add_child(bundle) abort
   if has_key(a:bundle, 'parent')
     call a:bundle.parent.remove_child(a:bundle)
