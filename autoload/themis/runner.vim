@@ -149,10 +149,14 @@ function! s:Runner.run_test(bundle, test_entry) abort
     let end_time = reltime(start_time)
     let report.result = 'pass'
     let report.time = str2float(reltimestr(end_time))
-    call self.emit_after_test(a:bundle, a:test_entry)
   catch
     call s:test_fail(report, v:exception, v:throwpoint)
   finally
+    try
+      call self.emit_after_test(a:bundle, a:test_entry)
+    catch
+      call s:test_fail(report, v:exception, v:throwpoint)
+    endtry
     call self.emit(report.result, report)
   endtry
 endfunction
