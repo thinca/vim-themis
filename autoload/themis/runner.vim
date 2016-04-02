@@ -161,6 +161,8 @@ function! s:Runner.run_test(bundle, test_entry) abort
   endtry
 endfunction
 
+" FIXME: a:bundle may not have a:test_entry.
+" Should I pass the original bundle?
 function! s:Runner.emit_before_test(bundle, test_entry) abort
   if has_key(a:bundle, 'parent')
     call self.emit_before_test(a:bundle.parent, a:test_entry)
