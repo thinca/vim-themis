@@ -30,6 +30,9 @@ function! s:parse_describe(tokens, lnum, context_stack, scope_id) abort
   \   printf('function! %s() abort', funcname),
   \   printf('let s:themis_vimspec_bundles += [%s]', bundle_new),
   \   'let s:themis_vimspec_bundles[-1]._vimspec_hooks = {}',
+  \   'function! s:themis_vimspec_bundles[-1]._vimspec_hooks.start_test()',
+  \   printf('  call s:themis_vimspec_scopes.push({}, 0, %d)', a:scope_id),
+  \   'endfunction',
   \ ]
 endfunction
 
@@ -42,7 +45,7 @@ function! s:parse_example(tokens, lnum, context_stack, func_id) abort
     throw printf('vimspec:%d::%s must put on :describe or :context block',
     \            a:lnum, command)
   endif
-  let scope_id = a:context_stack[-1][3]
+  let scope_id = 0
   call add(a:context_stack, ['example', a:lnum])
   let bundle_var = 's:themis_vimspec_bundles'
   let scope_var = 's:themis_vimspec_scopes'
@@ -69,8 +72,8 @@ function! s:parse_hook(tokens, lnum, context_stack) abort
     throw printf('vimspec:%d:Invalid argument for "%s"', a:lnum, command)
   endif
   let hook_point = printf('%s_%s', tolower(command), timing)
-  let scope_id = a:context_stack[-1][3]
-  call add(a:context_stack, ['hook', a:lnum])
+  let scope_id = timing ==# 'each' ? 0 : a:context_stack[-1][3]
+  call add(a:context_stack, ['hook', a:lnum, timing])
   let bundle_var = 's:themis_vimspec_bundles'
   let scope_var = 's:themis_vimspec_scopes'
   return [
@@ -103,7 +106,8 @@ function! s:parse_end(tokens, lnum, context_stack) abort
     \   printf('call %s()', funcname),
     \ ]
   elseif context ==# 'hook'
-    let scope_id = a:context_stack[-1][3]
+    let timing = rest[0]
+    let scope_id = timing ==# 'each' ? 0 : a:context_stack[-1][3]
     return [
     \   printf('call s:themis_vimspec_scopes.back(%d, l:)', scope_id),
     \   'endfunction',
@@ -120,8 +124,8 @@ function! s:translate_script(lines) abort
   \   'let s:themis_vimspec_scopes = themis#style#vimspec#new_scope()',
   \ ]
   let context_stack = []
-  let current_func_id = 0
-  let current_scope_id = 0
+  let current_func_id = 1
+  let current_scope_id = 1  " scope_id = 0 is special value for a test scope
   let lnum = 0
 
   for line in a:lines
@@ -205,7 +209,7 @@ endfunction
 
 function! s:ScopeKeeper.extend(val) abort
    return join([
-   \   printf('for [s:__key, s:__val] in items(%s)', a:val),
+   \   printf('for [s:__key, s:__val] in items(deepcopy(%s))', a:val),
    \   '  let {s:__key} = s:__val',
    \   '  unlet s:__key s:__val',
    \   'endfor',
@@ -220,6 +224,10 @@ endfunction
 let s:event = {
 \   '_converted_files': []
 \ }
+
+function! s:event.start_test(bundle, entry) abort
+  call s:call_hook(a:bundle, 'start_test')
+endfunction
 
 function! s:event.before_suite(bundle) abort
   call s:call_hook(a:bundle, 'before_all')
