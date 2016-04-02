@@ -233,11 +233,11 @@ function! s:event.before_suite(bundle) abort
   call s:call_hook(a:bundle, 'before_all')
 endfunction
 
-function! s:event.before_test(bundle, name) abort
+function! s:event.before_test(bundle, entry) abort
   call s:call_hook(a:bundle, 'before_each')
 endfunction
 
-function! s:event.after_test(bundle, name) abort
+function! s:event.after_test(bundle, entry) abort
   call s:call_hook(a:bundle, 'after_each')
 endfunction
 

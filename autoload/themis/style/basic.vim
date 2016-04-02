@@ -38,7 +38,7 @@ function! s:event.before_suite(bundle) abort
   endif
 endfunction
 
-function! s:event.before_test(bundle, name) abort
+function! s:event.before_test(bundle, entry) abort
   if has_key(a:bundle.suite, 'before_each')
     call a:bundle.suite.before_each()
   endif
@@ -50,7 +50,7 @@ function! s:event.after_suite(bundle) abort
   endif
 endfunction
 
-function! s:event.after_test(bundle, name) abort
+function! s:event.after_test(bundle, entry) abort
   if has_key(a:bundle.suite, 'after_each')
     call a:bundle.suite.after_each()
   endif
