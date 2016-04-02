@@ -42,7 +42,7 @@ function! s:parse_example(tokens, lnum, context_stack, func_id) abort
     throw printf('vimspec:%d::%s must put on :describe or :context block',
     \            a:lnum, command)
   endif
-  let scope = a:context_stack[-1][3]
+  let scope_id = a:context_stack[-1][3]
   call add(a:context_stack, ['example', a:lnum])
   let bundle_var = 's:themis_vimspec_bundles'
   let scope_var = 's:themis_vimspec_scopes'
@@ -52,7 +52,7 @@ function! s:parse_example(tokens, lnum, context_stack, func_id) abort
   \   printf('function! %s[-1].suite.T_%05d() abort',
   \           bundle_var, a:func_id),
   \   printf('execute %s.extend("%s.scope(%d)")',
-  \           scope_var, scope_var, scope),
+  \           scope_var, scope_var, scope_id),
   \ ]
 endfunction
 
@@ -69,7 +69,7 @@ function! s:parse_hook(tokens, lnum, context_stack) abort
     throw printf('vimspec:%d:Invalid argument for "%s"', a:lnum, command)
   endif
   let hook_point = printf('%s_%s', tolower(command), timing)
-  let scope = a:context_stack[-1][3]
+  let scope_id = a:context_stack[-1][3]
   call add(a:context_stack, ['hook', a:lnum])
   let bundle_var = 's:themis_vimspec_bundles'
   let scope_var = 's:themis_vimspec_scopes'
@@ -77,7 +77,7 @@ function! s:parse_hook(tokens, lnum, context_stack) abort
   \   printf('function! %s[-1]._vimspec_hooks.%s() abort',
   \           bundle_var, hook_point),
   \   printf('execute %s.extend("%s.scope(%d)")',
-  \           scope_var, scope_var, scope),
+  \           scope_var, scope_var, scope_id),
   \ ]
 endfunction
 
@@ -103,9 +103,9 @@ function! s:parse_end(tokens, lnum, context_stack) abort
     \   printf('call %s()', funcname),
     \ ]
   elseif context ==# 'hook'
-    let scope = a:context_stack[-1][3]
+    let scope_id = a:context_stack[-1][3]
     return [
-    \   printf('call s:themis_vimspec_scopes.back(%d, l:)', scope),
+    \   printf('call s:themis_vimspec_scopes.back(%d, l:)', scope_id),
     \   'endfunction',
     \ ]
   elseif context ==# 'example'
@@ -180,8 +180,8 @@ function! s:ScopeKeeper.push(scope, scope_id, parent) abort
   let self.scopes[a:scope_id] = {'scope': a:scope, 'parent': a:parent}
 endfunction
 
-function! s:ScopeKeeper.back(id, back_scope) abort
-  let scope = self.scopes[a:id].scope
+function! s:ScopeKeeper.back(scope_id, back_scope) abort
+  let scope = self.scopes[a:scope_id].scope
   for [k, Val] in items(a:back_scope)
     if k !=# 'self'
       let scope[k] = Val
@@ -190,12 +190,12 @@ function! s:ScopeKeeper.back(id, back_scope) abort
   endfor
 endfunction
 
-function! s:ScopeKeeper.scope(id) abort
+function! s:ScopeKeeper.scope(scope_id) abort
   let all = {}
-  let id = a:id
-  while has_key(self.scopes, id)
-    call extend(all, self.scopes[id].scope, 'keep')
-    let id = self.scopes[id].parent
+  let scope_id = a:scope_id
+  while has_key(self.scopes, scope_id)
+    call extend(all, self.scopes[scope_id].scope, 'keep')
+    let scope_id = self.scopes[scope_id].parent
   endwhile
   if has_key(all, 'self')
     call remove(all, 'self')
