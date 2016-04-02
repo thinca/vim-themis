@@ -72,7 +72,13 @@ function! s:Bundle.get_child(title) abort
 endfunction
 
 function! s:Bundle.remove_child(child) abort
-  call filter(self.children, 'v:val isnot a:child')
+  for i in range(len(self.children))
+    if self.children[i] is a:child
+      call remove(a:child, 'parent')
+      call remove(self.children, i)
+      break
+    endif
+  endfor
 endfunction
 
 function! s:Bundle.total_test_count() abort
