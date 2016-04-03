@@ -94,7 +94,9 @@ function! s:Bundle.get_test_entries() abort
 endfunction
 
 function! s:Bundle.select_tests_recursive(pattern) abort
-  call filter(self.children, 'v:val.select_tests_recursive(a:pattern)')
+  for child in self.children
+    call child.select_tests_recursive(a:pattern)
+  endfor
   call self.select_tests(a:pattern)
   return !self.is_empty()
 endfunction
@@ -114,7 +116,7 @@ function! s:Bundle.all_test_entries() abort
 endfunction
 
 function! s:Bundle.is_empty() abort
-  return empty(self.get_test_entries()) && empty(self.children)
+  return self.total_test_count() == 0
 endfunction
 
 function! s:Bundle.run_test(entry) abort
