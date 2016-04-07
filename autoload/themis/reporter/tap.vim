@@ -27,14 +27,14 @@ function! s:reporter.fail(report) abort
   let title = a:report.get_full_title()
   let mes = printf('not ok %d - %s', self.stats.count(), title)
   call themis#log(mes)
-  call s:print_message(a:report.message)
+  call s:print_message(a:report.get_message())
 endfunction
 
 function! s:reporter.pending(report) abort
   let title = a:report.get_full_title()
   let mes = printf('ok %d - %s # SKIP', self.stats.count(), title)
   call themis#log(mes)
-  call s:print_message(a:report.message)
+  call s:print_message(a:report.get_message())
 endfunction
 
 function! s:reporter.error(phase, info) abort

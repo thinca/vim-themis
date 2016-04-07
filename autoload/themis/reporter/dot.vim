@@ -61,7 +61,7 @@ endfunction
 
 function! s:print_report(n, report) abort
   call themis#log(printf('%3d) %s', a:n, a:report.get_full_title()))
-  call themis#log(map(split(a:report.message, "\n"), '"     " . v:val'))
+  call themis#log(map(split(a:report.get_message(), "\n"), '"     " . v:val'))
 endfunction
 
 function! themis#reporter#dot#new() abort

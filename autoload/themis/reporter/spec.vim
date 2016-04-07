@@ -47,12 +47,12 @@ endfunction
 
 function! s:reporter.fail(report) abort
   call self.print(printf('[%s] %s', s:fail_symbol, a:report.get_title()))
-  call self.print(a:report.message, '    ')
+  call self.print(a:report.get_message(), '    ')
 endfunction
 
 function! s:reporter.pending(report) abort
   call self.print(printf('[-] %s', a:report.get_title()))
-  call self.print(a:report.message, '    ')
+  call self.print(a:report.get_message(), '    ')
 endfunction
 
 function! s:reporter.error(phase, info) abort
