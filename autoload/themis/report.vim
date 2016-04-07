@@ -19,17 +19,17 @@ function! s:report.get_full_title() abort
 endfunction
 
 function! s:report.get_title() abort
-  return self.parent.get_test_title(self.name)
+  return self.parent.get_test_title(self.entry)
 endfunction
 
 function! s:report.get_message() abort
   return get(self, 'message', '')
 endfunction
 
-function! themis#report#new(bundle, name) abort
+function! themis#report#new(bundle, entry) abort
   let report = deepcopy(s:report)
   let report.parent = a:bundle
-  let report.name = a:name
+  let report.entry = a:entry
   return report
 endfunction
 
