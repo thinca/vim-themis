@@ -150,12 +150,12 @@ function! s:Runner.run_test(bundle, test_entry) abort
     let report.result = 'pass'
     let report.time = str2float(reltimestr(end_time))
   catch
-    call s:test_fail(report, v:exception, v:throwpoint)
+    call report.add_exception(v:exception, v:throwpoint)
   finally
     try
       call self.emit_after_test(a:bundle, a:test_entry)
     catch
-      call s:test_fail(report, v:exception, v:throwpoint)
+      call report.add_exception(v:exception, v:throwpoint)
     endtry
     call self.emit(report.result, report)
   endtry
@@ -224,25 +224,6 @@ function! s:style_event._(event, args) abort
         call themis#emitter#fire(style.event, a:event, a:args)
       endif
     endfor
-  endif
-endfunction
-
-function! s:test_fail(report, exception, throwpoint) abort
-  if a:exception =~? '^themis:\_s*report:'
-    let result = matchstr(a:exception, '\c^themis:\_s*report:\_s*\zs.*')
-    let [a:report.type, a:report.message] =
-    \   matchlist(result, '\v^%((\w+):\s*)?(.*)')[1 : 2]
-  else
-    let callstack = themis#util#callstacklines(a:throwpoint, -1)
-    " TODO: More info to report
-    let a:report.exception = a:exception
-    let a:report.message = join(callstack, "\n") . "\n" . a:exception
-  endif
-
-  if get(a:report, 'type', '') =~# '^\u\+$'
-    let a:report.result = 'pending'
-  else
-    let a:report.result = 'fail'
   endif
 endfunction
 
