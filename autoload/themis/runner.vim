@@ -152,11 +152,7 @@ function! s:Runner.run_test(bundle, test_entry) abort
   catch
     call report.add_exception(v:exception, v:throwpoint)
   finally
-    try
-      call self.emit_after_test(a:bundle, a:test_entry)
-    catch
-      call report.add_exception(v:exception, v:throwpoint)
-    endtry
+    call self.emit_after_test(a:bundle, a:test_entry, report)
     call self.emit(report.result, report)
   endtry
 endfunction
@@ -170,10 +166,14 @@ function! s:Runner.emit_before_test(bundle, test_entry) abort
   call self.emit('before_test', a:bundle, a:test_entry)
 endfunction
 
-function! s:Runner.emit_after_test(bundle, test_entry) abort
-  call self.emit('after_test', a:bundle, a:test_entry)
+function! s:Runner.emit_after_test(bundle, test_entry, report) abort
+  try
+    call self.emit('after_test', a:bundle, a:test_entry)
+  catch
+    call a:report.add_exception(v:exception, v:throwpoint)
+  endtry
   if has_key(a:bundle, 'parent')
-    call self.emit_after_test(a:bundle.parent, a:test_entry)
+    call self.emit_after_test(a:bundle.parent, a:test_entry, a:report)
   endif
 endfunction
 
