@@ -109,7 +109,10 @@ function! themis#util#stack_info(stack) abort
   let info = deepcopy(s:StackInfo)
   let info.stack = a:stack
 
-  let patterns = ['^\(.\+\),.\{-}\(\d\+\)', '^\(.\{-}\)\[\(\d\+\)\]$']
+  let patterns = [
+  \   '^\([^, ]\+\),\? .\{-}\(\d\+\)',
+  \   '^\(.\{-}\)\[\(\d\+\)\]$',
+  \ ]
   for pat in patterns
     let matched = matchlist(a:stack, pat)
     if !empty(matched)
