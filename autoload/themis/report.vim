@@ -16,11 +16,11 @@ function! s:Report.is_success() abort
 endfunction
 
 function! s:Report.get_full_title() abort
-  return self.parent.get_test_full_title(self.entry)
+  return self.bundle.get_test_full_title(self.entry)
 endfunction
 
 function! s:Report.get_title() abort
-  return self.parent.get_test_title(self.entry)
+  return self.bundle.get_test_title(self.entry)
 endfunction
 
 function! s:Report.get_message() abort
@@ -54,7 +54,7 @@ endfunction
 
 function! themis#report#new(bundle, entry) abort
   let report = deepcopy(s:Report)
-  let report.parent = a:bundle
+  let report.bundle = a:bundle
   let report.entry = a:entry
   return report
 endfunction
