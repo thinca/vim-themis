@@ -24,7 +24,7 @@ function! s:Report.get_title() abort
 endfunction
 
 function! s:Report.get_message() abort
-  return join(map(copy(self.exceptions), 'v:val.message'), "\n\n")
+  return join(map(copy(self.exceptions), 'v:val.message'), "\n---\n")
 endfunction
 
 function! s:Report.add_exception(exception, throwpoint) abort
@@ -35,7 +35,7 @@ function! s:Report.add_exception(exception, throwpoint) abort
     \   matchlist(result, '\v^%((\w+):\s*)?(.*)')[1 : 2]
   else
     let type = 'error'
-    let message = join(callstack, "\n") . "\n" . a:exception
+    let message = join(callstack, "\n") . "\n\n" . a:exception
   endif
   let self.exceptions += [{
   \   'type': type,
