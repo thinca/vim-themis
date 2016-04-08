@@ -16,7 +16,7 @@ function! s:Report.is_success() abort
 endfunction
 
 function! s:Report.get_full_title() abort
-  return themis#util#get_full_title(self)
+  return self.parent.get_test_full_title(self.entry)
 endfunction
 
 function! s:Report.get_title() abort
