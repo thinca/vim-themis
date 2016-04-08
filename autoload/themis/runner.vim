@@ -153,6 +153,7 @@ function! s:Runner.run_test(bundle, test_entry) abort
     call report.add_exception(v:exception, v:throwpoint)
   finally
     call self.emit_after_test(a:bundle, a:test_entry, report)
+    call self.emit('end_test', report)
     call self.emit(report.result, report)
   endtry
 endfunction
