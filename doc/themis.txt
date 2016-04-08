@@ -28,6 +28,7 @@ HELPER				|themis-helper|
 REPORTER			|themis-reporter|
 TEST RULE			|themis-test-rule|
   EXCEPTION			  |themis-rule-exception|
+  VIM BUILTIN ASSERT		  |themis-rule-builtin-assert|
 CHANGELOG			|themis-changelog|
 
 
@@ -961,6 +962,25 @@ Some specialized patterns are processed by themis.
 	themis: report: {type}: {message}
 <
 When all characters of {type} are uppercase, a test treated as "pending".
+
+
+------------------------------------------------------------------------------
+VIM BUILTIN ASSERT				*themis-rule-builtin-assert*
+
+Some assertion functions were added after Vim 7.4.944.
+
+- |assert_equal()|
+- |assert_notequal()|
+- |assert_match()|
+- |assert_notmatch()|
+- |assert_true()|
+- |assert_false()|
+- |assert_exception()|
+- |assert_fails()|
+
+themis.vim handles these functions.  You can use these for test.
+Note that these functions do not throw an exception, so a test does not stop
+when assertion fails.
 
 
 

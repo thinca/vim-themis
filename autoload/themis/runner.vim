@@ -101,6 +101,7 @@ endfunction
 
 function! s:Runner.run(bundle) abort
   let stats = self.supporter('stats')
+  call self.supporter('builtin_assert')
   call self.emit('init', self, a:bundle)
   let error_count = 0
   try
