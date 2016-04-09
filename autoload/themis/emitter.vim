@@ -1,5 +1,5 @@
 " themis: Event Emitter
-" Version: 1.5.1dev
+" Version: 1.5.2
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 

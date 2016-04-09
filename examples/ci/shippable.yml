@@ -2,7 +2,7 @@
 install: true
 
 before_script:
-  - git clone https://github.com/thinca/vim-themis --quiet --branch v1.5.1 --single-branch --depth 1 /tmp/vim-themis
+  - git clone https://github.com/thinca/vim-themis --quiet --branch v1.5.2 --single-branch --depth 1 /tmp/vim-themis
 
 script:
   - vim --version
