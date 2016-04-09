@@ -5,9 +5,8 @@ function! s:hook.before() abort
 endfunction
 
 function! s:hook.before_each() abort
-  call self.runner.init_bundle()
-  let self.bundle = self.runner.add_new_bundle('sample')
-  let self.bundle.style_name = 'basic'
+  let self.bundle = themis#bundle#new('sample')
+  let self.bundle.style = themis#module#style('basic')
   let self.suite = self.bundle.suite
   let self.suite.called = []
 endfunction
@@ -34,7 +33,7 @@ function! s:hook.is_called_in_order() abort
 
   Assert HasKey(self.suite, 'called')
   Assert Equals(self.suite.called, [])
-  call self.runner.run_all()
+  call self.runner.run(self.bundle)
   Assert Equals(self.suite.called,
   \ [
   \   'before',
@@ -89,7 +88,7 @@ function! s:hook.with_parent_is_called_in_order() abort
 
   Assert HasKey(self.suite, 'called')
   Assert Equals(self.suite.called, [])
-  call self.runner.run_all()
+  call self.runner.run(self.bundle)
   Assert Equals(self.suite.called,
   \ [
   \   'parent_before',

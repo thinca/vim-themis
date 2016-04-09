@@ -1,5 +1,5 @@
 " themis: reporter: Report with xUnit style.
-" Version: 1.5.1
+" Version: 1.5.2
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
@@ -8,7 +8,7 @@ set cpo&vim
 
 let s:reporter = {}
 
-function! s:reporter.init(runner) abort
+function! s:reporter.init(runner, root_bundle) abort
   let self.stats = a:runner.supporter('stats')
   let self.pending_list = []
   let self.failure_list = []
@@ -61,7 +61,7 @@ endfunction
 
 function! s:print_report(n, report) abort
   call themis#log(printf('%3d) %s', a:n, a:report.get_full_title()))
-  call themis#log(map(split(a:report.message, "\n"), '"     " . v:val'))
+  call themis#log(map(split(a:report.get_message(), "\n"), '"     " . v:val'))
 endfunction
 
 function! themis#reporter#dot#new() abort

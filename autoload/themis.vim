@@ -1,5 +1,5 @@
 " A testing framework for Vim script.
-" Version: 1.5.1
+" Version: 1.5.2
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
@@ -16,7 +16,7 @@ endif
 
 let g:themis#vital = vital#of('themis')
 
-let s:version = '1.5.1'
+let s:version = '1.5.2'
 
 function! themis#version() abort
   return s:version
@@ -26,7 +26,7 @@ function! themis#run(paths, ...) abort
   let s:current_runner = themis#runner#new()
   try
     let options = get(a:000, 0, themis#option#empty_options())
-    return s:current_runner.run(a:paths, options)
+    return s:current_runner.start(a:paths, options)
   finally
     unlet! s:current_runner
   endtry
@@ -41,8 +41,26 @@ function! s:runner() abort
   return s:current_runner
 endfunction
 
+function! s:base_bundle() abort
+  if !exists('s:base_bundle')
+    throw 'themis: Does not ready the base bundle.'
+  endif
+  return s:base_bundle
+endfunction
+
+function! themis#_set_base_bundle(bundle) abort
+  let s:base_bundle = a:bundle
+endfunction
+
+function! themis#_unset_base_bundle() abort
+  unlet! s:base_bundle
+endfunction
+
 function! themis#bundle(title) abort
-  return s:runner().add_new_bundle(a:title)
+  let base_bundle = s:base_bundle()
+  let new_bundle = themis#bundle#new(a:title)
+  call base_bundle.add_child(new_bundle)
+  return new_bundle
 endfunction
 
 function! themis#suite(...) abort

@@ -1,6 +1,6 @@
 *themis.txt*	A testing framework for Vim script.
 
-Version: 1.5.1
+Version: 1.5.2
 Author : thinca <thinca+vim@gmail.com>
 License: zlib License
 
@@ -28,6 +28,7 @@ HELPER				|themis-helper|
 REPORTER			|themis-reporter|
 TEST RULE			|themis-test-rule|
   EXCEPTION			  |themis-rule-exception|
+  VIM BUILTIN ASSERT		  |themis-rule-builtin-assert|
 CHANGELOG			|themis-changelog|
 
 
@@ -963,9 +964,33 @@ Some specialized patterns are processed by themis.
 When all characters of {type} are uppercase, a test treated as "pending".
 
 
+------------------------------------------------------------------------------
+VIM BUILTIN ASSERT				*themis-rule-builtin-assert*
+
+Some assertion functions were added after Vim 7.4.944.
+
+- |assert_equal()|
+- |assert_notequal()|
+- |assert_match()|
+- |assert_notmatch()|
+- |assert_true()|
+- |assert_false()|
+- |assert_exception()|
+- |assert_fails()|
+
+themis.vim handles these functions.  You can use these for test.
+Note that these functions do not throw an exception, so a test does not stop
+when assertion fails.
+
+
 
 ==============================================================================
 CHANGELOG					*themis-changelog*
+
+1.5.2	2016-04-09
+	- Refactoring.
+	- Add more test for themis itself.
+	- Support Vim builtin assert functions.
 
 1.5.1	2016-03-23
 	- Add workaround for Vim 7.4.1068

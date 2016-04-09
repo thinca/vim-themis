@@ -1,5 +1,5 @@
 " themis: reporter: Report with TAP(Test Anything Protocol).
-" Version: 1.5.1
+" Version: 1.5.2
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
@@ -8,12 +8,13 @@ set cpo&vim
 
 let s:reporter = {}
 
-function! s:reporter.init(runner) abort
+function! s:reporter.init(runner, root_bundle) abort
   let self.stats = a:runner.supporter('stats')
+  let self.root_bundle = a:root_bundle
 endfunction
 
 function! s:reporter.start(runner) abort
-  call themis#log('1..' . a:runner.total_test_count())
+  call themis#log('1..' . self.root_bundle.total_test_count())
 endfunction
 
 function! s:reporter.pass(report) abort
@@ -26,14 +27,14 @@ function! s:reporter.fail(report) abort
   let title = a:report.get_full_title()
   let mes = printf('not ok %d - %s', self.stats.count(), title)
   call themis#log(mes)
-  call s:print_message(a:report.message)
+  call s:print_message(a:report.get_message())
 endfunction
 
 function! s:reporter.pending(report) abort
   let title = a:report.get_full_title()
   let mes = printf('ok %d - %s # SKIP', self.stats.count(), title)
   call themis#log(mes)
-  call s:print_message(a:report.message)
+  call s:print_message(a:report.get_message())
 endfunction
 
 function! s:reporter.error(phase, info) abort

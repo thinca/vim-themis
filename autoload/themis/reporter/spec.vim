@@ -1,5 +1,5 @@
 " themis: reporter: Report with spec style.
-" Version: 1.5.1
+" Version: 1.5.2
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
@@ -18,7 +18,7 @@ endif
 
 let s:reporter = {}
 
-function! s:reporter.init(runner) abort
+function! s:reporter.init(runner, root_bundle) abort
   let self.stats = a:runner.supporter('stats')
   let self.indent = 0
 endfunction
@@ -27,12 +27,18 @@ function! s:reporter.start(runner) abort
 endfunction
 
 function! s:reporter.before_suite(bundle) abort
-  call self.print(a:bundle.get_title())
-  let self.indent += 1
+  let title = a:bundle.get_title()
+  if title !=# ''
+    call self.print(title)
+    let self.indent += 1
+  endif
 endfunction
 
 function! s:reporter.after_suite(bundle) abort
-  let self.indent -= 1
+  let title = a:bundle.get_title()
+  if title !=# ''
+    let self.indent -= 1
+  endif
 endfunction
 
 function! s:reporter.pass(report) abort
@@ -41,12 +47,12 @@ endfunction
 
 function! s:reporter.fail(report) abort
   call self.print(printf('[%s] %s', s:fail_symbol, a:report.get_title()))
-  call self.print(a:report.message, '    ')
+  call self.print(a:report.get_message(), '    ')
 endfunction
 
 function! s:reporter.pending(report) abort
   call self.print(printf('[-] %s', a:report.get_title()))
-  call self.print(a:report.message, '    ')
+  call self.print(a:report.get_message(), '    ')
 endfunction
 
 function! s:reporter.error(phase, info) abort

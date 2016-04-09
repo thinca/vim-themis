@@ -1,5 +1,5 @@
 " themis: supporter: stats: Record test stats.
-" Version: 1.5.1
+" Version: 1.5.2
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
@@ -7,16 +7,14 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 
-let s:supporter = {'receiver': {}}
-let s:receiver = s:supporter.receiver
+let s:receiver = {
+\   '_count': 0,
+\   '_passes': 0,
+\   '_failures': 0,
+\   '_pendings': 0,
+\ }
+let s:supporter = {'receiver': s:receiver}
 
-
-function! s:receiver.init(runner) abort
-  let self._count = 0
-  let self._passes = 0
-  let self._failures = 0
-  let self._pendings = 0
-endfunction
 
 function! s:receiver.start_test(bundle, title) abort
   let self._count += 1
