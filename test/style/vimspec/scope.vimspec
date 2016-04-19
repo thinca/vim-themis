@@ -50,6 +50,22 @@ Describe vimspec-style
       End
     End
 
+    Describe between before each block and body
+      Before
+        let s:dict = {}
+        let dict = s:dict
+      End
+
+      After
+        unlet s:dict
+      End
+
+      It shares the variable instance
+        let sd = s:dict
+        Assert Same(dict, sd)
+      End
+    End
+
     Describe the execution order of nested contexts
       Before all
         let list = [1]
