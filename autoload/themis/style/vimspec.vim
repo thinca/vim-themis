@@ -31,7 +31,7 @@ function! s:parse_describe(tokens, lnum, context_stack, scope_id) abort
   \   printf('let s:themis_vimspec_bundles += [%s]', bundle_new),
   \   'let s:themis_vimspec_bundles[-1]._vimspec_hooks = {}',
   \   'function! s:themis_vimspec_bundles[-1]._vimspec_hooks.start_test()',
-  \   printf('  call s:themis_vimspec_scopes.push({}, 0, %d)', a:scope_id),
+  \   printf('  call s:themis_vimspec_scopes.tmp_scope(%d)', a:scope_id),
   \   'endfunction',
   \ ]
 endfunction
@@ -54,7 +54,7 @@ function! s:parse_example(tokens, lnum, context_stack, func_id) abort
   \           bundle_var, a:func_id, string(example)),
   \   printf('function! %s[-1].suite.T_%05d() abort',
   \           bundle_var, a:func_id),
-  \   printf('execute %s.extend("%s.scope(%d)")',
+  \   printf('execute %s.extend("%s.scope(%d)", 0)',
   \           scope_var, scope_var, scope_id),
   \ ]
 endfunction
@@ -72,15 +72,18 @@ function! s:parse_hook(tokens, lnum, context_stack) abort
     throw printf('vimspec:%d:Invalid argument for "%s"', a:lnum, command)
   endif
   let hook_point = printf('%s_%s', tolower(command), timing)
-  let scope_id = timing ==# 'each' ? 0 : a:context_stack[-1][3]
+  let [scope_id, copy] =
+  \   timing ==# 'each'
+  \     ? [0, 0]
+  \     : [a:context_stack[-1][3], 1]
   call add(a:context_stack, ['hook', a:lnum, timing])
   let bundle_var = 's:themis_vimspec_bundles'
   let scope_var = 's:themis_vimspec_scopes'
   return [
   \   printf('function! %s[-1]._vimspec_hooks.%s() abort',
   \           bundle_var, hook_point),
-  \   printf('execute %s.extend("%s.scope(%d)")',
-  \           scope_var, scope_var, scope_id),
+  \   printf('execute %s.extend("%s.scope(%d)", %d)',
+  \           scope_var, scope_var, scope_id, copy),
   \ ]
 endfunction
 
@@ -184,6 +187,10 @@ function! s:ScopeKeeper.push(scope, scope_id, parent) abort
   let self.scopes[a:scope_id] = {'scope': a:scope, 'parent': a:parent}
 endfunction
 
+function! s:ScopeKeeper.tmp_scope(from) abort
+  call self.push(deepcopy(self.scope(a:from)), 0, -1)
+endfunction
+
 function! s:ScopeKeeper.back(scope_id, back_scope) abort
   let scope = self.scopes[a:scope_id].scope
   for [k, Val] in items(a:back_scope)
@@ -207,9 +214,10 @@ function! s:ScopeKeeper.scope(scope_id) abort
   return all
 endfunction
 
-function! s:ScopeKeeper.extend(val) abort
+function! s:ScopeKeeper.extend(val, copy) abort
+  let val = a:copy ? printf('deepcopy(%s)', a:val) : a:val
    return join([
-   \   printf('for [s:__key, s:__val] in items(deepcopy(%s))', a:val),
+   \   printf('for [s:__key, s:__val] in items(%s)', val),
    \   '  let {s:__key} = s:__val',
    \   '  unlet s:__key s:__val',
    \   'endfor',
