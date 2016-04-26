@@ -1,5 +1,5 @@
 " themis: helper: Command base utilities.
-" Version: 1.5.2
+" Version: 1.5.2.1
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 

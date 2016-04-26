@@ -1,6 +1,6 @@
 *themis.txt*	A testing framework for Vim script.
 
-Version: 1.5.2
+Version: 1.5.2.1
 Author : thinca <thinca+vim@gmail.com>
 License: zlib License
 
@@ -986,6 +986,10 @@ when assertion fails.
 
 ==============================================================================
 CHANGELOG					*themis-changelog*
+
+1.5.2.1	2016-04-27
+	- Fix and improve the scope's behavior of vimspec.
+	- Update vital.
 
 1.5.2	2016-04-09
 	- Refactoring.
