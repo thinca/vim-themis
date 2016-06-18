@@ -1,5 +1,5 @@
 " themis: supporter: builtin_assert: Handle Vim built-in assertion functions.
-" Version: 1.5.3
+" Version: 1.5.4dev
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 

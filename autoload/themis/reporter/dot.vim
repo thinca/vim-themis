@@ -1,5 +1,5 @@
 " themis: reporter: Report with xUnit style.
-" Version: 1.5.3
+" Version: 1.5.4dev
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
