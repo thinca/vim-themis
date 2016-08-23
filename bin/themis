@@ -6,10 +6,16 @@
 
 : "${THEMIS_VIM:=vim}"
 
+IS_NEOVIM=$("${THEMIS_VIM}" -u NONE -i NONE -N -V1 -e -s --cmd "echo has('nvim')" --cmd quit 2>&1)
+
 if ! type realpath >/dev/null 2>&1; then
 	realpath() {
 		# NOTE: use X to avoid "XSMP opening connection" message.
-		"${THEMIS_VIM}" -u NONE -i NONE -N -X -V1 -e -s --cmd "echon resolve(argv(0))" --cmd "echo ''" --cmd quit "$1" 2>&1
+                if [ "$IS_NEOVIM" == "1" ]; then
+                    "${THEMIS_VIM}" -u NONE -i NONE -N -V1 -e -s --cmd "echon resolve(argv(0))" --cmd "echo ''" --cmd quit "$1" 2>&1
+                else
+                    "${THEMIS_VIM}" -u NONE -i NONE -N -X -V1 -e -s --cmd "echon resolve(argv(0))" --cmd "echo ''" --cmd quit "$1" 2>&1
+                fi
 	}
 fi
 
@@ -21,4 +27,8 @@ if [ ! -f "${STARTUP_SCRIPT}" ]; then
 	exit 2
 fi
 
-"${THEMIS_VIM}" -u NONE -i NONE -n -N -e -s --cmd "source ${STARTUP_SCRIPT}" -- "$@" 3>&1 1>&2 2>&3 3>&-
+if [ "$IS_NEOVIM" == "1" ]; then
+    "${THEMIS_VIM}" --headless -u NONE -i NONE -n -N -e -s --cmd "source ${STARTUP_SCRIPT}" -- "$@" 3>&1 1>&2 2>&3 3>&-
+else
+    "${THEMIS_VIM}" -u NONE -i NONE -n -N -e -s --cmd "source ${STARTUP_SCRIPT}" -- "$@" 3>&1 1>&2 2>&3 3>&-
+fi
