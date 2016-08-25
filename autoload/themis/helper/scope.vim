@@ -14,6 +14,10 @@ function! s:helper.funcs(path) abort
   return s:Local.sfuncs(a:path)
 endfunction
 
+function! s:helper.vars(path) abort
+  return s:Local.svars(a:path)
+endfunction
+
 function! themis#helper#scope#new(runner) abort
   return  deepcopy(s:helper)
 endfunction
