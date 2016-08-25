@@ -5,6 +5,7 @@
 # License: zlib License
 
 : "${THEMIS_VIM:=vim}"
+: "${THEMIS_ARGS:=-e -s}"
 
 if ! type realpath >/dev/null 2>&1; then
 	realpath() {
@@ -21,4 +22,4 @@ if [ ! -f "${STARTUP_SCRIPT}" ]; then
 	exit 2
 fi
 
-"${THEMIS_VIM}" -u NONE -i NONE -n -N -e -s --cmd "source ${STARTUP_SCRIPT}" -- "$@" 3>&1 1>&2 2>&3 3>&-
+"${THEMIS_VIM}" -u NONE -i NONE -n -N ${THEMIS_ARGS} --cmd "source ${STARTUP_SCRIPT}" -- "$@" 3>&1 1>&2 2>&3 3>&-

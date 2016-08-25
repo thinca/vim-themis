@@ -200,6 +200,10 @@ $THEMIS_HOME					*$THEMIS_HOME*
 $THEMIS_VIM					*$THEMIS_VIM*
 	The path to vim command.  "vim" is used when this is empty.
 
+$THEMIS_ARGS					*$THEMIS_ARGS*
+	Extra arguments passed to |$THEMIS_VIM|. "-e -s" is used when this is
+	empty.
+
 ------------------------------------------------------------------------------
 THEMISRC					*themis-themisrc*
 
