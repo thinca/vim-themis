@@ -924,7 +924,17 @@ scope.funcs({path})			*themis-helper-scope-funcs()*
 	let s:myfuncs = s:scope.funcs('autoload/myfuncs.vim')
 	call s:myfuncs.foo()  " calls s:foo() in myfuncs.vim
 
-
+scope.vars({path})			*themis-helper-scope-vars()*
+	Returns a dictionary which contains |script-local| variables with
+	{path}.
+	{path} is a full path or relative path from 'runtimepath'.
+>
+	let s:scope = themis#helper('scope')
+	let s:myvars = s:scope.vars('autoload/myvars.vim')
+	echo s:myvars.foo  " echo s:foo in myvars.vim
+<
+	CAUTION: vars() will temporarily overwrite the target file and
+	restore the file, so please be careful if you want to use it.
 
 ==============================================================================
 REPORTER					*themis-reporter*
