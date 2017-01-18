@@ -4,17 +4,34 @@
 # Author : thinca <thinca+vim@gmail.com>
 # License: zlib License
 
+set -e
+
 : "${THEMIS_VIM:=vim}"
 : "${THEMIS_ARGS:=-e -s}"
 
-if ! type realpath >/dev/null 2>&1; then
-	realpath() {
+if [ -z "${THEMIS_HOME+x}" ]; then
+	if realpath "$0" >/dev/null 2>&1; then
+		THEMIS_BIN=$(realpath "$0")
+	elif readlink -f "$0" >/dev/null 2>&1; then
+		THEMIS_BIN=$(readlink -f "$0")
+	elif ! command -v readlink >/dev/null 2>&1; then
+		WORKDIR=$(pwd)
+		THEMIS_BIN=$0
+		while [ -L "$THEMIS_BIN" ]; do
+			cd "$(dirname "$THEMIS_BIN")"
+			THEMIS_BIN=$(readlink "$THEMIS_BIN")
+		done
+		cd "$(dirname "$THEMIS_BIN")"
+		THEMIS_BIN="$(pwd -P)/$(basename "$THEMIS_BIN")"
+		cd "$WORKDIR"
+	elif command -v "${THEMIS_VIM}" >/dev/null 2>&1; then
 		# NOTE: use X to avoid "XSMP opening connection" message.
-		"${THEMIS_VIM}" -u NONE -i NONE -N -X -V1 -e -s --cmd "echon resolve(argv(0))" --cmd "echo ''" --cmd quit "$1" 2>&1
-	}
+		THEMIS_BIN=$("${THEMIS_VIM}" -u NONE -i NONE -N -X -V1 -e -s --cmd "echon resolve(argv(0))" --cmd "echo ''" --cmd quit "$0" 2>&1)
+	fi
+
+	THEMIS_HOME=$(cd "$(dirname "$THEMIS_BIN")/.." && pwd -P)
 fi
 
-: "${THEMIS_HOME:=$(dirname "$(dirname "$(realpath "$0")")")}"
 
 STARTUP_SCRIPT="${THEMIS_HOME}/macros/themis_startup.vim"
 if [ ! -f "${STARTUP_SCRIPT}" ]; then
