@@ -19,7 +19,7 @@ if not exist "%STARTUP_SCRIPT%" (
 rem FIXME: Some wrong case exists in passing the argument list.
 rem DO NOT directly output the result to command prompt while 'normal' command in Vim script
 rem will move a cursor of command prompt in that case.
-set THEMIS_LOG="%USERPROFILE%\AppData\Local\Temp\themis.log"
+set THEMIS_LOG="%TMP%\themis.log"
 %THEMIS_VIM% -u NONE -i NONE -n -N %THEMIS_ARGS% --cmd "source %STARTUP_SCRIPT%" -- %* 2>&1 > %THEMIS_LOG%
 type %THEMIS_LOG%
 del %THEMIS_VIM%
