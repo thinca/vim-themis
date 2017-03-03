@@ -22,7 +22,7 @@ rem will move a cursor of command prompt in that case.
 set THEMIS_LOG="%TMP%\themis.log"
 %THEMIS_VIM% -u NONE -i NONE -n -N %THEMIS_ARGS% --cmd "source %STARTUP_SCRIPT%" -- %* 2>&1 > %THEMIS_LOG%
 type %THEMIS_LOG%
-del %THEMIS_VIM%
+del %THEMIS_LOG%
 exit /b %ERRORLEVEL%
 
 :get_realpath
