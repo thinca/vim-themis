@@ -21,9 +21,10 @@ rem DO NOT directly output the result to command prompt while 'normal' command i
 rem will move a cursor of command prompt in that case.
 set THEMIS_LOG="%TMP%\themis.log"
 %THEMIS_VIM% -u NONE -i NONE -n -N %THEMIS_ARGS% --cmd "source %STARTUP_SCRIPT%" -- %* 2>&1 > %THEMIS_LOG%
+set THEMIS_ERRORLEVEL=%ERRORLEVEL%
 type %THEMIS_LOG%
 del %THEMIS_LOG%
-exit /b %ERRORLEVEL%
+exit /b %THEMIS_ERRORLEVEL%
 
 :get_realpath
 set realpath=..
