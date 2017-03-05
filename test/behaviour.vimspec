@@ -1,0 +1,24 @@
+Describe Behaviour
+  Before all
+    sign define ThemisTestSign texthl=SignColumn text=|
+  End
+
+  After all
+    tabdo windo bwipeout!
+  End
+
+  Before
+    tabdo windo bwipeout!
+  End
+
+  It supports 'signs' in tests
+    let bufnr = bufnr('%')
+    call setline(1, ['a', 'b', 'c'])
+    call themis#log("The following line would raise a Segmentation fault")
+    execute printf(
+          \ 'sign place %d line=%d name=%s buffer=%d',
+          \ 1, 1, 'ThemisTestSign', bufnr,
+          \)
+    call themis#log("This line is not called")
+  End
+End
