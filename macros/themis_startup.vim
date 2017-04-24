@@ -24,6 +24,11 @@ function! s:start() abort
   if 0 < len(args)
     " Remove arglist for plain environment
     execute '1,' . len(args) . 'argdelete'
+
+    " Delete all the buffers
+    for bufnr in range(1, bufnr('$'))
+      execute bufnr 'bwipeout!'
+    endfor
   endif
 
   return themis#command#start(args)
