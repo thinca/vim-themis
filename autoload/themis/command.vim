@@ -1,4 +1,4 @@
-" Themis command line processer.
+" Themis command line processor.
 " Version: 1.5.2.1
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
@@ -19,7 +19,7 @@ function! themis#command#start(args) abort
   return themis#run(paths, options)
 endfunction
 
-" Command line option processer
+" Command line option processor
 let s:short_options = {
 \   'h': 'help',
 \   'r': 'recursive',

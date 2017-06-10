@@ -54,7 +54,7 @@ function! s:helper.__expect__() abort
       call s:expect([1, 2, 3]).to_equal([1, 2, 3])
       call s:expect({'foo': 'x'}).to_equal({'foo': 'x'})
     endfunction
-    function! to_equal.throws_a_report_when_values_are_differnt() abort
+    function! to_equal.throws_a_report_when_values_are_different() abort
       call s:check_throw('to_equal', 1, [0])
       call s:check_throw('to_equal', 'foo', ['bar'])
       call s:check_throw('to_equal', [1, 2, 3], [[1, 2]])
@@ -70,7 +70,7 @@ function! s:helper.__expect__() abort
       let ref_list = one_list
       call s:expect(one_list).to_be_same(ref_list)
     endfunction
-    function! to_be_same.throws_a_report_when_values_are_differnt_instances() abort
+    function! to_be_same.throws_a_report_when_values_are_different_instances() abort
       call s:check_throw('to_be_same', 1, [0])
       call s:check_throw('to_be_same', [1, 2, 3], [[1, 2, 3]])
     endfunction
@@ -129,15 +129,15 @@ function! s:helper.__expect__() abort
   function! expect.__to_exist__() abort
     let to_exist = themis#suite('.to_exist()')
     function! to_exist.before() abort
-      let g:exsiting_variable = 1
+      let g:existing_variable = 1
     endfunction
     function! to_exist.after() abort
-      unlet g:exsiting_variable
+      unlet g:existing_variable
     endfunction
     function! to_exist.checks_existence() abort
       call s:expect(':w').to_exist()
       call s:expect('*function').to_exist()
-      call s:expect('g:exsiting_variable').to_exist()
+      call s:expect('g:existing_variable').to_exist()
     endfunction
     function! to_exist.throws_report_when_the_value_does_not_to_exist() abort
       call s:check_throw('to_exist', 'g:the_value_which_does_not_exist')
