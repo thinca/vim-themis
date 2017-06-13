@@ -13,9 +13,6 @@ function! s:parse_describe(tokens, lnum, context_stack, scope_id) abort
   if description ==# ''
     throw printf('vimspec:%d::%s must take an argument', a:lnum, command)
   endif
-  if description =~# '^\s*\([''"]\).*\1\s*$'
-    let description = eval(description)
-  endif
 
   let bundle_new = printf(
   \   empty(a:context_stack) ?

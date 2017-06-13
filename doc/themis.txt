@@ -481,7 +481,6 @@ All special commands can start with lowercase. >
 :Describe {description}			*themis-style-vimspec-:Describe*
 :End
 	Defines a suite block.
-	{description} can quote by '' or "" like a string.
 	This can be nested.
 	This makes a new scope like a function.  You can use a |l:| variable.
 	And, the variable is available at the nested scope.
