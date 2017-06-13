@@ -85,23 +85,6 @@ Describe vimspec-style
         It is called in order
           Assert Equals(list, [1, 2, 3, 4])
         End
-
-        It is separate from previous test
-          Assert Equals(list, [1, 2, 3, 4])
-        End
-      End
-
-      Context an other context
-        Before all
-          let list += [5]
-        End
-        Before each
-          let list += [6]
-        End
-
-        It is separate from other context
-          Assert Equals(list, [1, 5, 3, 6])
-        End
       End
     End
   End

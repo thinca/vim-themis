@@ -185,7 +185,7 @@ function! s:ScopeKeeper.push(scope, scope_id, parent) abort
 endfunction
 
 function! s:ScopeKeeper.tmp_scope(from) abort
-  call self.push(deepcopy(self.scope(a:from)), 0, -1)
+  call self.push(copy(self.scope(a:from)), 0, -1)
 endfunction
 
 function! s:ScopeKeeper.back(scope_id, back_scope) abort
@@ -212,7 +212,7 @@ function! s:ScopeKeeper.scope(scope_id) abort
 endfunction
 
 function! s:ScopeKeeper.extend(val, copy) abort
-  let val = a:copy ? printf('deepcopy(%s)', a:val) : a:val
+  let val = a:copy ? printf('copy(%s)', a:val) : a:val
    return join([
    \   printf('for [s:__key, s:__val] in items(%s)', val),
    \   '  let {s:__key} = s:__val',
