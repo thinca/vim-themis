@@ -191,7 +191,7 @@ function! themis#util#funcdata(func) abort
   redir END
   let lines = split(body, "\n")
   let signature = matchstr(lines[0], '^\s*\zs.*')
-  let file = matchstr(lines[1], '^\s*Last set from\s*\zs.*$')
+  let file = matchstr(lines[1], '^\t\%(Last set from\|.\{-}:\)\s*\zs.*$')
   let file = substitute(file, '[/\\]\+', '/', 'g')
   let arguments = split(matchstr(signature, '(\zs.*\ze)'), '\s*,\s*')
   let has_extra_arguments = get(arguments, -1, '') ==# '...'
