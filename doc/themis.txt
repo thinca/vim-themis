@@ -713,7 +713,7 @@ command.prefix({prefix})		*themis-helper-command-prefix()*
 	call themis#helper('command').prefix('Themis')
 
 	function! s:suite.test()
-	  ThemisExpect 1 + 1 == 2
+	  ThemisAssert 1 + 1 == 2
 	endfunction
 <
 command.with({scope})			*themis-helper-command-with()*
