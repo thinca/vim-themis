@@ -485,21 +485,21 @@ All special commands can start with lowercase. >
 	This makes a new scope like a function.  You can use a |l:| variable.
 	And, the variable is available at the nested scope.
 	Example: >
-	describe Root scope
-	  before all
+	Describe Root scope
+	  Before all
 	    let foo = 3  " Define "foo" variable
-	  end
+	  End
 
-	  it is a test
+	  It is a test
 	    Assert Equals(foo, 3)  " You can access to "foo"
-	  end
+	  End
 
-	  context child scope
-	    it is a test in child
+	  Context child scope
+	    It is a test in child
 	      Assert Equals(foo, 3)  " You can access to "foo" also here
-	    end
-	  end
-	end
+	    End
+	  End
+	End
 
 :Context {description}			*themis-style-vimspec-:Context*
 :End
