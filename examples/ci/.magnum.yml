@@ -7,7 +7,7 @@ before_install:
   - export PATH=$PWD/build/bin:$PATH
   - cd -
 
-  - git clone https://github.com/thinca/vim-themis --quiet --branch v1.5.2.1 --single-branch --depth 1 /tmp/vim-themis
+  - git clone https://github.com/thinca/vim-themis --quiet --branch v1.5.3 --single-branch --depth 1 /tmp/vim-themis
 
 before_script:
   - vim --version
