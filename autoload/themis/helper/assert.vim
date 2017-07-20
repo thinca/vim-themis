@@ -118,8 +118,8 @@ function! s:assert_not_equals(actual, expect, ...) abort
     throw s:failure([
     \   'Not the equivalent values were expected, but it was not the case.',
     \   '',
-    \   '    expected: ' . string(a:expect),
-    \   '         got: ' . string(a:actual),
+    \   '    not expected: ' . string(a:expect),
+    \   '             got: ' . string(a:actual),
     \ ], a:000)
   endif
   return 1
@@ -142,8 +142,8 @@ function! s:assert_not_same(actual, expect, ...) abort
     throw s:failure([
     \   'Not the same values were expected, but it was not the case.',
     \   '',
-    \   '    expected: ' . string(a:expect),
-    \   '         got: ' . string(a:actual),
+    \   '    not expected: ' . string(a:expect),
+    \   '             got: ' . string(a:actual),
     \ ], a:000)
   endif
   return 1
@@ -291,8 +291,8 @@ function! s:assert_key_not_exists(value, key, ...) abort
     throw s:failure([
     \   'It was expected that a key does not exist in the dictionary, but it did exist.',
     \   '',
-    \   '      dictionary: ' . string(a:value),
-    \   '    expected key: ' . string(a:key),
+    \   '          dictionary: ' . string(a:value),
+    \   '    not expected key: ' . string(a:key),
     \ ], a:000)
   endif
   return 1
@@ -388,6 +388,7 @@ function! s:check_type(value, expected_types, not, additional_message) abort
     let success = !success
     let [expect, but] = [' not', '']
   endif
+  let pad = repeat(' ', len(expect))
 
   if !success
     if 2 <= len(expected_types)
@@ -401,9 +402,9 @@ function! s:check_type(value, expected_types, not, additional_message) abort
     throw s:failure([
     \   printf(msg . ', but it was%s the case.', expect, type_names, but),
     \   '',
-    \   '    expected type: ' . type_names,
-    \   '         got type: ' . got_type,
-    \   '        got value: ' . string(a:value),
+    \   printf('    %s expected type: %s', pad, type_names),
+    \   printf('    %s      got type: %s', pad, got_type),
+    \   printf('    %s     got value: %s', pad, string(a:value)),
     \ ], a:additional_message)
   endif
   return 1
