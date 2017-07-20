@@ -18,7 +18,7 @@ Describe helper-assert
   End
 
   Describe .fail()
-    It throws a error report with message
+    It throws an error report with message
       call s:check_throw('fail', ['This test is the fate going failed.'], 'This test is the fate going failed.')
     End
   End
