@@ -14,7 +14,7 @@ if exists('s:version')
   finish
 endif
 
-let g:themis#vital = vital#of('themis')
+let g:themis#vital = vital#themis#new()
 
 let s:version = '1.5.4dev'
 
