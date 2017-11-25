@@ -360,7 +360,7 @@ Check types
 |themis-helper-assert-type_of()|
 Others
 |themis-helper-assert-length_of()|
-|themis-helper-assert-key_exists()| / |themis-helper-assert-key_exists()|
+|themis-helper-assert-key_exists()| / |themis-helper-assert-key_not_exists()|
 |themis-helper-assert-has_key()|
 |themis-helper-assert-exists()|
 |themis-helper-assert-empty()|
@@ -584,7 +584,7 @@ assert.compare({left}, {op}, {right} [, {message}])
 					*themis-helper-assert-equal()*
 assert.equals({actual}, {expect} [, {message}])
 	alias: equal()
-	Checks an {actual} equals to an {expect}.  (|==#|)
+	Checks an {actual} equals to an {expect}.  (|expr-==#|)
 	When this checks string and number, this also checks the string seems
 	to a number.
 	This means the following check fails: >
@@ -594,25 +594,25 @@ assert.equals({actual}, {expect} [, {message}])
 					*themis-helper-assert-not_equal()*
 assert.not_equals({actual}, {expect} [, {message}])
 	alias: not_equal()
-	Checks an {actual} not equals to an {expect}.  (|!=#|)
+	Checks an {actual} not equals to an {expect}.  (|expr-!=#|)
 	When this checks string and number, this also checks the string seems
 	to a number.
 
 					*themis-helper-assert-same()*
 assert.same({actual}, {expect} [, {message}])
-	Checks an {actual} and an {expect} are same.  (|is#|)
+	Checks an {actual} and an {expect} are same.  (|expr-is#|)
 
 					*themis-helper-assert-not_same()*
 assert.not_same({actual}, {expect} [, {message}])
-	Checks an {actual} and an {expect} are not same.  (|isnot#|)
+	Checks an {actual} and an {expect} are not same.  (|expr-isnot#|)
 
 					*themis-helper-assert-match()*
 assert.match({value}, {pattern} [, {message}])
-	Checks {value} matches to {pattern}.  (|=~#|)
+	Checks {value} matches to {pattern}.  (|expr-=~#|)
 
 					*themis-helper-assert-not_match()*
 assert.not_match({value}, {pattern} [, {message}])
-	Checks {value} doesn't match to {pattern}.  (|!~#|)
+	Checks {value} doesn't match to {pattern}.  (|expr-!~#|)
 
 assert.is_number({value} [, {message}])	*themis-helper-assert-is_number()*
 	Checks type of {value} is |Number|.
@@ -827,28 +827,28 @@ expect({value}).to_be_falsy()		*themis-helper-expect-to_be_falsy()*
 
 				*themis-helper-expect-to_be_greater_than()*
 expect({left}).to_be_greater_than({right})
-	Compares by |>#|
+	Compares by |expr->#|
 
 			*themis-helper-expect-to_be_greater_than_or_equal()*
 expect({left}).to_be_greater_than({right})
-	Compares by |>=#|
+	Compares by |expr->=#|
 
 				*themis-helper-expect-to_be_less_than()*
 expect({left}).to_be_less_than({right})
-	Compares by |<#|
+	Compares by |expr-<#|
 
 			*themis-helper-expect-to_be_less_than_or_equal()*
 expect({left}).to_be_less_than({right})
-	Compares by |<=#|
+	Compares by |expr-<=#|
 
 expect({actual}).to_equal({expect})	*themis-helper-expect-to_equal()*
-	Checks an {actual} equals to an {expect}.  (|==#|)
+	Checks an {actual} equals to an {expect}.  (|expr-==#|)
 
 expect({actual}).to_be_same({expect})	*themis-helper-expect-to_be_same()*
-	Checks an {actual} sames to an {expect}.  (|is#|)
+	Checks an {actual} sames to an {expect}.  (|expr-is#|)
 
 expect({value}).to_match({pattern})	*themis-helper-expect-to_match()*
-	Checks {value} matches to {pattern}.  (|=~#|)
+	Checks {value} matches to {pattern}.  (|expr-=~#|)
 
 expect({value}).to_be_number()		*themis-helper-expect-to_be_number()*
 	Checks type of {value} is |Number|.
