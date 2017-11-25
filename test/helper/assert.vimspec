@@ -724,6 +724,35 @@ Describe helper-assert
     End
   End
 
+  Describe .cmd_exists()
+    It throws report when the ex command does not exists
+      call s:check_throw('cmd_exists', ['NotExistCommand'], 'The ex command was expected to exist')
+    End
+    It does not throw report when the ex command exists
+      command! TestCommandThatExist :
+      call s:assert.cmd_exists('TestCommandThatExist')
+      delcommand TestCommandThatExist
+    End
+    It allows : at the head
+      command! TestCommandThatExist :
+      call s:assert.cmd_exists(':TestCommandThatExist')
+      delcommand TestCommandThatExist
+    End
+    It throws report when the ex command is part of existing command
+      command! TestCommandThatExist :
+      call s:assert.cmd_exists('TestCommandThatExist')
+      call s:check_throw('cmd_exists', ['TestCommand'], 'The ex command was expected to exist')
+      delcommand TestCommandThatExist
+    End
+    It returns truthy value when check was successful
+      call s:assert.truthy(s:assert.cmd_exists('command'))
+    End
+    It accepts an optional message
+      call s:assert.cmd_exists('command', 'error message')
+      call s:check_throw('cmd_exists', ['NotExistCommand', 'error message'], 'error message')
+    End
+  End
+
   Describe .empty()
     It throws report when the value is not empty
       call s:check_throw('empty', [[1, 2, 3]], 'The target was expected to be empty')

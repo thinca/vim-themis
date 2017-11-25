@@ -362,7 +362,7 @@ Others
 |themis-helper-assert-length_of()|
 |themis-helper-assert-key_exists()| / |themis-helper-assert-key_not_exists()|
 |themis-helper-assert-has_key()|
-|themis-helper-assert-exists()|
+|themis-helper-assert-exists()| / |themis-helper-assert-cmd_exists()|
 |themis-helper-assert-empty()|
 |themis-helper-assert-not_empty()|
 
@@ -728,6 +728,9 @@ assert.exists({expr} [, {message}])	*themis-helper-assert-exists()*
 	Checks {expr} by |exists()|.
 	Note that this can not use for |local-variable| and |script-variable|.
 
+assert.cmd_exists({cmd} [, {message}])	*themis-helper-assert-cmd_exists()*
+	Checks {cmd} by |exists()| strictly(full match with a command).
+
 assert.empty({expr} [, {message}])	*themis-helper-assert-empty()*
 	Checks {expr} by |empty()|.
 
@@ -1038,6 +1041,7 @@ CHANGELOG					*themis-changelog*
 
 1.5.4	Next Release
 	- Add type check functions for new types to assert helper.
+	- Add |themis-helper-assert-cmd_exists()|.
 
 1.5.3	2017-06-14
 	- Add |$THEMIS_ARGS|.
