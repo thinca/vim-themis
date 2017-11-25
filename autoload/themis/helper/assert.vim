@@ -15,6 +15,10 @@ let s:aliases = {
 \   'is_not_dict': 'is_not_dictionary',
 \ }
 
+let s:type_aliases = {
+\   'dict': 'dictionary',
+\ }
+
 function! s:assert_fail(mes) abort
   throw themis#failure(a:mes)
 endfunction
@@ -380,7 +384,7 @@ function! s:check_type(value, expected_types, not, additional_message) abort
   let expected_types = s:type(a:expected_types) ==# 'list' ?
   \                    copy(a:expected_types) : [a:expected_types]
   call map(expected_types, 'tolower(v:val)')
-  call map(expected_types, 'v:val ==# "dict" ? "dictionary" : v:val')
+  call map(expected_types, 'get(s:type_aliases, v:val, v:val)')
   let success = 0 <= index(expected_types, got_type)
 
   let [expect, but] = ['', ' not']
