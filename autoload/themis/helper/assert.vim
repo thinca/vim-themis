@@ -17,6 +17,8 @@ let s:aliases = {
 
 let s:type_aliases = {
 \   'dict': 'dictionary',
+\   'func': 'funcref',
+\   'function': 'funcref',
 \ }
 
 function! s:assert_fail(mes) abort

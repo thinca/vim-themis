@@ -667,7 +667,8 @@ assert.type_of({value}, {names} [, {message}])
 	Checks the type of {value} is one of {names}.
 	{names} is a List of type names or a String of type name.
 	Type name is one of the following:
-	"Number", "String", "Funcref", "List", "Dict", "Dictionary", "Float"
+	"Number", "String", "Funcref", "Func", "Function",
+	"List", "Dict", "Dictionary", "Float"
 	Type name is case-insensitive.
 
 					*themis-helper-assert-length_of()*
