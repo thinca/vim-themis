@@ -353,6 +353,10 @@ Check types
 |themis-helper-assert-is_list()| / |themis-helper-assert-is_not_list()|
 |themis-helper-assert-is_dict()| / |themis-helper-assert-is_not_dict()|
 |themis-helper-assert-is_float()| / |themis-helper-assert-is_not_float()|
+|themis-helper-assert-is_bool()| / |themis-helper-assert-is_not_bool()|
+|themis-helper-assert-is_none()| / |themis-helper-assert-is_not_none()|
+|themis-helper-assert-is_job()| / |themis-helper-assert-is_not_job()|
+|themis-helper-assert-is_channel()| / |themis-helper-assert-is_not_channel()|
 |themis-helper-assert-type_of()|
 Others
 |themis-helper-assert-length_of()|
@@ -627,13 +631,13 @@ assert.is_not_string({value} [, {message}])
 					*themis-helper-assert-is_function()*
 					*themis-helper-assert-is_func()*
 assert.is_function({value} [, {message}])
-	alias: is_func()
+	alias: is_func(), is_funcref()
 	Checks type of {value} is |Funcref|.
 
 				*themis-helper-assert-is_not_function()*
 				*themis-helper-assert-is_not_func()*
 assert.is_not_function({value} [, {message}])
-	alias: is_not_func()
+	alias: is_not_func(), is_not_funcref()
 	Checks type of {value} is not |Funcref|.
 
 assert.is_list({value} [, {message}])	*themis-helper-assert-is_list()*
@@ -662,13 +666,42 @@ assert.is_float({value} [, {message}])	*themis-helper-assert-is_float()*
 assert.is_not_float({value} [, {message}])
 	Checks type of {value} is not |Float|.
 
+assert.is_bool({value} [, {message}])	*themis-helper-assert-is_bool()*
+	Checks type of {value} is |v:true| or |v:false|.
+
+					*themis-helper-assert-is_not_bool()*
+assert.is_not_bool({value} [, {message}])
+	Checks type of {value} is not |v:true| and |v:false|.
+
+assert.is_none({value} [, {message}])	*themis-helper-assert-is_none()*
+	Checks type of {value} is |v:none| or |v:null|.
+
+					*themis-helper-assert-is_not_none()*
+assert.is_not_none({value} [, {message}])
+	Checks type of {value} is not |v:none| and |v:null|.
+
+assert.is_job({value} [, {message}])	*themis-helper-assert-is_job()*
+	Checks type of {value} is |job|.
+
+					*themis-helper-assert-is_not_job()*
+assert.is_not_job({value} [, {message}])
+	Checks type of {value} is not |job|.
+
+					*themis-helper-assert-is_channel()*
+assert.is_channel({value} [, {message}])
+	Checks type of {value} is |channel|.
+
+					*themis-helper-assert-is_not_channel()*
+assert.is_not_channel({value} [, {message}])
+	Checks type of {value} is not |channel|.
+
 					*themis-helper-assert-type_of()*
 assert.type_of({value}, {names} [, {message}])
 	Checks the type of {value} is one of {names}.
 	{names} is a List of type names or a String of type name.
 	Type name is one of the following:
-	"Number", "String", "Funcref", "Func", "Function",
-	"List", "Dict", "Dictionary", "Float"
+	"number", "string", "funcref", "func", "function", "list",
+	"dict", "dictionary", "float", "bool", "none", "job", "channel"
 	Type name is case-insensitive.
 
 					*themis-helper-assert-length_of()*
@@ -1004,6 +1037,7 @@ when assertion fails.
 CHANGELOG					*themis-changelog*
 
 1.5.4	Next Release
+	- Add type check functions for new types to assert helper.
 
 1.5.3	2017-06-14
 	- Add |$THEMIS_ARGS|.

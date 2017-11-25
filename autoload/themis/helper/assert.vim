@@ -12,20 +12,23 @@ let s:type_names = copy(s:T.type_names)
 let s:type_names[s:T.types.func] = 'funcref'
 let s:type_names[s:T.types.dict] = 'dictionary'
 
-let s:aliases = {
-\   'equal': 'equals',
-\   'not_equal': 'not_equals',
-\   'is_func': 'is_function',
-\   'is_not_func': 'is_not_function',
-\   'is_dict': 'is_dictionary',
-\   'is_not_dict': 'is_not_dictionary',
-\ }
-
 let s:type_aliases = {
 \   'dict': 'dictionary',
 \   'func': 'funcref',
 \   'function': 'funcref',
 \ }
+
+let s:func_aliases = {
+\   'equal': 'equals',
+\   'not_equal': 'not_equals',
+\ }
+
+for s:aliased_type in keys(s:type_aliases)
+  let s:func_aliases['is_' . s:aliased_type] =
+  \   'is_' . s:type_aliases[s:aliased_type]
+  let s:func_aliases['is_not_' . s:aliased_type] =
+  \   'is_not_' . s:type_aliases[s:aliased_type]
+endfor
 
 function! s:assert_fail(mes) abort
   throw themis#failure(a:mes)
@@ -185,53 +188,18 @@ function! s:assert_not_match(actual, pattern, ...) abort
   return 1
 endfunction
 
-function! s:assert_is_number(value, ...) abort
-  return s:check_type(a:value, 'Number', 0, a:000)
-endfunction
-
-function! s:assert_is_not_number(value, ...) abort
-  return s:check_type(a:value, 'Number', 1, a:000)
-endfunction
-
-function! s:assert_is_string(value, ...) abort
-  return s:check_type(a:value, 'String', 0, a:000)
-endfunction
-
-function! s:assert_is_not_string(value, ...) abort
-  return s:check_type(a:value, 'String', 1, a:000)
-endfunction
-
-function! s:assert_is_function(value, ...) abort
-  return s:check_type(a:value, 'Funcref', 0, a:000)
-endfunction
-
-function! s:assert_is_not_function(value, ...) abort
-  return s:check_type(a:value, 'Funcref', 1, a:000)
-endfunction
-
-function! s:assert_is_list(value, ...) abort
-  return s:check_type(a:value, 'List', 0, a:000)
-endfunction
-
-function! s:assert_is_not_list(value, ...) abort
-  return s:check_type(a:value, 'List', 1, a:000)
-endfunction
-
-function! s:assert_is_dictionary(value, ...) abort
-  return s:check_type(a:value, 'Dictionary', 0, a:000)
-endfunction
-
-function! s:assert_is_not_dictionary(value, ...) abort
-  return s:check_type(a:value, 'Dictionary', 1, a:000)
-endfunction
-
-function! s:assert_is_float(value, ...) abort
-  return s:check_type(a:value, 'Float', 0, a:000)
-endfunction
-
-function! s:assert_is_not_float(value, ...) abort
-  return s:check_type(a:value, 'Float', 1, a:000)
-endfunction
+for [s:type_value, s:type_name] in items(s:type_names)
+  execute printf(join([
+  \   'function! s:assert_is_%s(value, ...) abort',
+  \   '  return s:check_type(a:value, %s, 0, a:000)',
+  \   'endfunction',
+  \ ], "\n"), s:type_name, string(s:type_name))
+  execute printf(join([
+  \   'function! s:assert_is_not_%s(value, ...) abort',
+  \   '  return s:check_type(a:value, %s, 1, a:000)',
+  \   'endfunction',
+  \ ], "\n"), s:type_name, string(s:type_name))
+endfor
 
 function! s:assert_type_of(value, names, ...) abort
   return s:check_type(a:value, a:names, 0, a:000)
@@ -454,7 +422,7 @@ function! s:make_helper() abort
     let name = matchstr(func, '<SNR>\d\+_assert_\zs\w\+')
     let helper[name] = function(func)
   endfor
-  for [name, from] in items(s:aliases)
+  for [name, from] in items(s:func_aliases)
     let helper[name] = helper[from]
   endfor
   return helper
