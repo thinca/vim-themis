@@ -6,6 +6,12 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
+let s:T = g:themis#vital.import('Vim.Type')
+let s:type_names = copy(s:T.type_names)
+" Tweak type names
+let s:type_names[s:T.types.func] = 'funcref'
+let s:type_names[s:T.types.dict] = 'dictionary'
+
 let s:aliases = {
 \   'equal': 'equals',
 \   'not_equal': 'not_equals',
@@ -369,14 +375,6 @@ function! s:match(str, pattern) abort
   \      a:str =~# a:pattern
 endfunction
 
-let s:type_names = {
-\   type(0): 'number',
-\   type(''): 'string',
-\   type(function('type')): 'funcref',
-\   type([]): 'list',
-\   type({}): 'dictionary',
-\   type(0.0): 'float',
-\ }
 function! s:type(value) abort
   return s:type_names[type(a:value)]
 endfunction
