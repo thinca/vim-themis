@@ -12,14 +12,7 @@ let s:Bundle = {
 \ }
 
 function! s:Bundle.get_title() abort
-  if self.title !=# ''
-    return self.title
-  endif
-  let filename = get(self, 'filename', '')
-  if filename !=# ''
-    return fnamemodify(filename, ':t')
-  endif
-  return ''
+  return get(self, 'title', '')
 endfunction
 
 function! s:Bundle.get_test_full_title(entry) abort
