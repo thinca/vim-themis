@@ -1,6 +1,6 @@
 @echo off
 rem Command line utility for themis.vim
-rem Version: 1.5.3
+rem Version: 1.5.4
 rem Author : thinca <thinca+vim@gmail.com>
 rem License: zlib License
 

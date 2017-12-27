@@ -1,19 +1,34 @@
 " themis: helper: Assert utilities.
-" Version: 1.5.3
+" Version: 1.5.4
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
 let s:save_cpo = &cpo
 set cpo&vim
 
-let s:aliases = {
+let s:T = g:themis#vital.import('Vim.Type')
+let s:type_names = copy(s:T.type_names)
+" Tweak type names
+let s:type_names[s:T.types.func] = 'funcref'
+let s:type_names[s:T.types.dict] = 'dictionary'
+
+let s:type_aliases = {
+\   'dict': 'dictionary',
+\   'func': 'funcref',
+\   'function': 'funcref',
+\ }
+
+let s:func_aliases = {
 \   'equal': 'equals',
 \   'not_equal': 'not_equals',
-\   'is_func': 'is_function',
-\   'is_not_func': 'is_not_function',
-\   'is_dict': 'is_dictionary',
-\   'is_not_dict': 'is_not_dictionary',
 \ }
+
+for s:aliased_type in keys(s:type_aliases)
+  let s:func_aliases['is_' . s:aliased_type] =
+  \   'is_' . s:type_aliases[s:aliased_type]
+  let s:func_aliases['is_not_' . s:aliased_type] =
+  \   'is_not_' . s:type_aliases[s:aliased_type]
+endfor
 
 function! s:assert_fail(mes) abort
   throw themis#failure(a:mes)
@@ -118,8 +133,8 @@ function! s:assert_not_equals(actual, expect, ...) abort
     throw s:failure([
     \   'Not the equivalent values were expected, but it was not the case.',
     \   '',
-    \   '    expected: ' . string(a:expect),
-    \   '         got: ' . string(a:actual),
+    \   '    not expected: ' . string(a:expect),
+    \   '             got: ' . string(a:actual),
     \ ], a:000)
   endif
   return 1
@@ -142,8 +157,8 @@ function! s:assert_not_same(actual, expect, ...) abort
     throw s:failure([
     \   'Not the same values were expected, but it was not the case.',
     \   '',
-    \   '    expected: ' . string(a:expect),
-    \   '         got: ' . string(a:actual),
+    \   '    not expected: ' . string(a:expect),
+    \   '             got: ' . string(a:actual),
     \ ], a:000)
   endif
   return 1
@@ -173,53 +188,18 @@ function! s:assert_not_match(actual, pattern, ...) abort
   return 1
 endfunction
 
-function! s:assert_is_number(value, ...) abort
-  return s:check_type(a:value, 'Number', 0, a:000)
-endfunction
-
-function! s:assert_is_not_number(value, ...) abort
-  return s:check_type(a:value, 'Number', 1, a:000)
-endfunction
-
-function! s:assert_is_string(value, ...) abort
-  return s:check_type(a:value, 'String', 0, a:000)
-endfunction
-
-function! s:assert_is_not_string(value, ...) abort
-  return s:check_type(a:value, 'String', 1, a:000)
-endfunction
-
-function! s:assert_is_function(value, ...) abort
-  return s:check_type(a:value, 'Funcref', 0, a:000)
-endfunction
-
-function! s:assert_is_not_function(value, ...) abort
-  return s:check_type(a:value, 'Funcref', 1, a:000)
-endfunction
-
-function! s:assert_is_list(value, ...) abort
-  return s:check_type(a:value, 'List', 0, a:000)
-endfunction
-
-function! s:assert_is_not_list(value, ...) abort
-  return s:check_type(a:value, 'List', 1, a:000)
-endfunction
-
-function! s:assert_is_dictionary(value, ...) abort
-  return s:check_type(a:value, 'Dictionary', 0, a:000)
-endfunction
-
-function! s:assert_is_not_dictionary(value, ...) abort
-  return s:check_type(a:value, 'Dictionary', 1, a:000)
-endfunction
-
-function! s:assert_is_float(value, ...) abort
-  return s:check_type(a:value, 'Float', 0, a:000)
-endfunction
-
-function! s:assert_is_not_float(value, ...) abort
-  return s:check_type(a:value, 'Float', 1, a:000)
-endfunction
+for [s:type_value, s:type_name] in items(s:type_names)
+  execute printf(join([
+  \   'function! s:assert_is_%s(value, ...) abort',
+  \   '  return s:check_type(a:value, %s, 0, a:000)',
+  \   'endfunction',
+  \ ], "\n"), s:type_name, string(s:type_name))
+  execute printf(join([
+  \   'function! s:assert_is_not_%s(value, ...) abort',
+  \   '  return s:check_type(a:value, %s, 1, a:000)',
+  \   'endfunction',
+  \ ], "\n"), s:type_name, string(s:type_name))
+endfor
 
 function! s:assert_type_of(value, names, ...) abort
   return s:check_type(a:value, a:names, 0, a:000)
@@ -291,8 +271,8 @@ function! s:assert_key_not_exists(value, key, ...) abort
     throw s:failure([
     \   'It was expected that a key does not exist in the dictionary, but it did exist.',
     \   '',
-    \   '      dictionary: ' . string(a:value),
-    \   '    expected key: ' . string(a:key),
+    \   '          dictionary: ' . string(a:value),
+    \   '    not expected key: ' . string(a:key),
     \ ], a:000)
   endif
   return 1
@@ -302,6 +282,18 @@ function! s:assert_exists(expr, ...) abort
   if !exists(a:expr)
     throw s:failure([
     \   'The target was expected to exist, but it did not exist.',
+    \   '',
+    \   '    target: ' . string(a:expr),
+    \ ], a:000)
+  endif
+  return 1
+endfunction
+
+function! s:assert_cmd_exists(expr, ...) abort
+  let cmd = a:expr[0] ==# ':' ? a:expr : ':' . a:expr
+  if exists(cmd) != 2
+    throw s:failure([
+    \   'The ex command was expected to exist, but it did not exist.',
     \   '',
     \   '    target: ' . string(a:expr),
     \ ], a:000)
@@ -336,25 +328,12 @@ function! s:equals(a, b) abort
   \  s:is_invalid_string_as_num(a:b, a:a)
     return 0
   endif
-  return s:is_comparable(a:a, a:b) && a:a ==# a:b
+  return s:T.is_comparable(a:a, a:b) && a:a ==# a:b
 endfunction
 
 function! s:is_invalid_string_as_num(a, b) abort
   return type(a:a) == type('') &&
   \      type(a:b) == type(0) && a:a !~# '^-\?\d\+$'
-endfunction
-
-function! s:is_comparable(a, b) abort
-  let tname1 = s:type(a:a)
-  let tname2 = s:type(a:b)
-  return s:_is_comparable(tname1, tname2) && s:_is_comparable(tname2, tname1)
-endfunction
-
-function! s:_is_comparable(tname1, tname2) abort
-  if a:tname1 ==# 'list' || a:tname1 ==# 'dictionary' || a:tname1 ==# 'funcref'
-    return a:tname1 ==# a:tname2
-  endif
-  return 1
 endfunction
 
 function! s:match(str, pattern) abort
@@ -363,14 +342,6 @@ function! s:match(str, pattern) abort
   \      a:str =~# a:pattern
 endfunction
 
-let s:type_names = {
-\   type(0): 'number',
-\   type(''): 'string',
-\   type(function('type')): 'funcref',
-\   type([]): 'list',
-\   type({}): 'dictionary',
-\   type(0.0): 'float',
-\ }
 function! s:type(value) abort
   return s:type_names[type(a:value)]
 endfunction
@@ -380,7 +351,7 @@ function! s:check_type(value, expected_types, not, additional_message) abort
   let expected_types = s:type(a:expected_types) ==# 'list' ?
   \                    copy(a:expected_types) : [a:expected_types]
   call map(expected_types, 'tolower(v:val)')
-  call map(expected_types, 'v:val ==# "dict" ? "dictionary" : v:val')
+  call map(expected_types, 'get(s:type_aliases, v:val, v:val)')
   let success = 0 <= index(expected_types, got_type)
 
   let [expect, but] = ['', ' not']
@@ -388,6 +359,7 @@ function! s:check_type(value, expected_types, not, additional_message) abort
     let success = !success
     let [expect, but] = [' not', '']
   endif
+  let pad = repeat(' ', len(expect))
 
   if !success
     if 2 <= len(expected_types)
@@ -401,9 +373,9 @@ function! s:check_type(value, expected_types, not, additional_message) abort
     throw s:failure([
     \   printf(msg . ', but it was%s the case.', expect, type_names, but),
     \   '',
-    \   '    expected type: ' . type_names,
-    \   '         got type: ' . got_type,
-    \   '        got value: ' . string(a:value),
+    \   printf('    %s expected type: %s', pad, type_names),
+    \   printf('    %s      got type: %s', pad, got_type),
+    \   printf('    %s     got value: %s', pad, string(a:value)),
     \ ], a:additional_message)
   endif
   return 1
@@ -449,7 +421,7 @@ function! s:make_helper() abort
     let name = matchstr(func, '<SNR>\d\+_assert_\zs\w\+')
     let helper[name] = function(func)
   endfor
-  for [name, from] in items(s:aliases)
+  for [name, from] in items(s:func_aliases)
     let helper[name] = helper[from]
   endfor
   return helper

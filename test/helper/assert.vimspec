@@ -18,7 +18,7 @@ Describe helper-assert
   End
 
   Describe .fail()
-    It throws a error report with message
+    It throws an error report with message
       call s:check_throw('fail', ['This test is the fate going failed.'], 'This test is the fate going failed.')
     End
   End
@@ -446,6 +446,137 @@ Describe helper-assert
     End
   End
 
+  if 800 <= v:version
+    Describe .is_bool()
+      It checks type of value is bool
+        call s:assert.is_bool(v:true)
+      End
+      It throws a report when type of value is not bool
+        call s:check_throw('is_bool', [1], 'The type of value was expected to be bool')
+      End
+      It returns truthy value when check was successful
+        call s:assert.truthy(s:assert.is_bool(v:false))
+      End
+      It accepts an optional message
+        call s:assert.is_bool(v:true, 'error message')
+        call s:check_throw('is_bool', [0, 'error message'], 'error message')
+      End
+    End
+
+    Describe .is_not_bool()
+      It checks type of value is not bool
+        call s:assert.is_not_bool(1)
+      End
+      It throws a report when type of value is bool
+        call s:check_throw('is_not_bool', [v:true], 'The type of value was not expected to be bool')
+      End
+      It returns truthy value when check was successful
+        call s:assert.truthy(s:assert.is_not_bool(0))
+      End
+      It accepts an optional message
+        call s:assert.is_not_bool(1, 'error message')
+        call s:check_throw('is_not_bool', [v:false, 'error message'], 'error message')
+      End
+    End
+
+    Describe .is_none()
+      It checks type of value is none
+        call s:assert.is_none(v:none)
+      End
+      It throws a report when type of value is not none
+        call s:check_throw('is_none', [v:false], 'The type of value was expected to be none')
+      End
+      It returns truthy value when check was successful
+        call s:assert.truthy(s:assert.is_none(v:null))
+      End
+      It accepts an optional message
+        call s:assert.is_none(v:null, 'error message')
+        call s:check_throw('is_none', [v:true, 'error message'], 'error message')
+      End
+    End
+
+    Describe .is_not_none()
+      It checks type of value is not none
+        call s:assert.is_not_none(v:true)
+      End
+      It throws a report when type of value is none
+        call s:check_throw('is_not_none', [v:none], 'The type of value was not expected to be none')
+      End
+      It returns truthy value when check was successful
+        call s:assert.truthy(s:assert.is_not_none(v:false))
+      End
+      It accepts an optional message
+        call s:assert.is_not_none(v:false, 'error message')
+        call s:check_throw('is_not_none', [v:null, 'error message'], 'error message')
+      End
+    End
+
+    Describe .is_job()
+      It checks type of value is job
+        call s:assert.is_job(test_null_job())
+      End
+      It throws a report when type of value is not job
+        call s:check_throw('is_job', [v:null], 'The type of value was expected to be job')
+      End
+      It returns truthy value when check was successful
+        call s:assert.truthy(s:assert.is_job(test_null_job()))
+      End
+      It accepts an optional message
+        call s:assert.is_job(test_null_job(), 'error message')
+        call s:check_throw('is_job', [v:null, 'error message'], 'error message')
+      End
+    End
+
+    Describe .is_not_job()
+      It checks type of value is not job
+        call s:assert.is_not_job(v:null)
+      End
+      It throws a report when type of value is job
+        call s:check_throw('is_not_job', [test_null_job()], 'The type of value was not expected to be job')
+      End
+      It returns truthy value when check was successful
+        call s:assert.truthy(s:assert.is_not_job(v:null))
+      End
+      It accepts an optional message
+        call s:assert.is_not_job(v:null, 'error message')
+        call s:check_throw('is_not_job', [test_null_job(), 'error message'], 'error message')
+      End
+    End
+
+    Describe .is_channel()
+      It checks type of value is channel
+        call s:assert.is_channel(test_null_channel())
+      End
+      It throws a report when type of value is not channel
+        call s:check_throw('is_channel', [v:null], 'The type of value was expected to be channel')
+      End
+      It returns truthy value when check was successful
+        call s:assert.truthy(s:assert.is_channel(test_null_channel()))
+      End
+      It accepts an optional message
+        call s:assert.is_channel(test_null_channel(), 'error message')
+        call s:check_throw('is_channel', [v:null, 'error message'], 'error message')
+      End
+    End
+
+    Describe .is_not_channel()
+      It checks type of value is not channel
+        call s:assert.is_not_channel(v:null)
+      End
+      It throws a report when type of value is channel
+        call s:check_throw('is_not_channel', [test_null_channel()], 'The type of value was not expected to be channel')
+      End
+      It returns truthy value when check was successful
+        call s:assert.truthy(s:assert.is_not_channel(v:null))
+      End
+      It accepts an optional message
+        call s:assert.is_not_channel(v:null, 'error message')
+        call s:check_throw('is_not_channel', [test_null_channel(), 'error message'], 'error message')
+      End
+    End
+
+  endif
+
   Describe .type_of()
     It checks type of value
       call s:assert.type_of(0, 'Number')
@@ -590,6 +721,35 @@ Describe helper-assert
       call s:assert.exists('g:the_value_which_exists', 'error message')
       unlet g:the_value_which_exists
       call s:check_throw('exists', ['g:the_value_which_does_not_exist', 'error message'], 'error message')
+    End
+  End
+
+  Describe .cmd_exists()
+    It throws report when the ex command does not exists
+      call s:check_throw('cmd_exists', ['NotExistCommand'], 'The ex command was expected to exist')
+    End
+    It does not throw report when the ex command exists
+      command! TestCommandThatExist :
+      call s:assert.cmd_exists('TestCommandThatExist')
+      delcommand TestCommandThatExist
+    End
+    It allows : at the head
+      command! TestCommandThatExist :
+      call s:assert.cmd_exists(':TestCommandThatExist')
+      delcommand TestCommandThatExist
+    End
+    It throws report when the ex command is part of existing command
+      command! TestCommandThatExist :
+      call s:assert.cmd_exists('TestCommandThatExist')
+      call s:check_throw('cmd_exists', ['TestCommand'], 'The ex command was expected to exist')
+      delcommand TestCommandThatExist
+    End
+    It returns truthy value when check was successful
+      call s:assert.truthy(s:assert.cmd_exists('command'))
+    End
+    It accepts an optional message
+      call s:assert.cmd_exists('command', 'error message')
+      call s:check_throw('cmd_exists', ['NotExistCommand', 'error message'], 'error message')
     End
   End
 
