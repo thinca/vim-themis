@@ -1,6 +1,6 @@
 *themis.txt*	A testing framework for Vim script.
 
-Version: 1.5.4dev
+Version: 1.5.4
 Author : thinca <thinca+vim@gmail.com>
 License: zlib License
 
@@ -1039,7 +1039,7 @@ when assertion fails.
 ==============================================================================
 CHANGELOG					*themis-changelog*
 
-1.5.4	Next Release
+1.5.4	2017-12-28
 	- Add type check functions for new types to assert helper.
 	- Add |themis-helper-assert-cmd_exists()|.
 

@@ -1,5 +1,5 @@
 " themis: helper: Access to script-local functions.
-" Version: 1.5.4dev
+" Version: 1.5.4
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 

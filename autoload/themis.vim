@@ -1,5 +1,5 @@
 " A testing framework for Vim script.
-" Version: 1.5.4dev
+" Version: 1.5.4
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
@@ -16,7 +16,7 @@ endif
 
 let g:themis#vital = vital#themis#new()
 
-let s:version = '1.5.4dev'
+let s:version = '1.5.4'
 
 function! themis#version() abort
   return s:version
