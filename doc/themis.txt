@@ -362,7 +362,8 @@ Others
 |themis-helper-assert-length_of()|
 |themis-helper-assert-key_exists()| / |themis-helper-assert-key_not_exists()|
 |themis-helper-assert-has_key()|
-|themis-helper-assert-exists()| / |themis-helper-assert-cmd_exists()|
+|themis-helper-assert-exists()| / |themis-helper-not_assert-not_exists()|
+|themis-helper-assert-cmd_exists()| / |themis-helper-assert-cmd_not_exists()|
 |themis-helper-assert-empty()|
 |themis-helper-assert-not_empty()|
 
@@ -725,11 +726,21 @@ assert.has_key({list}, {index} [, {message}])
 	If the first argument is an array, check {index} exists in {list}.
 
 assert.exists({expr} [, {message}])	*themis-helper-assert-exists()*
-	Checks {expr} by |exists()|.
+	Checks by |exists()| that {expr} exist.
+	Note that this can not use for |local-variable| and |script-variable|.
+
+assert.not_exists({expr} [, {message}])	*themis-helper-assert-not_exists()*
+	Checks by |exists()| that {expr} does not exist.
 	Note that this can not use for |local-variable| and |script-variable|.
 
 assert.cmd_exists({cmd} [, {message}])	*themis-helper-assert-cmd_exists()*
-	Checks {cmd} by |exists()| strictly(full match with a command).
+	Checks by |exists()| strictly(full match with a command) that {cmd}
+	exist.
+
+					*themis-helper-assert-cmd_not_exists()*
+assert.cmd_not_exists({cmd} [, {message}])
+	Checks by |exists()| strictly(full match with a command) that {cmd}
+	does not exist.
 
 assert.empty({expr} [, {message}])	*themis-helper-assert-empty()*
 	Checks {expr} by |empty()|.
@@ -1044,6 +1055,8 @@ when assertion fails.
 CHANGELOG					*themis-changelog*
 
 Unreleased
+	- Add |themis-helper-assert-not_exists()|.
+	- Add |themis-helper-assert-cmd_not_exists()|.
 
 1.5.5	2020-11-19
 	- Some fixes.

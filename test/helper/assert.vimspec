@@ -736,6 +736,26 @@ Describe helper-assert
     End
   End
 
+  Describe .not_exists()
+    It throws a report when the value exists
+      let g:the_value_which_exists = 1
+      call s:check_throw('not_exists', ['g:the_value_which_exists'], 'The target was expected to not exist')
+      unlet g:the_value_which_exists
+    End
+    It does not throw a report when the value not exist
+      call s:assert.not_exists('g:the_value_which_does_not_exist')
+    End
+    It returns truthy value when the check was successful
+      call s:assert.truthy(s:assert.not_exists('*non_exist_function'))
+    End
+    It accepts an optional message
+      call s:assert.not_exists('g:the_value_which_does_not_exist', 'error message')
+      let g:the_value_which_exists = 1
+      call s:check_throw('not_exists', ['g:the_value_which_exists', 'error message'], 'error message')
+      unlet g:the_value_which_exists
+    End
+  End
+
   Describe .cmd_exists()
     It throws a report when the Ex command does not exist
       call s:check_throw('cmd_exists', ['NotExistCommand'], 'The Ex command was expected to exist')
@@ -762,6 +782,33 @@ Describe helper-assert
     It accepts an optional message
       call s:assert.cmd_exists('command', 'error message')
       call s:check_throw('cmd_exists', ['NotExistCommand', 'error message'], 'error message')
+    End
+  End
+
+  Describe .cmd_not_exists()
+    It throws a report when the Ex command exists
+      command! TestCommandThatExist :
+      call s:check_throw('cmd_not_exists', ['TestCommandThatExist'], 'The Ex command was expected to not exist')
+      delcommand TestCommandThatExist
+    End
+    It does not throw a report when the Ex command does not exist
+      call s:assert.cmd_not_exists('NotExistCommand')
+    End
+    It allows ":" at the head
+      call s:assert.cmd_not_exists(':NotExistCommand')
+    End
+    It does not throw a report when the ex command is part of existing command
+      command! TestCommandThatExist :
+      call s:assert.cmd_not_exists('TestCommand')
+      call s:check_throw('cmd_not_exists', ['TestCommandThatExist'], 'The Ex command was expected to not exist')
+      delcommand TestCommandThatExist
+    End
+    It returns truthy value when the check was successful
+      call s:assert.truthy(s:assert.cmd_not_exists('NotExistCommand'))
+    End
+    It accepts an optional message
+      call s:assert.cmd_not_exists('NotExistCommand', 'error message')
+      call s:check_throw('cmd_not_exists', ['command', 'error message'], 'error message')
     End
   End
 
