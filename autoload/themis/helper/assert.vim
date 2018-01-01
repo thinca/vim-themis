@@ -296,7 +296,7 @@ function! s:assert_cmd_exists(expr, ...) abort
   let cmd = a:expr[0] ==# ':' ? a:expr : ':' . a:expr
   if exists(cmd) != 2
     throw s:failure([
-    \   'The ex command was expected to exist, but it did not exist.',
+    \   'The Ex command was expected to exist, but it did not exist.',
     \   '',
     \   '    target: ' . string(a:expr),
     \ ], a:000)

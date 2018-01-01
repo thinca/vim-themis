@@ -3,13 +3,13 @@ let s:assert = themis#helper('assert')
 Describe helper-assert
 
   Describe .skip()
-    It throws a skip report with message
+    It throws a skip report with a message
       call s:check_throw('skip', ['message'], '^themis:\s*report:\s*SKIP:.*message$')
     End
   End
 
   Describe .todo()
-    It throws a todo report with message
+    It throws a todo report with a message
       call s:check_throw('todo', ['message'], '^themis:\s*report:\s*todo:.*message$')
     End
     It uses default message when the message is omitted
@@ -18,26 +18,26 @@ Describe helper-assert
   End
 
   Describe .fail()
-    It throws an error report with message
+    It throws an error report with a message
       call s:check_throw('fail', ['This test is the fate going failed.'], 'This test is the fate going failed.')
     End
   End
 
   Describe .true()
-    It checks value is true
+    It checks the value is true
       call s:assert.true(1)
       if exists('v:true')
         call s:assert.true(v:true)
       endif
     End
-    It checks value strictly
+    It checks the value strictly
       call s:check_throw('true', [100])
       call s:check_throw('true', ['1'])
       call s:check_throw('true', [1.0])
       call s:check_throw('true', ['true'])
       call s:check_throw('true', [[1]])
     End
-    It returns truthy value when check was successful
+    It returns truthy value when the check was successful
       call s:assert.truthy(s:assert.true(1))
     End
     It accepts an optional message
@@ -47,19 +47,19 @@ Describe helper-assert
   End
 
   Describe .false()
-    It checks value is false
+    It checks the value is false
       call s:assert.false(0)
       if exists('v:false')
         call s:assert.false(v:false)
       endif
     End
-    It checks value strictly
+    It checks the value strictly
       call s:check_throw('false', [''])
       call s:check_throw('false', [0.0])
       call s:check_throw('false', [[]])
       call s:check_throw('false', ['false'])
     End
-    It returns truthy value when check was successful
+    It returns truthy value when the check was successful
       call s:assert.truthy(s:assert.false(0))
     End
     It accepts an optional message
@@ -69,7 +69,7 @@ Describe helper-assert
   End
 
   Describe .truthy()
-    It checks value is not zero
+    It checks the value is not zero
       call s:assert.truthy(1)
       call s:assert.truthy(100)
       call s:assert.truthy('1')
@@ -77,13 +77,13 @@ Describe helper-assert
         call s:assert.truthy(v:true)
       endif
     End
-    It throws a report when value is zero or not a number
+    It throws a report when the value is zero or not a number
       call s:check_throw('truthy', [0])
       call s:check_throw('truthy', [1.0])
       call s:check_throw('truthy', ['truthy'])
       call s:check_throw('truthy', ['0'])
     End
-    It returns truthy value when check was successful
+    It returns truthy value when the check was successful
       call s:assert.truthy(s:assert.truthy(1))
     End
     It accepts an optional message
@@ -93,7 +93,7 @@ Describe helper-assert
   End
 
   Describe .falsy()
-    It checks value is zero
+    It checks the value is zero
       call s:assert.falsy(0)
       call s:assert.falsy('')
       call s:assert.falsy('0')
@@ -101,12 +101,12 @@ Describe helper-assert
         call s:assert.falsy(v:false)
       endif
     End
-    It throws a report when value is not zero or not a number
+    It throws a report when the value is not zero or not a number
       call s:check_throw('falsy', [1])
       call s:check_throw('falsy', [0.0])
       call s:check_throw('falsy', ['100falsy'])
     End
-    It returns truthy value when check was successful
+    It returns truthy value when the check was successful
       call s:assert.truthy(s:assert.falsy(0))
     End
     It accepts an optional message
@@ -125,11 +125,11 @@ Describe helper-assert
       call s:check_throw('compare', [3, '<', 0], 'The right expression was expected')
       call s:check_throw('compare', [3, '==', []], 'The right expression was expected')
     End
-    It throws a report when error occurred
+    It throws a report when an error occurred
       call s:check_throw('compare', [0, '?', 0], 'Unexpected error occurred while evaluating the comparing')
       call s:check_throw('compare', [3, '===', []], 'Unexpected error occurred while evaluating the comparing')
     End
-    It returns truthy value when check was successful
+    It returns truthy value when the check was successful
       call s:assert.truthy(s:assert.compare(1, '==', 1))
     End
     It accepts an optional message
@@ -153,12 +153,12 @@ Describe helper-assert
       call s:check_throw('equals', [[], {}], 'The equivalent values were expected')
     End
     Context with string and number
-      It checks string is valid as number
+      It checks a string is valid as a number
         call s:check_throw('equals', ['', 0], 'The equivalent values were expected')
         call s:check_throw('equals', [0, ''], 'The equivalent values were expected')
       End
     End
-    It returns truthy value when check was successful
+    It returns truthy value when the check was successful
       call s:assert.truthy(s:assert.equals(1, 1))
     End
     It accepts an optional message
@@ -179,12 +179,12 @@ Describe helper-assert
       call s:check_throw('not_equals', ['hoge', 'hoge'], 'Not the equivalent values were expected')
     End
     Context with string and number
-      It checks string is valid as number
+      It checks a string is valid as a number
         call s:assert.not_equals('', 0)
         call s:assert.not_equals(0, '')
       End
     End
-    It returns truthy value when check was successful
+    It returns truthy value when the check was successful
       call s:assert.truthy(s:assert.not_equals(0, 1))
     End
     It accepts an optional message
@@ -197,14 +197,14 @@ Describe helper-assert
     It checks actual value and expected value are same
       call s:assert.same(5 + 5, 10)
       call s:assert.same('hoge' . 'huga', 'hogehuga')
-      let array = [1]
-      call s:assert.same(array, array)
+      let list = [1]
+      call s:assert.same(list, list)
     End
     It throws a report when values are not same
       call s:check_throw('same', [10, '10'], 'The same values were expected')
       call s:check_throw('same', [{}, {}], 'The same values were expected')
     End
-    It returns truthy value when check was successful
+    It returns truthy value when the check was successful
       call s:assert.truthy(s:assert.same(0, 0))
     End
     It accepts an optional message
@@ -221,10 +221,10 @@ Describe helper-assert
     End
     It throws a report when values are same
       call s:check_throw('not_same', [10, 10], 'Not the same values were expected')
-      let array = [1]
-      call s:check_throw('not_same', [array, array], 'Not the same values were expected')
+      let list = [1]
+      call s:check_throw('not_same', [list, list], 'Not the same values were expected')
     End
-    It returns truthy value when check was successful
+    It returns truthy value when the check was successful
       call s:assert.truthy(s:assert.not_same({}, {}))
     End
     It accepts an optional message
@@ -234,14 +234,14 @@ Describe helper-assert
   End
 
   Describe .match()
-    It checks actual value matches to pattern
+    It checks the value matches the pattern
       call s:assert.match('hoge', '^hoge$')
       call s:assert.match('101010', '^\%(\d\d\)*$')
     End
-    It throws a report when value does not match to pattern
+    It throws a report when the value does not match the pattern
       call s:check_throw('match', ['hoge', 'huga'], 'Match was expected')
     End
-    It returns truthy value when check was successful
+    It returns truthy value when the check was successful
       call s:assert.truthy(s:assert.match('hoge', '^hoge$'))
     End
     It accepts an optional message
@@ -251,13 +251,13 @@ Describe helper-assert
   End
 
   Describe .not_match()
-    It checks actual value does not match to pattern
+    It checks the value does match the pattern
       call s:assert.not_match('hoge', '^huga$')
     End
-    It throws a report when value matches to pattern
+    It throws a report when the value matches to the pattern
       call s:check_throw('not_match', ['hoge', '^hoge$'], 'Not match was expected')
     End
-    It returns truthy value when check was successful
+    It returns truthy value when the check was successful
       call s:assert.truthy(s:assert.not_match('hoge', '^huga$'))
     End
     It accepts an optional message
@@ -267,13 +267,13 @@ Describe helper-assert
   End
 
   Describe .is_number()
-    It checks type of value is number
+    It checks the type of value is a number
       call s:assert.is_number(1)
     End
-    It throws a report when type of value is not number
+    It throws a report when the type of value is not a number
       call s:check_throw('is_number', [1.0], 'The type of value was expected to be number')
     End
-    It returns truthy value when check was successful
+    It returns truthy value when the check was successful
       call s:assert.truthy(s:assert.is_number(1))
     End
     It accepts an optional message
@@ -283,13 +283,13 @@ Describe helper-assert
   End
 
   Describe .is_not_number()
-    It checks type of value is not number
+    It checks the type of value is not a number
       call s:assert.is_not_number(1.0)
     End
-    It throws a report when type of value is number
+    It throws a report when the type of value is a number
       call s:check_throw('is_not_number', [1], 'The type of value was not expected to be number')
     End
-    It returns truthy value when check was successful
+    It returns truthy value when the check was successful
       call s:assert.truthy(s:assert.is_not_number(1.0))
     End
     It accepts an optional message
@@ -299,13 +299,13 @@ Describe helper-assert
   End
 
   Describe .is_string()
-    It checks type of value is string
+    It checks the type of value is a string
       call s:assert.is_string('str')
     End
-    It throws a report when type of value is not string
+    It throws a report when the type of value is not a string
       call s:check_throw('is_string', [0], 'The type of value was expected to be string')
     End
-    It returns truthy value when check was successful
+    It returns truthy value when the check was successful
       call s:assert.truthy(s:assert.is_string(''))
     End
     It accepts an optional message
@@ -315,13 +315,13 @@ Describe helper-assert
   End
 
   Describe .is_not_string()
-    It checks type of value is not string
+    It checks the type of value is not a string
       call s:assert.is_not_string(0)
     End
-    It throws a report when type of value is string
+    It throws a report when the type of value is a string
       call s:check_throw('is_not_string', ['str'], 'The type of value was not expected to be string')
     End
-    It returns truthy value when check was successful
+    It returns truthy value when the check was successful
       call s:assert.truthy(s:assert.is_not_string(0))
     End
     It accepts an optional message
@@ -331,13 +331,13 @@ Describe helper-assert
   End
 
   Describe .is_func()
-    It checks type of value is func
+    It checks the type of value is a function
       call s:assert.is_func(function('function'))
     End
-    It throws a report when type of value is not func
+    It throws a report when the type of value is not a function
       call s:check_throw('is_func', [0], 'The type of value was expected to be func')
     End
-    It returns truthy value when check was successful
+    It returns truthy value when the check was successful
       call s:assert.truthy(s:assert.is_func(function('function')))
     End
     It accepts an optional message
@@ -347,13 +347,13 @@ Describe helper-assert
   End
 
   Describe .is_not_func()
-    It checks type of value is not func
+    It checks the type of value is not a function
       call s:assert.is_not_func(0)
     End
-    It throws a report when type of value is func
+    It throws a report when the type of value is a function
       call s:check_throw('is_not_func', [function('function')], 'The type of value was not expected to be func')
     End
-    It returns truthy value when check was successful
+    It returns truthy value when the check was successful
       call s:assert.truthy(s:assert.is_not_func(0))
     End
     It accepts an optional message
@@ -363,13 +363,13 @@ Describe helper-assert
   End
 
   Describe .is_list()
-    It checks type of value is list
+    It checks the type of value is a list
       call s:assert.is_list([])
     End
-    It throws a report when type of value is not list
+    It throws a report when the type of value is not a list
       call s:check_throw('is_list', [0], 'The type of value was expected to be list')
     End
-    It returns truthy value when check was successful
+    It returns truthy value when the check was successful
       call s:assert.truthy(s:assert.is_list([]))
     End
     It accepts an optional message
@@ -379,13 +379,13 @@ Describe helper-assert
   End
 
   Describe .is_not_list()
-    It checks type of value is not list
+    It checks the type of value is not a list
       call s:assert.is_not_list(0)
     End
-    It throws a report when type of value is list
+    It throws a report when the type of value is a list
       call s:check_throw('is_not_list', [[]], 'The type of value was not expected to be list')
     End
-    It returns truthy value when check was successful
+    It returns truthy value when the check was successful
       call s:assert.truthy(s:assert.is_not_list(0))
     End
     It accepts an optional message
@@ -395,13 +395,13 @@ Describe helper-assert
   End
 
   Describe .is_dict()
-    It checks type of value is dict
+    It checks the type of value is a dictionary
       call s:assert.is_dict({})
     End
-    It throws a report when type of value is not dict
+    It throws a report when the type of value is not a dictionary
       call s:check_throw('is_dict', [0], 'The type of value was expected to be dict')
     End
-    It returns truthy value when check was successful
+    It returns truthy value when the check was successful
       call s:assert.truthy(s:assert.is_dict({}))
     End
     It accepts an optional message
@@ -411,13 +411,13 @@ Describe helper-assert
   End
 
   Describe .is_not_dict()
-    It checks type of value is not dict
+    It checks the type of value is not a dictionary
       call s:assert.is_not_dict(0)
     End
-    It throws a report when type of value is dict
+    It throws a report when the type of value is a dictionary
       call s:check_throw('is_not_dict', [{}], 'The type of value was not expected to be dict')
     End
-    It returns truthy value when check was successful
+    It returns truthy value when the check was successful
       call s:assert.truthy(s:assert.is_not_dict(0))
     End
     It accepts an optional message
@@ -427,13 +427,13 @@ Describe helper-assert
   End
 
   Describe .is_float()
-    It checks type of value is float
+    It checks the type of value is a float
       call s:assert.is_float(1.0)
     End
-    It throws a report when type of value is not float
+    It throws a report when the type of value is not a float
       call s:check_throw('is_float', [0], 'The type of value was expected to be float')
     End
-    It returns truthy value when check was successful
+    It returns truthy value when the check was successful
       call s:assert.truthy(s:assert.is_float(0.0))
     End
     It accepts an optional message
@@ -443,13 +443,13 @@ Describe helper-assert
   End
 
   Describe .is_not_float()
-    It checks type of value is not float
+    It checks the type of value is not a float
       call s:assert.is_not_float(0)
     End
-    It throws a report when type of value is float
+    It throws a report when the type of value is a float
       call s:check_throw('is_not_float', [1.0], 'The type of value was not expected to be float')
     End
-    It returns truthy value when check was successful
+    It returns truthy value when the check was successful
       call s:assert.truthy(s:assert.is_not_float(0))
     End
     It accepts an optional message
@@ -460,13 +460,13 @@ Describe helper-assert
 
   if 800 <= v:version
     Describe .is_bool()
-      It checks type of value is bool
+      It checks the type of value is a bool
         call s:assert.is_bool(v:true)
       End
-      It throws a report when type of value is not bool
+      It throws a report when the type of value is not a bool
         call s:check_throw('is_bool', [1], 'The type of value was expected to be bool')
       End
-      It returns truthy value when check was successful
+      It returns truthy value when the check was successful
         call s:assert.truthy(s:assert.is_bool(v:false))
       End
       It accepts an optional message
@@ -476,13 +476,13 @@ Describe helper-assert
     End
 
     Describe .is_not_bool()
-      It checks type of value is not bool
+      It checks the type of value is not a bool
         call s:assert.is_not_bool(1)
       End
-      It throws a report when type of value is bool
+      It throws a report when the type of value is a bool
         call s:check_throw('is_not_bool', [v:true], 'The type of value was not expected to be bool')
       End
-      It returns truthy value when check was successful
+      It returns truthy value when the check was successful
         call s:assert.truthy(s:assert.is_not_bool(0))
       End
       It accepts an optional message
@@ -492,13 +492,13 @@ Describe helper-assert
     End
 
     Describe .is_none()
-      It checks type of value is none
+      It checks the type of value is a none
         call s:assert.is_none(v:none)
       End
-      It throws a report when type of value is not none
+      It throws a report when the type of value is not a none
         call s:check_throw('is_none', [v:false], 'The type of value was expected to be none')
       End
-      It returns truthy value when check was successful
+      It returns truthy value when the check was successful
         call s:assert.truthy(s:assert.is_none(v:null))
       End
       It accepts an optional message
@@ -508,13 +508,13 @@ Describe helper-assert
     End
 
     Describe .is_not_none()
-      It checks type of value is not none
+      It checks the type of value is not a none
         call s:assert.is_not_none(v:true)
       End
-      It throws a report when type of value is none
+      It throws a report when the type of value is a none
         call s:check_throw('is_not_none', [v:none], 'The type of value was not expected to be none')
       End
-      It returns truthy value when check was successful
+      It returns truthy value when the check was successful
         call s:assert.truthy(s:assert.is_not_none(v:false))
       End
       It accepts an optional message
@@ -524,13 +524,13 @@ Describe helper-assert
     End
 
     Describe .is_job()
-      It checks type of value is job
+      It checks the type of value is a job
         call s:assert.is_job(test_null_job())
       End
-      It throws a report when type of value is not job
+      It throws a report when the type of value is not a job
         call s:check_throw('is_job', [v:null], 'The type of value was expected to be job')
       End
-      It returns truthy value when check was successful
+      It returns truthy value when the check was successful
         call s:assert.truthy(s:assert.is_job(test_null_job()))
       End
       It accepts an optional message
@@ -540,13 +540,13 @@ Describe helper-assert
     End
 
     Describe .is_not_job()
-      It checks type of value is not job
+      It checks the type of value is not a job
         call s:assert.is_not_job(v:null)
       End
-      It throws a report when type of value is job
+      It throws a report when the type of value is a job
         call s:check_throw('is_not_job', [test_null_job()], 'The type of value was not expected to be job')
       End
-      It returns truthy value when check was successful
+      It returns truthy value when the check was successful
         call s:assert.truthy(s:assert.is_not_job(v:null))
       End
       It accepts an optional message
@@ -556,13 +556,13 @@ Describe helper-assert
     End
 
     Describe .is_channel()
-      It checks type of value is channel
+      It checks the type of value is a channel
         call s:assert.is_channel(test_null_channel())
       End
-      It throws a report when type of value is not channel
+      It throws a report when the type of value is not a channel
         call s:check_throw('is_channel', [v:null], 'The type of value was expected to be channel')
       End
-      It returns truthy value when check was successful
+      It returns truthy value when the check was successful
         call s:assert.truthy(s:assert.is_channel(test_null_channel()))
       End
       It accepts an optional message
@@ -572,13 +572,13 @@ Describe helper-assert
     End
 
     Describe .is_not_channel()
-      It checks type of value is not channel
+      It checks the type of value is not a channel
         call s:assert.is_not_channel(v:null)
       End
-      It throws a report when type of value is channel
+      It throws a report when the type of value is a channel
         call s:check_throw('is_not_channel', [test_null_channel()], 'The type of value was not expected to be channel')
       End
-      It returns truthy value when check was successful
+      It returns truthy value when the check was successful
         call s:assert.truthy(s:assert.is_not_channel(v:null))
       End
       It accepts an optional message
@@ -590,7 +590,7 @@ Describe helper-assert
   endif
 
   Describe .type_of()
-    It checks type of value
+    It checks the type of value
       call s:assert.type_of(0, 'Number')
       call s:assert.type_of('', 'String')
       call s:assert.type_of([], 'List')
@@ -598,22 +598,22 @@ Describe helper-assert
       call s:assert.type_of({}, 'Dictionary')
       call s:assert.type_of(0.0, 'Float')
     End
-    It accepts name of type as case insensitive
+    It accepts a name of the type as case insensitive
       call s:assert.type_of(0, 'Number')
       call s:assert.type_of(0, 'NUMBER')
       call s:assert.type_of(0, 'NuMbEr')
     End
-    It accepts one or more names by list
+    It accepts one or more names from a list
       call s:assert.type_of(0, ['Number'])
       call s:assert.type_of(0, ['Number', 'String', 'Float'])
       call s:assert.type_of('', ['Number', 'String', 'Float'])
       call s:assert.type_of(0.0, ['Number', 'String', 'Float'])
     End
-    It throws a report when type is mismatch
+    It throws a report when the type is mismatched
       call s:check_throw('type_of', [0.0, 'Number'], 'The type of value was expected to be number')
       call s:check_throw('type_of', ['0', ['Number', 'Float']], 'The type of value was expected to be one of number or float')
     End
-    It returns truthy value when check was successful
+    It returns truthy value when the check was successful
       call s:assert.truthy(s:assert.type_of('', 'string'))
     End
     It accepts an optional message
@@ -623,24 +623,24 @@ Describe helper-assert
   End
 
   Describe .length_of()
-    It checks length of string
+    It checks the length of a string
       call s:assert.length_of('12345', 5)
     End
-    It checks length of list
+    It checks the length of a list
       call s:assert.length_of([1, 2, 3], 3)
     End
-    It checks length of dict
+    It checks the length of a dictionary
       call s:assert.length_of({'elem': 1}, 1)
     End
-    It throws a report when length is mismatch
+    It throws a report when the length is mismatched
       call s:check_throw('length_of', ['', 1], 'The length of value was expected to the specified length')
       call s:check_throw('length_of', [[], 1], 'The length of value was expected to the specified length')
       call s:check_throw('length_of', [{}, 1], 'The length of value was expected to the specified length')
     End
-    It throws a report when first argument is not valid
+    It throws a report when the first argument is not valid
       call s:check_throw('length_of', [0, 1], 'The type of value was expected to be one of string, list or dictionary')
     End
-    It returns truthy value when check was successful
+    It returns truthy value when the check was successful
       call s:assert.truthy(s:assert.length_of('', 0))
     End
     It accepts an optional message
@@ -650,22 +650,22 @@ Describe helper-assert
   End
 
   Describe .has_key()
-    It checks key exists in dict
+    It checks key exists in a dictionary
       call s:assert.has_key({'foo': 0}, 'foo')
     End
-    It checks index exists in array
+    It checks index exists in a list
       call s:assert.has_key([1, 2, 3], 2)
     End
-    It throws a report when key is not exist in dict
+    It throws a report when the key does not exist in the dictionary
       call s:check_throw('has_key', [{}, 'foo'], 'The dictionary was expected to have a key')
     End
-    It throws a report when index is not exist in array
+    It throws a report when the index does not exist in the list
       call s:check_throw('has_key', [[], 0], 'The array was expected to have a index')
     End
-    It throws a report when first argumentis not dict or array
+    It throws a report when the first argument is not a dictionary or a list
       call s:check_throw('has_key', ['foo', 0], 'The first argument was expected to an array or a dict')
     End
-    It returns truthy value when check was successful
+    It returns truthy value when the check was successful
       call s:assert.truthy(s:assert.has_key({'foo': 0}, 'foo'))
     End
     It accepts an optional message
@@ -677,16 +677,16 @@ Describe helper-assert
   End
 
   Describe .key_exists()
-    It checks key exists in dict
+    It checks key exists in the dictionary
       call s:assert.key_exists({'foo': 0}, 'foo')
     End
-    It throws a report when key is not exist in dict
+    It throws a report when the key does not exist in the dictionary
       call s:check_throw('key_exists', [{}, 'foo'], 'It was expected that a key exists in the dictionary')
     End
-    It throws a report when first argumentis not dict
+    It throws a report when the first argument is not a dictionary
       call s:check_throw('key_exists', ['foo', 0], 'The type of value was expected to be dictionary')
     End
-    It returns truthy value when check was successful
+    It returns truthy value when the check was successful
       call s:assert.truthy(s:assert.key_exists({'foo': 0}, 'foo'))
     End
     It accepts an optional message
@@ -697,16 +697,16 @@ Describe helper-assert
   End
 
   Describe .key_not_exists()
-    It checks key does not exist in dict
+    It checks key does not exist in the dictionary
       call s:assert.key_not_exists({'foo': 0}, 'bar')
     End
-    It throws a report when key exists in dict
+    It throws a report when the key exists in the dictionary
       call s:check_throw('key_not_exists', [{'foo': 0}, 'foo'], 'It was expected that a key does not exist in the dictionary')
     End
-    It throws a report when first argument is not dict
+    It throws a report when the first argument is not a dictionary
       call s:check_throw('key_not_exists', ['foo', 0], 'The type of value was expected to be dictionary')
     End
-    It returns truthy value when check was successful
+    It returns truthy value when the check was successful
       call s:assert.truthy(s:assert.key_not_exists({'foo': 0}, 'bar'))
     End
     It accepts an optional message
@@ -717,15 +717,15 @@ Describe helper-assert
   End
 
   Describe .exists()
-    It throws report when the value does not exists
+    It throws a report when the value does not exist
       call s:check_throw('exists', ['g:the_value_which_does_not_exist'], 'The target was expected to exist')
     End
-    It does not throw report when the value exists
+    It does not throw a report when the value exists
       let g:the_value_which_exists = 1
       call s:assert.exists('g:the_value_which_exists')
       unlet g:the_value_which_exists
     End
-    It returns truthy value when check was successful
+    It returns truthy value when the check was successful
       call s:assert.truthy(s:assert.exists('*function'))
     End
     It accepts an optional message
@@ -737,26 +737,26 @@ Describe helper-assert
   End
 
   Describe .cmd_exists()
-    It throws report when the ex command does not exists
-      call s:check_throw('cmd_exists', ['NotExistCommand'], 'The ex command was expected to exist')
+    It throws a report when the Ex command does not exist
+      call s:check_throw('cmd_exists', ['NotExistCommand'], 'The Ex command was expected to exist')
     End
-    It does not throw report when the ex command exists
+    It does not throw a report when the Ex command exists
       command! TestCommandThatExist :
       call s:assert.cmd_exists('TestCommandThatExist')
       delcommand TestCommandThatExist
     End
-    It allows : at the head
+    It allows ":" at the head
       command! TestCommandThatExist :
       call s:assert.cmd_exists(':TestCommandThatExist')
       delcommand TestCommandThatExist
     End
-    It throws report when the ex command is part of existing command
+    It throws a report when the Ex command is part of existing command
       command! TestCommandThatExist :
       call s:assert.cmd_exists('TestCommandThatExist')
-      call s:check_throw('cmd_exists', ['TestCommand'], 'The ex command was expected to exist')
+      call s:check_throw('cmd_exists', ['TestCommand'], 'The Ex command was expected to exist')
       delcommand TestCommandThatExist
     End
-    It returns truthy value when check was successful
+    It returns truthy value when the check was successful
       call s:assert.truthy(s:assert.cmd_exists('command'))
     End
     It accepts an optional message
@@ -766,7 +766,7 @@ Describe helper-assert
   End
 
   Describe .empty()
-    It throws report when the value is not empty
+    It throws a report when the value is not empty
       call s:check_throw('empty', [[1, 2, 3]], 'The target was expected to be empty')
     End
     It passes when the value is empty
@@ -774,7 +774,7 @@ Describe helper-assert
       call s:assert.empty({})
       call s:assert.empty('')
     End
-    It returns truthy value when check was successful
+    It returns truthy value when the check was successful
       call s:assert.truthy(s:assert.empty([]))
     End
     It accepts an optional message
@@ -784,7 +784,7 @@ Describe helper-assert
   End
 
   Describe .not_empty()
-    It throws report when the value is empty
+    It throws a report when the value is empty
       call s:check_throw('not_empty', [[]], 'The target was expected not to be empty')
       call s:check_throw('not_empty', [{}], 'The target was expected not to be empty')
       call s:check_throw('not_empty', [''], 'The target was expected not to be empty')
@@ -794,7 +794,7 @@ Describe helper-assert
       call s:assert.not_empty({1 : 'a'})
       call s:assert.not_empty('foo')
     End
-    It returns truthy value when check was successful
+    It returns truthy value when the check was successful
       call s:assert.truthy(s:assert.not_empty([1, 2, 3]))
     End
     It accepts an optional message
