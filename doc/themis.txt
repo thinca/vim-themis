@@ -362,7 +362,8 @@ Others
 |themis-helper-assert-length_of()|
 |themis-helper-assert-key_exists()| / |themis-helper-assert-key_not_exists()|
 |themis-helper-assert-has_key()|
-|themis-helper-assert-exists()| / |themis-helper-assert-cmd_exists()|
+|themis-helper-assert-exists()| / |themis-helper-assert-not-exists()|
+|themis-helper-assert-cmd_exists()|
 |themis-helper-assert-empty()|
 |themis-helper-assert-not_empty()|
 
@@ -727,6 +728,11 @@ assert.has_key({list}, {index} [, {message}])
 assert.exists({expr} [, {message}])	*themis-helper-assert-exists()*
 	Checks {expr} by |exists()|.
 	Note that this can not use for |local-variable| and |script-variable|.
+
+assert.not_exists({expr} [, {message}])	*themis-helper-assert-not-exists()*
+	Checks {expr} does not exists by checking |exists()| returns 0.
+	Note that this can not be used for |local-variable| and
+	|script-variable|.
 
 assert.cmd_exists({cmd} [, {message}])	*themis-helper-assert-cmd_exists()*
 	Checks {cmd} by |exists()| strictly(full match with a command).

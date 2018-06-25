@@ -724,6 +724,28 @@ Describe helper-assert
     End
   End
 
+  Describe .not_exists()
+    Before each
+      let g:the_value_which_exists = 1
+    End
+    After each
+      unlet g:the_value_which_exists
+    End
+    It throws report when the value exists
+      call s:check_throw('not_exists', ['g:the_value_which_exists'], 'The target was expected not to exist')
+    End
+    It does not throw report when the value does not exist
+      call s:assert.not_exists('g:the_value_which_does_not_exist')
+    End
+    It returns truthy value when check was successful
+      call s:assert.truthy(s:assert.not_exists('g:the_value_which_does_not_exists'))
+    End
+    It accepts an optional message
+      call s:assert.not_exists('g:the_value_which_not_exists', 'error message')
+      call s:check_throw('not_exists', ['g:the_value_which_exists', 'error message'], 'error message')
+    End
+  End
+
   Describe .cmd_exists()
     It throws report when the ex command does not exists
       call s:check_throw('cmd_exists', ['NotExistCommand'], 'The ex command was expected to exist')
