@@ -289,6 +289,17 @@ function! s:assert_exists(expr, ...) abort
   return 1
 endfunction
 
+function! s:assert_not_exists(expr, ...) abort
+  if exists(a:expr)
+    throw s:failure([
+    \   'The target was expected not to exist, but it actually exists.',
+    \   '',
+    \   '    target: ' . string(a:expr),
+    \ ], a:000)
+  endif
+  return 1
+endfunction
+
 function! s:assert_cmd_exists(expr, ...) abort
   let cmd = a:expr[0] ==# ':' ? a:expr : ':' . a:expr
   if exists(cmd) != 2
