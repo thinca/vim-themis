@@ -21,7 +21,7 @@ Describe supporter-stats
       Skip pending test
     endfunction
 
-    call runner.run(bundle)
+    call runner.run(bundle, themis#option#default())
   End
 
   It counts number of total tests

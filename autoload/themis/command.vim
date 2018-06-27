@@ -86,6 +86,10 @@ function! s:options.runtimepath(args, options) abort
   let a:options.runtimepath += [remove(a:args, 0)]
 endfunction
 
+function! s:options.random(args, options) abort
+  let a:options.random = 1
+endfunction
+
 function! s:options.debug(args, options) abort
   let $THEMIS_DEBUG = 1
 endfunction
@@ -102,6 +106,7 @@ function! s:options.help(args, options) abort
   \   '   --reporter {name}        Select a reporter',
   \   '   --reporter-list          Show available reporters',
   \   '   --runtimepath {path}     Add runtimepath',
+  \   '   --random                 Randomize the order of test execution',
   \   '-v --version                Print version',
   \   '-h --help                   Show this help',
   \ ], "\n"))

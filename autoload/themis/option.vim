@@ -13,6 +13,7 @@ let s:default_options = {
 \   'reporter': 'tap',
 \   'runtimepath': [],
 \   'exclude': [],
+\   'random': 0,
 \ }
 
 function! themis#option#default() abort

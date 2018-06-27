@@ -18,7 +18,7 @@ Describe Runner
       End
 
       It is emitted in order
-        call runner.run(bundle)
+        call runner.run(bundle, themis#option#default())
         Assert Equals(listener.called, [
         \   'init',
         \     'start',
@@ -43,7 +43,7 @@ Describe Runner
       End
 
       It is emitted in order
-        call runner.run(bundle)
+        call runner.run(bundle, themis#option#default())
         Assert Equals(listener.called, [
         \   'init',
         \     'start',

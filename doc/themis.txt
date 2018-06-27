@@ -143,6 +143,9 @@ bin/themis [options] [script]...
 	--runtimepath {runtimepath}		*themis-option-runtimepath*
 		Add 'runtimepath'.  Two or more specification is possible.
 
+	--random                		*themis-option-random*
+		Randomize the order of test execution.
+
 
 ------------------------------------------------------------------------------
 FUNCTIONS					*themis-functions*
