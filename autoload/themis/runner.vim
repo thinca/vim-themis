@@ -108,7 +108,7 @@ function! s:Runner.run(bundle, options) abort
     if has_key(a:options, 'random_seed')
       let seed = a:options.random_seed
     else
-      let seed = float2nr(reltimefloat(reltime()))
+      let seed = str2nr(reltimestr(reltime()))
     endif
     call themis#log('Randomizing order of test execution with seed ' . seed)
     call s:R.seed(seed)
