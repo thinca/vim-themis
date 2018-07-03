@@ -90,6 +90,17 @@ function! s:options.random(args, options) abort
   let a:options.random = 1
 endfunction
 
+function! s:options.random_seed(args, options) abort
+  if empty(a:args)
+    throw 'themis: --runtime-seed option requires {seed}'
+  endif
+  let arg = remove(a:args, 0)
+  if arg !~# '^\d\+$'
+    throw printf("themis: {seed} of --runtime-seed must be an unsigned integer: '%s'", arg)
+  endif
+  let a:options.random_seed = str2nr(arg)
+endfunction
+
 function! s:options.debug(args, options) abort
   let $THEMIS_DEBUG = 1
 endfunction
@@ -107,6 +118,7 @@ function! s:options.help(args, options) abort
   \   '   --reporter-list          Show available reporters',
   \   '   --runtimepath {path}     Add runtimepath',
   \   '   --random                 Randomize the order of test execution',
+  \   '   --random-seed {seed}     Seed number for --random',
   \   '-v --version                Print version',
   \   '-h --help                   Show this help',
   \ ], "\n"))

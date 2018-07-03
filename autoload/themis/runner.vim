@@ -104,6 +104,15 @@ endfunction
 function! s:Runner.run(bundle, options) abort
   let stats = self.supporter('stats')
   call self.supporter('builtin_assert')
+  if a:options.random
+    if has_key(a:options, 'random_seed')
+      let seed = a:options.random_seed
+    else
+      let seed = float2nr(reltimefloat(reltime()))
+    endif
+    call themis#log('Randomizing order of test execution with seed ' . seed)
+    call s:R.seed(seed)
+  endif
   call self.emit('init', self, a:bundle)
   let error_count = 0
   try
