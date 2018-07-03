@@ -6,6 +6,8 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
+let s:R = g:themis#vital.import('Random')
+
 let s:Runner = {}
 
 function! s:Runner.init() abort
@@ -44,7 +46,7 @@ function! s:Runner.start(paths, options) abort
 
     let target_pattern = join(a:options.target, '\m\|')
     call bundle.select_tests_recursive(target_pattern)
-    return self.run(bundle)
+    return self.run(bundle, options)
   finally
     let &runtimepath = save_runtimepath
   endtry
@@ -99,13 +101,22 @@ function! s:Runner.load_scripts(files_with_styles, target_bundle) abort
   endfor
 endfunction
 
-function! s:Runner.run(bundle) abort
+function! s:Runner.run(bundle, options) abort
   let stats = self.supporter('stats')
   call self.supporter('builtin_assert')
+  if a:options.random
+    if has_key(a:options, 'random_seed')
+      let seed = a:options.random_seed
+    else
+      let seed = str2nr(reltimestr(reltime()))
+    endif
+    call themis#log('Randomizing order of test execution with seed ' . seed)
+    call s:R.seed(seed)
+  endif
   call self.emit('init', self, a:bundle)
   let error_count = 0
   try
-    call self.run_all(a:bundle)
+    call self.run_all(a:bundle, a:options)
     let error_count = stats.fail()
   catch
     call self.on_error('running', v:exception, v:throwpoint)
@@ -116,20 +127,28 @@ function! s:Runner.run(bundle) abort
   return error_count
 endfunction
 
-function! s:Runner.run_all(bundle) abort
+function! s:Runner.run_all(bundle, options) abort
   call self.emit('start', self)
-  call self.run_bundle(a:bundle)
+  call self.run_bundle(a:bundle, a:options)
   call self.emit('end', self)
 endfunction
 
-function! s:Runner.run_bundle(bundle) abort
+function! s:Runner.run_bundle(bundle, options) abort
   if a:bundle.is_empty()
     return
   endif
   call self.emit('before_suite', a:bundle)
-  call self.run_suite(a:bundle, a:bundle.get_test_entries())
-  for child in a:bundle.children
-    call self.run_bundle(child)
+  let suites = a:bundle.get_test_entries()
+  if a:options.random
+      call s:R.shuffle(suites)
+  endif
+  call self.run_suite(a:bundle, suites)
+  let children = a:bundle.children
+  if a:options.random
+      call s:R.shuffle(children)
+  endif
+  for child in children
+    call self.run_bundle(child, a:options)
   endfor
   call self.emit('after_suite', a:bundle)
 endfunction

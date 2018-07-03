@@ -18,7 +18,7 @@ Describe Runner
       End
 
       It is emitted in order
-        call runner.run(bundle)
+        call runner.run(bundle, themis#option#default())
         Assert Equals(listener.called, [
         \   'init',
         \     'start',
@@ -43,7 +43,7 @@ Describe Runner
       End
 
       It is emitted in order
-        call runner.run(bundle)
+        call runner.run(bundle, themis#option#default())
         Assert Equals(listener.called, [
         \   'init',
         \     'start',
@@ -68,6 +68,58 @@ Describe Runner
         \   'finish',
         \ ])
       End
+    End
+  End
+
+  Describe randomization
+    Before
+      function s:dummy_test() abort
+      endfunction
+      function s:gen_bundle(runner) abort
+        let listener = {}
+        function! listener._(name, args) abort
+          if a:name ==# 'after_suite'
+            let self.entries = a:args[0].test_entries
+          endif
+        endfunction
+        call a:runner.add_event(listener)
+
+        let bundle = themis#bundle#new('test')
+        let bundle.style = a:runner._styles['basic']
+        for i in range(20)
+          let bundle.suite['test_' . i] = function('s:dummy_test')
+        endfor
+        return [listener, bundle]
+      endfunction
+    End
+
+    After
+      delfunction s:dummy_test
+      delfunction s:gen_bundle
+    End
+
+    It runs test suites in randomized order
+      let [listener, bundle] = s:gen_bundle(runner)
+      let opts = themis#option#default()
+      let opts.random = 1
+      call runner.run(bundle, opts)
+      Assert NotEquals(listener.entries, map(range(20), '"test_" . v:val'))
+    End
+
+    It runs test suites in specific order with given random seed
+      let opts = themis#option#default()
+      let opts.random = 1
+      let opts.random_seed = 0x114514
+
+      let [listener, bundle] = s:gen_bundle(runner)
+      call runner.run(bundle, opts)
+      let entries1 = listener.entries
+
+      let [listener, bundle] = s:gen_bundle(runner)
+      call runner.run(bundle, opts)
+      let entries2 = listener.entries
+
+      Assert Equals(entries1, entries2)
     End
   End
 End

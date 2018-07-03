@@ -16,7 +16,7 @@ Describe supporter-builtin_assert
     function! suite.test_assert_true() abort
       call assert_true(0)
     endfunction
-    call runner.run(bundle)
+    call runner.run(bundle, themis#option#default())
     Assert Equals(stats.fail(), 1)
   End
 End

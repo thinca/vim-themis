@@ -33,7 +33,7 @@ function! s:hook.is_called_in_order() abort
 
   Assert HasKey(self.suite, 'called')
   Assert Equals(self.suite.called, [])
-  call self.runner.run(self.bundle)
+  call self.runner.run(self.bundle, themis#option#default())
   Assert Equals(self.suite.called,
   \ [
   \   'before',
@@ -88,7 +88,7 @@ function! s:hook.with_parent_is_called_in_order() abort
 
   Assert HasKey(self.suite, 'called')
   Assert Equals(self.suite.called, [])
-  call self.runner.run(self.bundle)
+  call self.runner.run(self.bundle, themis#option#default())
   Assert Equals(self.suite.called,
   \ [
   \   'parent_before',
