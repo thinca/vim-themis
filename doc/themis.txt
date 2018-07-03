@@ -146,6 +146,9 @@ bin/themis [options] [script]...
 	--random                		*themis-option-random*
 		Randomize the order of test execution.
 
+	--random-seed           		*themis-option-random-seed*
+		Seed number for --random.
+
 
 ------------------------------------------------------------------------------
 FUNCTIONS					*themis-functions*
