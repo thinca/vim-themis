@@ -15,7 +15,6 @@ matrix:
       env:
         - VIM_VERSION=master
     - os: osx
-      osx_image: xcode8.3
 
 addons:
   apt:
@@ -28,6 +27,9 @@ addons:
       - ruby-dev
       - liblua5.1-0-dev
       - lua5.1
+  homebrew:
+    packages:
+      - macvim
 
 cache:
   directories:
@@ -67,9 +69,6 @@ install:
         export PATH=/tmp/vim/${VIM_VERSION}/build/bin:${PATH}
       ;;
       osx)
-        export HOMEBREW_NO_AUTO_UPDATE=1
-        brew update
-        brew install macvim --with-override-system-vim --with-lua
       ;;
       *)
         echo "Unknown value of \${TRAVIS_OS_NAME}: ${TRAVIS_OS_NAME}"
