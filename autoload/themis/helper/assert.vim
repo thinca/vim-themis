@@ -373,7 +373,7 @@ function! s:check_type(value, expected_types, not, additional_message) abort
     throw s:failure([
     \   printf(msg . ', but it was%s the case.', expect, type_names, but),
     \   '',
-    \   printf('    %s expected type: %s', pad, type_names),
+    \   printf('    %s expected type:%s %s', pad, expect, type_names),
     \   printf('    %s      got type: %s', pad, got_type),
     \   printf('    %s     got value: %s', pad, string(a:value)),
     \ ], a:additional_message)
