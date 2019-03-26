@@ -26,6 +26,9 @@ Describe helper-assert
   Describe .true()
     It checks value is true
       call s:assert.true(1)
+      if exists('v:true')
+        call s:assert.true(v:true)
+      endif
     End
     It checks value strictly
       call s:check_throw('true', [100])
@@ -46,6 +49,9 @@ Describe helper-assert
   Describe .false()
     It checks value is false
       call s:assert.false(0)
+      if exists('v:false')
+        call s:assert.false(v:false)
+      endif
     End
     It checks value strictly
       call s:check_throw('false', [''])
@@ -67,6 +73,9 @@ Describe helper-assert
       call s:assert.truthy(1)
       call s:assert.truthy(100)
       call s:assert.truthy('1')
+      if exists('v:true')
+        call s:assert.truthy(v:true)
+      endif
     End
     It throws a report when value is zero or not a number
       call s:check_throw('truthy', [0])
@@ -88,6 +97,9 @@ Describe helper-assert
       call s:assert.falsy(0)
       call s:assert.falsy('')
       call s:assert.falsy('0')
+      if exists('v:false')
+        call s:assert.falsy(v:false)
+      endif
     End
     It throws a report when value is not zero or not a number
       call s:check_throw('falsy', [1])
