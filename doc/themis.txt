@@ -564,10 +564,10 @@ assert.skip({message})			*themis-helper-assert-skip()*
 	Pass a test as SKIP with {message}.
 
 assert.true({value} [, {message}])	*themis-helper-assert-true()*
-	Checks {value} is 1.
+	Checks {value} is 1 or |v:true|.
 
 assert.false({value} [, {message}])	*themis-helper-assert-false()*
-	Checks {value} is 0.
+	Checks {value} is 0 or |v:false|.
 
 assert.truthy({value} [, {message}])	*themis-helper-assert-truthy()*
 	Checks {value} is truthy value.
