@@ -193,7 +193,9 @@ function! themis#util#funcdata(func) abort
   let signature = matchstr(lines[0], '^\s*\zs.*')
   let file = matchstr(lines[1], '^\t\%(Last set from\|.\{-}:\)\s*\zs.*$')
   let file = substitute(file, '[/\\]\+', '/', 'g')
-  let file = substitute(file, ' line \d\+$', '', '')
+  " XXX: Remove ' line 10' at tail.  But the message may be translaetd.
+  "      This can fail in some languages.
+  let file = substitute(file, ' \S\+ \d\+$', '', '')
   let arguments = split(matchstr(signature, '(\zs.*\ze)'), '\s*,\s*')
   let has_extra_arguments = get(arguments, -1, '') ==# '...'
   let arity = len(arguments) - (has_extra_arguments ? 1 : 0)
