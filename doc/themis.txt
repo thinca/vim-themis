@@ -841,7 +841,7 @@ expect({left}).to_be_less_than({right})
 	Compares by |expr-<#|
 
 			*themis-helper-expect-to_be_less_than_or_equal()*
-expect({left}).to_be_less_than({right})
+expect({left}).to_be_less_than_or_equal({right})
 	Compares by |expr-<=#|
 
 expect({actual}).to_equal({expect})	*themis-helper-expect-to_equal()*
