@@ -67,6 +67,9 @@ function! s:StackInfo.format() abort
     if self.line
       let result .= '  Line:' . self.adjusted_lnum()
     endif
+    if self.defline
+      let result .= '  [ Absolute Line: ' . self.adjusted_abs_lnum() . ' ]'
+    endif
     return result . '  (' . self.filename . ')'
   endif
   return 'Unknown Stack'
@@ -97,6 +100,13 @@ function! s:StackInfo.adjusted_lnum(...) abort
   let lnum = a:0 ? a:1 : self.line
   let adjuster = get(s:line_adjuster, self.funcname, 0)
   return lnum + adjuster
+endfunction
+
+function! s:StackInfo.adjusted_abs_lnum(...) abort
+  let lnum = a:0 ? a:1 : self.line
+  let deflnum = self.defline
+  let adjuster = get(s:line_adjuster, self.funcname, 0)
+  return lnum + deflnum + adjuster
 endfunction
 
 function! s:StackInfo.get_line_with_lnum(...) abort
@@ -193,7 +203,8 @@ function! themis#util#funcdata(func) abort
   let signature = matchstr(lines[0], '^\s*\zs.*')
   let file = matchstr(lines[1], '^\t\%(Last set from\|.\{-}:\)\s*\zs.*$')
   let file = substitute(file, '[/\\]\+', '/', 'g')
-  " XXX: Remove ' line 10' at tail.  But the message may be translaetd.
+  let defline = str2nr(matchstr(file, '\d\+$', '', ''))
+  " XXX: Remove ' line 10' at tail.  But the message may be translated.
   "      This can fail in some languages.
   let file = substitute(file, ' \S\+ \d\+$', '', '')
   let arguments = split(matchstr(signature, '(\zs.*\ze)'), '\s*,\s*')
@@ -203,6 +214,7 @@ function! themis#util#funcdata(func) abort
   \   'exists': 1,
   \   'filename': file,
   \   'funcname': func,
+  \   'defline': defline,
   \   'signature': signature,
   \   'arguments': arguments,
   \   'arity': arity,
