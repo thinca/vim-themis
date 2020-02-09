@@ -203,7 +203,7 @@ function! themis#util#funcdata(func) abort
   let signature = matchstr(lines[0], '^\s*\zs.*')
   let file = matchstr(lines[1], '^\t\%(Last set from\|.\{-}:\)\s*\zs.*$')
   let file = substitute(file, '[/\\]\+', '/', 'g')
-  let defline = str2nr(matchstr(file, '\d\+$', '', ''))
+  let defline = str2nr(matchstr(file, '\d\+$'))
   " XXX: Remove ' line 10' at tail.  But the message may be translated.
   "      This can fail in some languages.
   let file = substitute(file, ' \S\+ \d\+$', '', '')
