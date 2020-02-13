@@ -1,0 +1,16 @@
+language: none
+
+env:
+  - PPA=yes
+  - PPA=no
+
+build:
+  ci:
+    - |
+      if [[ "$PPA" == "yes" ]]; then
+        add-apt-repository ppa:pi-rho/dev -y
+        apt-get update -q
+        apt-get install -y vim
+      fi
+    - vim --version
+    - ./bin/themis --reporter dot

@@ -1,0 +1,133 @@
+version: 2.1
+
+parameters:
+  themis_version:
+    description: Version of themis.vim
+    type: string
+    default: 1.5.4
+
+orbs:
+  win: circleci/windows@1.0.0
+
+jobs:
+  linux-test:
+    parameters:
+      version:
+        description: Vim's version
+        type: string
+        default: latest
+    docker:
+      - image: thinca/vim:<< parameters.version >>
+    steps:
+      - checkout
+      - run:
+          name: Show Vim's version
+          command: |
+            vim --version
+      - run:
+          name: Execute test
+          command: |
+            bin/themis --reporter dot
+
+  windows-test:
+    parameters:
+      version:
+        description: Vim's version
+        type: string
+        default: latest
+    executor:
+      name: win/vs2019
+      shell: bash.exe
+    steps:
+      - run:
+          name: Setup parameters
+          environment:
+            VIM_VERSION: << parameters.version >>
+          command: |
+            if [[ ${VIM_VERSION} = 'latest' ]]; then
+              VIM_URL=$(curl -s --retry 3 'https://vim-jp.org/redirects/vim/vim-win32-installer/latest/x64.json' | jq -r '.redirect_url')
+              if [[ -z "${VIM_URL}" ]]; then
+                echo "Can't get Vim's URL" >&2
+                exit 64
+              fi
+              VIM_VERSION=$(echo ${VIM_URL} | sed 's@.*/download/\([^/]*\).*@\1@')
+              if [[ -z "${VIM_VERSION}" ]]; then
+                echo "Can't detect Vim's version from URL(${VIM_URL})" >&2
+                exit 65
+              fi
+            fi
+            echo "export VIM_URL=${VIM_URL}" >> ${BASH_ENV}
+            echo "export VIM_VERSION=${VIM_VERSION}" >> ${BASH_ENV}
+            cp "${BASH_ENV}" ~/envs
+      - restore_cache:
+          keys:
+            - vim-{{ checksum "~/envs" }}-themis-<< pipeline.parameters.themis_version >>
+            - vim-
+      - run:
+          name: Install Vim
+          command: |
+            if [[ ! -d ${HOME}/cache/vim-${VIM_VERSION} ]]; then
+              mkdir -p "${HOME}/cache"
+              if [[ -z "${VIM_URL}" ]]; then
+                if [[ "${VIM_VERSION}" =~ "v7" ]]; then
+                  VIM_URL=https://ftp.nluug.nl/pub/vim/pc/vim$(echo ${VIM_VERSION} | sed 's/[^0-9]//g')w32.zip
+                else
+                  VIM_URL=https://github.com/vim/vim-win32-installer/releases/download/${VIM_VERSION}/gvim_$(echo ${VIM_VERSION} | sed 's/v//')_x64.zip
+                fi
+              fi
+              echo "Download from ${VIM_URL}"
+              curl --silent --location --output "${HOME}/cache/vim-${VIM_VERSION}.zip" "${VIM_URL}"
+              7z x "-o${HOME}/cache/vim-${VIM_VERSION}" "${HOME}/cache/vim-${VIM_VERSION}.zip"
+              rm "${HOME}/cache/vim-${VIM_VERSION}.zip"
+            fi
+            echo "export THEMIS_VIM=$(echo ${HOME}/cache/vim-${VIM_VERSION}/vim/*/vim.exe)" >> ${BASH_ENV}
+      - save_cache:
+          key: vim-{{ checksum "~/envs" }}-themis-<< pipeline.parameters.themis_version >>
+          paths:
+            - ~/cache
+      - checkout
+      - run:
+          name: Show Vim's version
+          command: |
+            ${THEMIS_VIM} --version
+      - run:
+          name: Execute test
+          no_output_timeout: 10s
+          command: |
+            bin/themis.bat --reporter dot
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - linux-test:
+          name: 'Linux: Vim v7.4'
+          version: 'v7.4'
+      - linux-test:
+          name: 'Linux: Vim v8.0.0000'
+          version: 'v8.0.0000'
+      - linux-test:
+          name: 'Linux: Vim v8.1.0005'
+          version: 'v8.1.0005'
+      - linux-test:
+          name: 'Linux: Vim v8.2.0000'
+          version: 'v8.2.0000'
+      - linux-test:
+          name: 'Linux: Vim latest'
+      - windows-test:
+          name: 'Windows: Vim v7.3'
+          version: 'v7.3'
+      - windows-test:
+          name: 'Windows: Vim v7.4'
+          version: 'v7.4'
+      - windows-test:
+          name: 'Windows: Vim v8.0.0003'
+          version: 'v8.0.0003'
+      - windows-test:
+          name: 'Windows: Vim v8.1.0001'
+          version: 'v8.1.0001'
+      - windows-test:
+          name: 'Windows: Vim v8.2.0008'
+          version: 'v8.2.0008'
+      - windows-test:
+          name: 'Windows: Vim latest'
