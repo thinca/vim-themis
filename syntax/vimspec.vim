@@ -10,7 +10,7 @@ endif
 let s:cpo_save = &cpo
 set cpo&vim
 
-runtime! syntax/vim.vim
+runtime! syntax/vim.vim syntax/vim/*.vim
 
 syntax keyword vimspecCommand describe Describe skipwhite nextgroup=vimspecDescription
 syntax keyword vimspecCommand context Context skipwhite nextgroup=vimspecDescription
