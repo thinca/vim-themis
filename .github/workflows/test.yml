@@ -1,0 +1,52 @@
+name: 'Test'
+on: ['push', 'pull_request']
+
+jobs:
+  test:
+    name: 'Vim ${{ matrix.vim_version }} on ${{ matrix.platform }}'
+    strategy:
+      matrix:
+        vim_version:
+          - 'head'
+          - 'v8.2.0000'
+          - 'v8.1.0001'
+          - 'v8.0.0001'
+          - 'v7.4'
+        platform: ['Linux', 'MacOS', 'Windows']
+
+        include:
+          - platform: 'Linux'
+            os: 'ubuntu-latest'
+            download: 'never'
+          - platform: 'MacOS'
+            os: 'macos-latest'
+            download: 'never'
+          - platform: 'Windows'
+            os: 'windows-latest'
+            download: 'always'
+
+        exclude:
+          - vim_version: 'v7.4'
+            platform: 'MacOS'
+
+      fail-fast: false
+
+    runs-on: '${{ matrix.os }}'
+    timeout-minutes: 5
+
+    steps:
+      - uses: 'actions/checkout@v2'
+      - name: 'Setup Vim'
+        id: 'vim'
+        uses: 'thinca/action-setup-vim@v1'
+        with:
+          vim_version: '${{ matrix.vim_version }}'
+          download: '${{ matrix.download }}'
+      - name: 'Show Vim version'
+        run: |
+          ${{ steps.vim.outputs.executable }} --version
+      - name: 'Run test'
+        env:
+          THEMIS_VIM: ${{ steps.vim.outputs.executable }}
+        run: |
+          ./bin/themis --reporter dot
