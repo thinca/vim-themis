@@ -19,6 +19,22 @@ function! s:is_indication_of_attribute_supported() abort
   return  (v:version == 703 && has('patch1136')) || 703 < v:version
 endfunction
 
+if s:is_indication_of_attribute_supported()
+  function! SampleFunctionWithoutAbort()
+  endfunction
+  function! SampleFunctionWithDict() dict
+  endfunction
+  function! SampleFunctionWithRange() range
+  endfunction
+  if has('lambda')
+    function! SampleFunctionWithClosureParent()
+      function! SampleFunctionWithClosure() closure
+      endfunction
+    endfunction
+    call SampleFunctionWithClosureParent()
+  endif
+endif
+
 
 Describe util
   Describe #stack_info()
@@ -138,16 +154,33 @@ Describe util
       End
       It contains is_dict flag
         Assert False(self.data.is_dict)
+        if s:is_indication_of_attribute_supported()
+          let data = themis#util#funcdata(function('SampleFunctionWithDict'))
+          Assert True(data.is_dict)
+        endif
       End
       It contains is_abort flag
         if s:is_indication_of_attribute_supported()
           Assert True(self.data.is_abort)
+          let data = themis#util#funcdata(function('SampleFunctionWithoutAbort'))
+          Assert False(data.is_abort)
         else
           Assert False(self.data.is_abort)
         endif
       End
       It contains has_range flag
         Assert False(self.data.has_range)
+        if s:is_indication_of_attribute_supported()
+          let data = themis#util#funcdata(function('SampleFunctionWithRange'))
+          Assert True(data.has_range)
+        endif
+      End
+      It contains is_closure flag
+        Assert False(self.data.is_closure)
+        if has('lambda')
+          let data = themis#util#funcdata(function('SampleFunctionWithClosure'))
+          Assert True(data.is_closure)
+        endif
       End
       It contains body
         Assert IsList(self.data.body)

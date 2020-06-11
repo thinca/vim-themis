@@ -49,6 +49,9 @@ function! s:StackInfo.make_signature() abort
   if self.is_dict
     let flags .= ' dict'
   endif
+  if self.is_closure
+    let flags .= ' closure'
+  endif
   return printf('function %s(%s)%s', funcname, args, flags)
 endfunction
 
@@ -228,6 +231,7 @@ function! themis#util#funcdata(func) abort
   \   'is_dict': signature =~# ').*dict',
   \   'is_abort': signature =~# ').*abort',
   \   'has_range': signature =~# ').*range',
+  \   'is_closure': signature =~# ').*closure',
   \   'body': lines[2 : -2],
   \ }
 endfunction
