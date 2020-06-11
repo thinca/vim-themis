@@ -189,7 +189,13 @@ endfunction
 function! themis#util#funcdata(func) abort
   let func = type(a:func) == type(function('type')) ?
   \          themis#util#funcname(a:func) : a:func
-  let fname = func =~# '^\d\+' ? '{' . func . '}' : func
+  if func =~# '^\d\+'
+    let fname = '{' . func . '}'
+  elseif func =~# '^<lambda>'
+    let fname = "{'" . func . "'}"
+  else
+    let fname = func
+  endif
   if !exists('*' . fname)
     return {
     \   'exists': 0,
@@ -236,7 +242,7 @@ function! themis#util#error_info(stacktrace) abort
 endfunction
 
 function! themis#util#is_funcname(name) abort
-  return a:name =~# '\v^%(\d+|%(\u|g:\u|s:|\<SNR\>\d+_)\w+|\h\w*%(#\w+)+)$'
+  return a:name =~# '\v^%(%(\<lambda\>)?\d+|%(\u|g:\u|s:|\<SNR\>\d+_)\w+|\h\w*%(#\w+)+)$'
 endfunction
 
 function! themis#util#funcname(funcref) abort

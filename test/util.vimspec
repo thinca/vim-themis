@@ -80,6 +80,21 @@ Describe util
       Assert Match(data.body[0], '1\s*echo "line1"')
       Assert Match(data.body[-1], '\d\+\s*echo "lastline"')
     End
+    It takes a anonymous function
+      let obj = {}
+      function! obj.func() abort
+      endfunction
+      let funcname = matchstr(string(obj.func), '^function(''\zs[^'']\{-}\ze''')
+      Assert True(themis#util#funcdata(funcname).exists)
+    End
+    It takes a lambda function
+      if !has('lambda')
+        Skip because has not lambda
+      endif
+      let Func = {-> 1}
+      let funcname = matchstr(string(Func), '^function(''\zs[^'']\{-}\ze''')
+      Assert True(themis#util#funcdata(funcname).exists)
+    End
     It returns the data with "exists" flag as false when the function is already deleted
       let obj = {}
       function! obj.func() abort
@@ -148,22 +163,33 @@ Describe util
       Assert True(themis#util#is_funcname('<SNR>10_script_local_func'))
       Assert True(themis#util#is_funcname('autoload#func'))
       Assert True(themis#util#is_funcname('10'))
+      Assert True(themis#util#is_funcname('<lambda>10'))
 
       Assert False(themis#util#is_funcname(''))
       Assert False(themis#util#is_funcname('global_func'))
       Assert False(themis#util#is_funcname('g:global_func'))
       Assert False(themis#util#is_funcname('#func'))
       Assert False(themis#util#is_funcname('10func'))
+      Assert False(themis#util#is_funcname('<lambda>10func'))
     End
   End
 
   Describe #funcname()
     It returns function name from Funcref
-      let obj = {}
       Assert Equals(themis#util#funcname(function('SampleFunctionForUtil')), 'SampleFunctionForUtil')
+    End
+    It returns function name of anonymous function
+      let obj = {}
       function! obj.funcname() abort
       endfunction
       Assert Match(themis#util#funcname(obj.funcname), '^\d\+$')
+    End
+    It returns function name of lambda function
+      if !has('lambda')
+        Skip because has not lambda
+      endif
+      let Func = {-> 1}
+      Assert Match(themis#util#funcname(Func), '^<lambda>\d\+$')
     End
   End
 
