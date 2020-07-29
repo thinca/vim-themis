@@ -19,6 +19,22 @@ function! s:is_indication_of_attribute_supported() abort
   return  (v:version == 703 && has('patch1136')) || 703 < v:version
 endfunction
 
+if s:is_indication_of_attribute_supported()
+  function! SampleFunctionWithoutAbort()
+  endfunction
+  function! SampleFunctionWithDict() dict
+  endfunction
+  function! SampleFunctionWithRange() range
+  endfunction
+  if has('lambda')
+    function! SampleFunctionWithClosureParent()
+      function! SampleFunctionWithClosure() closure
+      endfunction
+    endfunction
+    call SampleFunctionWithClosureParent()
+  endif
+endif
+
 
 Describe util
   Describe #stack_info()
@@ -80,6 +96,21 @@ Describe util
       Assert Match(data.body[0], '1\s*echo "line1"')
       Assert Match(data.body[-1], '\d\+\s*echo "lastline"')
     End
+    It takes a anonymous function
+      let obj = {}
+      function! obj.func() abort
+      endfunction
+      let funcname = matchstr(string(obj.func), '^function(''\zs[^'']\{-}\ze''')
+      Assert True(themis#util#funcdata(funcname).exists)
+    End
+    It takes a lambda function
+      if !has('lambda')
+        Skip because has not lambda
+      endif
+      let Func = {-> 1}
+      let funcname = matchstr(string(Func), '^function(''\zs[^'']\{-}\ze''')
+      Assert True(themis#util#funcdata(funcname).exists)
+    End
     It returns the data with "exists" flag as false when the function is already deleted
       let obj = {}
       function! obj.func() abort
@@ -123,16 +154,33 @@ Describe util
       End
       It contains is_dict flag
         Assert False(self.data.is_dict)
+        if s:is_indication_of_attribute_supported()
+          let data = themis#util#funcdata(function('SampleFunctionWithDict'))
+          Assert True(data.is_dict)
+        endif
       End
       It contains is_abort flag
         if s:is_indication_of_attribute_supported()
           Assert True(self.data.is_abort)
+          let data = themis#util#funcdata(function('SampleFunctionWithoutAbort'))
+          Assert False(data.is_abort)
         else
           Assert False(self.data.is_abort)
         endif
       End
       It contains has_range flag
         Assert False(self.data.has_range)
+        if s:is_indication_of_attribute_supported()
+          let data = themis#util#funcdata(function('SampleFunctionWithRange'))
+          Assert True(data.has_range)
+        endif
+      End
+      It contains is_closure flag
+        Assert False(self.data.is_closure)
+        if has('lambda')
+          let data = themis#util#funcdata(function('SampleFunctionWithClosure'))
+          Assert True(data.is_closure)
+        endif
       End
       It contains body
         Assert IsList(self.data.body)
@@ -148,22 +196,33 @@ Describe util
       Assert True(themis#util#is_funcname('<SNR>10_script_local_func'))
       Assert True(themis#util#is_funcname('autoload#func'))
       Assert True(themis#util#is_funcname('10'))
+      Assert True(themis#util#is_funcname('<lambda>10'))
 
       Assert False(themis#util#is_funcname(''))
       Assert False(themis#util#is_funcname('global_func'))
       Assert False(themis#util#is_funcname('g:global_func'))
       Assert False(themis#util#is_funcname('#func'))
       Assert False(themis#util#is_funcname('10func'))
+      Assert False(themis#util#is_funcname('<lambda>10func'))
     End
   End
 
   Describe #funcname()
     It returns function name from Funcref
-      let obj = {}
       Assert Equals(themis#util#funcname(function('SampleFunctionForUtil')), 'SampleFunctionForUtil')
+    End
+    It returns function name of anonymous function
+      let obj = {}
       function! obj.funcname() abort
       endfunction
       Assert Match(themis#util#funcname(obj.funcname), '^\d\+$')
+    End
+    It returns function name of lambda function
+      if !has('lambda')
+        Skip because has not lambda
+      endif
+      let Func = {-> 1}
+      Assert Match(themis#util#funcname(Func), '^<lambda>\d\+$')
     End
   End
 
