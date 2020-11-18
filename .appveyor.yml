@@ -2,21 +2,28 @@ version: '{build}'
 clone_depth: 1
 environment:
   matrix:
-    - VIM_URL: http://vim-jp.org/redirects/koron/vim-kaoriya/vim74/oldest/win64/
-    - VIM_URL: http://vim-jp.org/redirects/koron/vim-kaoriya/vim80/oldest/win64/
-    - VIM_URL: http://vim-jp.org/redirects/koron/vim-kaoriya/latest/win64/
+    - VIM_URL: https://vim-jp.org/redirects/koron/vim-kaoriya/vim74/oldest/win64/
+    - VIM_URL: https://github.com/vim/vim-win32-installer/releases/download/v8.0.0003/gvim_8.0.0003_x64.zip
+    - VIM_URL: https://github.com/vim/vim-win32-installer/releases/download/v8.1.0001/gvim_8.1.0001_x64.zip
+    - VIM_URL: https://github.com/vim/vim-win32-installer/releases/download/v8.2.0008/gvim_8.2.0008_x64.zip
+    - VIM_URL: https://vim-jp.org/redirects/vim/vim-win32-installer/latest/x64/
 install:
 - ps: |
     $zip = $Env:APPVEYOR_BUILD_FOLDER + '\vim.zip'
     $vim = $Env:APPVEYOR_BUILD_FOLDER + '\vim\'
+    $url = $Env:VIM_URL
 
-    $redirect = Invoke-WebRequest -URI $Env:VIM_URL
-    (New-Object Net.WebClient).DownloadFile($redirect.Links[0].href, $zip)
+    if ($url.Contains("vim-jp.org/redirects"))
+    {
+      $redirect = Invoke-WebRequest -URI $Env:VIM_URL
+      $url = $redirect.Links[0].href
+    }
+    (New-Object Net.WebClient).DownloadFile($url, $zip)
 
     [Reflection.Assembly]::LoadWithPartialName('System.IO.Compression.FileSystem') > $null
     [System.IO.Compression.ZipFile]::ExtractToDirectory($zip, $vim)
 
-    $Env:THEMIS_VIM = $vim + (Get-ChildItem $vim).Name + '\vim.exe'
+    $Env:THEMIS_VIM = (Get-ChildItem -r -Filter 'vim.exe' $vim).FullName
 build: off
 test_script:
 - ps: |
