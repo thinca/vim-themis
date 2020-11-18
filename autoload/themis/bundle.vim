@@ -1,5 +1,4 @@
 " themis: Test bundle.
-" Version: 1.5.4
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 

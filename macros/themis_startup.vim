@@ -1,5 +1,4 @@
 " Startup script for external themis command.
-" Version: 1.5.4
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
