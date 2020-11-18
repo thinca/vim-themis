@@ -4,7 +4,7 @@ git:
 
 env:
   global:
-    - THEMIS_VERSION=v1.5.4
+    - THEMIS_VERSION=v1.5.5
 
 cache:
   directories:

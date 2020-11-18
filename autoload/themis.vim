@@ -15,7 +15,7 @@ endif
 
 let g:themis#vital = vital#themis#new()
 
-let s:version = '1.5.4'
+let s:version = '1.5.5'
 
 function! themis#version() abort
   return s:version

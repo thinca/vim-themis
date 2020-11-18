@@ -4,7 +4,7 @@ parameters:
   themis_version:
     description: Version of themis.vim
     type: string
-    default: 1.5.4
+    default: v1.5.5
 
 orbs:
   win: circleci/windows@1.0.0
@@ -27,7 +27,7 @@ jobs:
       - run:
           name: Execute test
           command: |
-            wget --quiet -O - https://github.com/thinca/vim-themis/archive/v<< pipeline.parameters.themis_version >>.tar.gz | tar xzf - -C ~
+            wget --quiet -O - https://github.com/thinca/vim-themis/archive/<< pipeline.parameters.themis_version >>.tar.gz | tar xzf - -C ~
             ~/vim-themis-<< pipeline.parameters.themis_version >>/bin/themis --reporter dot
 
   windows-test:
@@ -86,7 +86,7 @@ jobs:
           name: Install themis.vim
           command: |
             if [[ ! -d "${HOME}/cache/themis-<< pipeline.parameters.themis_version >>" ]]; then
-              git -c advice.detachedHead=false clone --depth 1 --branch v<< pipeline.parameters.themis_version >> --single-branch https://github.com/thinca/vim-themis "${HOME}/cache/themis-<< pipeline.parameters.themis_version >>"
+              git -c advice.detachedHead=false clone --depth 1 --branch << pipeline.parameters.themis_version >> --single-branch https://github.com/thinca/vim-themis "${HOME}/cache/themis-<< pipeline.parameters.themis_version >>"
             fi
       - save_cache:
           key: vim-{{ checksum "~/envs" }}-themis-<< pipeline.parameters.themis_version >>
