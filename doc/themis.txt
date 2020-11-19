@@ -1023,12 +1023,16 @@ Some assertion functions were added after Vim 7.4.944.
 
 - |assert_equal()|
 - |assert_notequal()|
+- |assert_equalfile()|
 - |assert_match()|
 - |assert_notmatch()|
+- |assert_inrange()|
 - |assert_true()|
 - |assert_false()|
 - |assert_exception()|
 - |assert_fails()|
+- |assert_beeps()|
+- |assert_report()|
 
 themis.vim handles these functions.  You can use these for test.
 Note that these functions do not throw an exception, so a test does not stop
