@@ -73,6 +73,7 @@ function! s:main() abort
       visual
     endif
     if error_count == 0
+      autocmd! plugin-themis-startup VimLeave
       qall!
     else
       cquit
@@ -83,6 +84,7 @@ endfunction
 augroup plugin-themis-startup
   autocmd!
   autocmd VimEnter * nested call s:main()
+  autocmd VimLeave * call themis#log('ERROR: Vim quit unexpectedly.') | cquit
 augroup END
 
 call s:append_rtp(getcwd())
