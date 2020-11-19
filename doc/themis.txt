@@ -1039,6 +1039,8 @@ when assertion fails.
 ==============================================================================
 CHANGELOG					*themis-changelog*
 
+Unreleased
+
 1.5.5	2020-11-19
 	- Some fixes.
 
