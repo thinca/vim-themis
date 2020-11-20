@@ -15,7 +15,7 @@ if exists('b:match_words')
 else
   let b:match_words = ''
 endif
-let b:match_words .= '\%(^\s*\)\@<=\<\%([Dd]escribe\|[Cc]ontext\|[Ii]t\|[Bb]efore\|[Aa]fter\)\>:\<[Ee]nd\>'
+let b:match_words .= '\%(^\s*\)\@<=\<\%([Dd]escribe\|[Cc]ontext\|[Ii]t\|[Bb]efore\|[Aa]fter\)\>:^\s*\zs\<[Ee]nd\>'
 
 if exists('b:undo_ftplugin')
   let b:undo_ftplugin = ' | ' . b:undo_ftplugin
