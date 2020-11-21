@@ -72,8 +72,8 @@ function! s:main() abort
     if mode(1) ==# 'ce'
       visual
     endif
+    autocmd! plugin-themis-startup VimLeave
     if error_count == 0
-      autocmd! plugin-themis-startup VimLeave
       qall!
     else
       cquit
