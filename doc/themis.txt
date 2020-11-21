@@ -204,7 +204,7 @@ $THEMIS_ARGS					*$THEMIS_ARGS*
 	Extra arguments passed to |$THEMIS_VIM|. "-e -s" is used when this is
 	empty. Note that chainging the value may cause invalid test run.
 	Change the value of this variable with your own responsibility.
-	
+
 
 ------------------------------------------------------------------------------
 THEMISRC					*themis-themisrc*
