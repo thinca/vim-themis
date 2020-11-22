@@ -290,7 +290,7 @@ You can define helper functions or commands used only in this project.
 	  enew!
 	  put =['aaa', 'bbb', 'ccc']
 	endfunction
-	command! InitBuffer call InitBuffer
+	command! InitBuffer call InitBuffer()
 <
 You can define a new matcher for expect-helper.
 See |themis#helper#expect#define_matcher()| for detail.
