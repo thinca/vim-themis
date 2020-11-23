@@ -12,6 +12,7 @@ let s:helper = {
 \   '_scopes': [],
 \ }
 let s:c = {}  " This is used in commands.
+let s:current_scopes = {}
 
 function! s:get_throws_args(value) abort
   return matchlist(a:value, '\v^\s*%(/(%(\\.|[^/])*)/)?\s*(.*)')[1 : 2]
@@ -73,10 +74,10 @@ function! s:check_exception(lnum, thrown_exception, expected_exception) abort
   endif
 endfunction
 
-function! s:define_assert(command) abort
+function! s:define_assert(command, scope_key) abort
   execute 'command! -nargs=+' a:command
   \ '  try'
-  \ '|   let s:c.result = s:eval(<q-args>, s:current_scopes + [l:])'
+  \ '|   let s:c.result = s:eval(<q-args>, s:current_scopes.' . a:scope_key . ' + [l:])'
   \ '| catch /^themis:\s*report:/'
   \ '|   call s:wrap_exception(v:exception, expand("<slnum>"))'
   \ '| endtry'
@@ -85,12 +86,12 @@ function! s:define_assert(command) abort
   \ '| endif'
 endfunction
 
-function! s:define_throws(command) abort
+function! s:define_throws(command, scope_key) abort
   execute 'command! -nargs=+' a:command
   \ '  let s:c.not_thrown = 0'
   \ '| let [s:c.expect_exception, s:c.expr] = s:get_throws_args(<q-args>)'
   \ '| try'
-  \ '|   let s:c.result = s:eval(s:c.expr, s:current_scopes + [l:])'
+  \ '|   let s:c.result = s:eval(s:c.expr, s:current_scopes.' . a:scope_key . ' + [l:])'
   \ '|   let s:c.not_thrown = 1'
   \ '| catch'
   \ '|   call s:check_exception(expand("<slnum>"), v:exception, s:c.expect_exception)'
@@ -138,12 +139,12 @@ function! s:helper.with(...) abort
 endfunction
 
 function! s:helper.define() abort
-  call s:define_assert(self._prefix . 'Assert')
-  call s:define_throws(self._prefix . 'Throws')
+  call s:define_assert(self._prefix . 'Assert', '_' . self._prefix)
+  call s:define_throws(self._prefix . 'Throws', '_' . self._prefix)
   call s:define_fail(self._prefix . 'Fail')
   call s:define_todo(self._prefix . 'TODO')
   call s:define_skip(self._prefix . 'Skip')
-  let s:current_scopes = self._scopes
+  let s:current_scopes['_' . self._prefix] = self._scopes
 endfunction
 
 function! s:helper.undef() abort
@@ -152,7 +153,7 @@ function! s:helper.undef() abort
   call s:delcommand(self._prefix . 'Fail')
   call s:delcommand(self._prefix . 'TODO')
   call s:delcommand(self._prefix . 'Skip')
-  unlet! s:current_scopes
+  unlet! s:current_scopes['_' . self._prefix]
 endfunction
 function! s:helper.defined() abort
   return exists(':' . self._prefix . 'Assert') == 2
@@ -183,8 +184,7 @@ function! s:events.after_suite(bundle) abort
 endfunction
 
 function! s:events.is_target(bundle) abort
-  return self.filename ==# '' ||
-  \      self.filename ==# get(a:bundle, 'filename', '')
+  return self.target_bundle is a:bundle
 endfunction
 
 function! s:check_truthy(value) abort
@@ -234,7 +234,7 @@ endfunction
 
 function! themis#helper#command#new(runner) abort
   let events = deepcopy(s:events)
-  let events.filename = get(a:runner, '_filename', '')
+  let events.target_bundle = a:runner.get_loading_bundle()
   call a:runner.add_event(events)
   return events.helper
 endfunction

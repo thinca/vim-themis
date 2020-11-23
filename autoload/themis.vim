@@ -40,23 +40,8 @@ function! s:runner() abort
   return s:current_runner
 endfunction
 
-function! s:base_bundle() abort
-  if !exists('s:base_bundle')
-    throw 'themis: Does not ready the base bundle.'
-  endif
-  return s:base_bundle
-endfunction
-
-function! themis#_set_base_bundle(bundle) abort
-  let s:base_bundle = a:bundle
-endfunction
-
-function! themis#_unset_base_bundle() abort
-  unlet! s:base_bundle
-endfunction
-
 function! themis#bundle(title) abort
-  let base_bundle = s:base_bundle()
+  let base_bundle = s:runner().get_loading_bundle()
   let new_bundle = themis#bundle#new(a:title)
   call base_bundle.add_child(new_bundle)
   return new_bundle

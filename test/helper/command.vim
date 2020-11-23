@@ -1,6 +1,6 @@
 let s:helper = themis#suite('helper')
 let s:assert = themis#helper('assert')
-call themis#helper('command').with(s:assert)
+call themis#helper('command').prefix('Themis').with(s:assert)
 
 function! s:helper.__command__() abort
   let command = themis#suite('command')
@@ -8,11 +8,11 @@ function! s:helper.__command__() abort
   function! command.__Assert__() abort
     let Assert = themis#suite(':Assert')
     function! Assert.check_the_argument_is_truthy() abort
-      Assert 1
-      Assert '1'
+      ThemisAssert 1
+      ThemisAssert '1'
     endfunction
     function! Assert.can_use_double_quote_in_argument() abort
-      Assert "1"
+      ThemisAssert "1"
     endfunction
     function! Assert.throw_a_report_when_the_argument_is_not_truthy() abort
       let template = join([
@@ -23,18 +23,18 @@ function! s:helper.__command__() abort
       \   '    expected: truthy',
       \   '         got: %s$'
       \ ], "\n")
-      call s:check_throw('Assert', [0], printf(template, string(0)))
-      call s:check_throw('Assert', [string([])], printf(template, string([])))
-      call s:check_throw('Assert', [0.0], printf(template, string(0.0)))
+      call s:check_throw('ThemisAssert', [0], printf(template, string(0)))
+      call s:check_throw('ThemisAssert', [string([])], printf(template, string([])))
+      call s:check_throw('ThemisAssert', [0.0], printf(template, string(0.0)))
     endfunction
     function! Assert.can_access_to_function_local_scope() abort
       let x = 10
-      Assert x == 10
+      ThemisAssert x == 10
     endfunction
     function! Assert.can_access_to_with_scope() abort
       let x = 10
-      Assert Equals(x, 10)
-      Assert HasKey({'foo': 0}, 'foo')
+      ThemisAssert Equals(x, 10)
+      ThemisAssert HasKey({'foo': 0}, 'foo')
     endfunction
   endfunction
 
@@ -86,6 +86,27 @@ function! s:helper.__command__() abort
     endfunction
   endfunction
 
+  function! command.__scope__() abort
+    let scope_of_commands = themis#suite('scope of commands')
+    function scope_of_commands.__scope__() abort
+      let defined = themis#suite('defined')
+      function! defined.__scope__() abort
+        call themis#helper('command').prefix('Defined')
+        let scope = themis#suite('scope')
+        function! scope.command_defined() abort
+          call s:assert.cmd_exists(':DefinedAssert')
+        endfunction
+      endfunction
+
+      let not_defined = themis#suite('not defined')
+      function! not_defined.__scope__() abort
+        let scope = themis#suite('scope')
+        function! scope.command_defined() abort
+          call s:assert.cmd_not_exists(':DefinedAssert')
+        endfunction
+      endfunction
+    endfunction
+  endfunction
 endfunction
 
 function! ThrowError(err) abort

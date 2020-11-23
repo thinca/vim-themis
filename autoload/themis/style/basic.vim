@@ -16,8 +16,8 @@ let s:describe_pattern = '^__.\+__$'
 
 let s:event = {}
 
-function! s:load_nested_bundle(bundle) abort
-  call themis#_set_base_bundle(a:bundle)
+function! s:load_nested_bundle(bundle, runner) abort
+  call a:runner.set_loading_bundle(a:bundle)
   let suite = copy(a:bundle.suite)
   call filter(suite, 'v:key =~# s:describe_pattern')
   for name in s:names_by_defined_order(suite)
@@ -27,7 +27,7 @@ function! s:load_nested_bundle(bundle) abort
   endfor
 
   for child in a:bundle.children
-    call s:load_nested_bundle(child)
+    call s:load_nested_bundle(child, a:runner)
   endfor
 endfunction
 
@@ -89,9 +89,9 @@ function! s:style.can_handle(filename) abort
   return fnamemodify(a:filename, ':e') ==? 'vim'
 endfunction
 
-function! s:style.load_script(filename, base_bundle) abort
+function! s:style.load_script(filename, runner) abort
   source `=a:filename`
-  call s:load_nested_bundle(a:base_bundle)
+  call s:load_nested_bundle(a:runner.get_loading_bundle(), a:runner)
 endfunction
 
 function! themis#style#basic#new() abort

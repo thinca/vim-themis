@@ -24,6 +24,9 @@ function! s:Runner.start(paths, options) abort
   try
     let save_runtimepath = &runtimepath
 
+    let base_bundle = themis#bundle#new()
+    call self.set_loading_bundle(base_bundle)
+
     let paths = type(a:paths) == type([]) ? a:paths : [a:paths]
 
     call s:load_themisrc(paths)
@@ -36,17 +39,29 @@ function! s:Runner.start(paths, options) abort
     call self.add_event(reporter)
 
     let files = self.get_target_files(paths, options)
-    let bundle = self.load_bundle_from_files(files)
-    if !themis#bundle#is_bundle(bundle)
+    let base_bundle = self.load_bundle_from_files(files, base_bundle)
+    if !themis#bundle#is_bundle(base_bundle)
       return 1
     endif
 
     let target_pattern = join(a:options.target, '\m\|')
-    call bundle.select_tests_recursive(target_pattern)
-    return self.run(bundle)
+    call base_bundle.select_tests_recursive(target_pattern)
+    return self.run(base_bundle)
   finally
     let &runtimepath = save_runtimepath
   endtry
+endfunction
+
+function! s:Runner.get_loading_bundle() abort
+  let bundle = get(self, '_loading_bundle', 0)
+  if bundle is# 0
+    throw 'themis: Does not ready the base bundle.'
+  endif
+  return bundle
+endfunction
+
+function! s:Runner.set_loading_bundle(bundle) abort
+  let self._loading_bundle = a:bundle
 endfunction
 
 function! s:Runner.get_target_files(paths, options) abort
@@ -60,7 +75,7 @@ function! s:Runner.get_target_files(paths, options) abort
   return files
 endfunction
 
-function! s:Runner.load_bundle_from_files(files) abort
+function! s:Runner.load_bundle_from_files(files, bundle) abort
   let files_with_styles = {}
   for file in a:files
     let style = s:can_handle(values(self._styles), file)
@@ -73,15 +88,14 @@ function! s:Runner.load_bundle_from_files(files) abort
     throw 'themis: Target file not found.'
   endif
 
-  let bundle = themis#bundle#new()
   try
-    call self.load_scripts(files_with_styles, bundle)
+    call self.load_scripts(files_with_styles, a:bundle)
     call self.emit('script_loaded', self)
   catch
     call self.on_error('script loading', v:exception, v:throwpoint)
     return {}
   endtry
-  return bundle
+  return a:bundle
 endfunction
 
 function! s:Runner.load_scripts(files_with_styles, target_bundle) abort
@@ -92,9 +106,8 @@ function! s:Runner.load_scripts(files_with_styles, target_bundle) abort
     let style = self._styles[style_name]
     let base = themis#bundle#new('', a:target_bundle)
     let base.style = style
-    call themis#_set_base_bundle(base)
-    call style.load_script(filename, base)
-    call themis#_unset_base_bundle()
+    call self.set_loading_bundle(base)
+    call style.load_script(filename, self)
   endfor
 endfunction
 
