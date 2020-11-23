@@ -2,10 +2,6 @@
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
-let s:save_cpo = &cpo
-set cpo&vim
-
-
 let s:receiver = {
 \   '_count': 0,
 \   '_passes': 0,
@@ -15,40 +11,40 @@ let s:receiver = {
 let s:supporter = {'receiver': s:receiver}
 
 
-function! s:receiver.start_test(bundle, title) abort
+function s:receiver.start_test(bundle, title) abort
   let self._count += 1
 endfunction
 
-function! s:receiver.pass(report) abort
+function s:receiver.pass(report) abort
   let self._passes += 1
 endfunction
 
-function! s:receiver.fail(report) abort
+function s:receiver.fail(report) abort
   let self._failures += 1
 endfunction
 
-function! s:receiver.pending(report) abort
+function s:receiver.pending(report) abort
   let self._pendings += 1
 endfunction
 
 
-function! s:supporter.count() abort
+function s:supporter.count() abort
   return self.receiver._count
 endfunction
 
-function! s:supporter.pass() abort
+function s:supporter.pass() abort
   return self.receiver._passes
 endfunction
 
-function! s:supporter.fail() abort
+function s:supporter.fail() abort
   return self.receiver._failures
 endfunction
 
-function! s:supporter.pending() abort
+function s:supporter.pending() abort
   return self.receiver._pendings
 endfunction
 
-function! s:supporter.stat() abort
+function s:supporter.stat() abort
   let result = ['tests ' . self.count(), 'passes ' . self.pass()]
 
   let pending = self.pending()
@@ -64,11 +60,8 @@ function! s:supporter.stat() abort
   return join(result, "\n")
 endfunction
 
-function! themis#supporter#stats#new(runner) abort
+function themis#supporter#stats#new(runner) abort
   let supporter = deepcopy(s:supporter)
   call a:runner.add_event(supporter.receiver)
   return supporter
 endfunction
-
-let &cpo = s:save_cpo
-unlet s:save_cpo

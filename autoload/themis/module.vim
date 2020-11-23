@@ -2,21 +2,18 @@
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
-let s:save_cpo = &cpo
-set cpo&vim
-
-function! themis#module#exists(type, name) abort
+function themis#module#exists(type, name) abort
   let path = printf('autoload/themis/%s/%s.vim', a:type, a:name)
   return globpath(&runtimepath, path, 1) !=# ''
 endfunction
 
-function! themis#module#list(type) abort
+function themis#module#list(type) abort
   let pat = 'autoload/themis/' . a:type . '/*.vim'
   return themis#util#sortuniq(map(split(globpath(&runtimepath, pat, 1), "\n"),
   \                     'fnamemodify(v:val, ":t:r")'))
 endfunction
 
-function! themis#module#load(type, name, args) abort
+function themis#module#load(type, name, args) abort
   try
     let module = call(printf('themis#%s#%s#new', a:type, a:name), a:args)
     " XXX: It may perform two or more times.
@@ -30,18 +27,14 @@ function! themis#module#load(type, name, args) abort
   endtry
 endfunction
 
-function! themis#module#style(name) abort
+function themis#module#style(name) abort
   return themis#module#load('style', a:name, [])
 endfunction
 
-function! themis#module#reporter(name) abort
+function themis#module#reporter(name) abort
   return themis#module#load('reporter', a:name, [])
 endfunction
 
-function! themis#module#supporter(name, runner) abort
+function themis#module#supporter(name, runner) abort
   return themis#module#load('supporter', a:name, [a:runner])
 endfunction
-
-
-let &cpo = s:save_cpo
-unlet s:save_cpo

@@ -65,9 +65,9 @@ Describe Bundle
   Describe test entries
     Before
       let base.style = themis#module#style('basic')
-      function! base.suite.test1() abort
+      function base.suite.test1() abort
       endfunction
-      function! base.suite.test2() abort
+      function base.suite.test2() abort
       endfunction
     End
 
@@ -84,9 +84,9 @@ Describe Bundle
     Context with nested bundles
       Before
         let child = themis#bundle#new('child', base)
-        function! child.suite.test3() abort
+        function child.suite.test3() abort
         endfunction
-        function! child.suite.test4() abort
+        function child.suite.test4() abort
         endfunction
       End
 
@@ -120,9 +120,9 @@ Describe Bundle
   Describe test entry
     Before
       let suite = base.suite
-      function! suite.test1() abort
+      function suite.test1() abort
       endfunction
-      function! suite.test2() abort
+      function suite.test2() abort
       endfunction
       let base.suite_descriptions = {'test1': 'a description for test 1'}
     End

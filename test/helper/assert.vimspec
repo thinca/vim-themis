@@ -852,7 +852,7 @@ Describe helper-assert
 
 End
 
-function! s:check_throw(target, args, ...) abort
+function s:check_throw(target, args, ...) abort
   let expected_exception = a:0 ? a:1 : '^themis:\s*report:\s*failure:.*$'
   let not_thrown = 0
   try

@@ -1,6 +1,3 @@
-let s:save_cpo = &cpo
-set cpo&vim
-
 let s:expect = {
 \   '_negate' : 0,
 \   'not' : {
@@ -8,14 +5,14 @@ let s:expect = {
 \   }
 \ }
 
-function! themis#helper#expect#_create_expect(actual) abort
+function themis#helper#expect#_create_expect(actual) abort
   let expect = deepcopy(s:expect)
   let expect._actual = a:actual
   let expect.not._actual = a:actual
   return expect
 endfunction
 
-function! s:matcher_impl(name, f, error_msg, ...) dict abort
+function s:matcher_impl(name, f, error_msg, ...) dict abort
   let result = call(a:f, [self._actual] + a:000)
   if self._negate
     let result = !result
@@ -27,25 +24,25 @@ function! s:matcher_impl(name, f, error_msg, ...) dict abort
   endif
 endfunction
 
-function! s:expr_to_matcher(name, pred, ...) abort
+function s:expr_to_matcher(name, pred, ...) abort
   let func_name = 's:_matcher_' . a:name
   execute join([
-  \ 'function! ' . func_name . '(...)',
+  \ 'function ' . func_name . '(...)',
   \ '  return ' . a:pred,
   \ 'endfunction'], "\n")
   return function(func_name)
 endfunction
 
-function! s:expr_to_failure_message(name, pred, ...) abort
+function s:expr_to_failure_message(name, pred, ...) abort
   let func_name = 's:_failure_message_' . a:name
   execute join([
-  \ 'function! ' . func_name . '(not, name, ...)',
+  \ 'function ' . func_name . '(not, name, ...)',
   \ '  return ' . a:pred,
   \ 'endfunction'], "\n")
   return function(func_name)
 endfunction
 
-function! s:default_failure_message(not, name, ...) abort
+function s:default_failure_message(not, name, ...) abort
   return printf('Expected %s %s%s%s.',
     \       string(a:1),
     \       (a:not ? 'not ' : ''),
@@ -55,7 +52,7 @@ endfunction
 
 let s:matchers = {}
 let s:failure_messages = {}
-function! themis#helper#expect#define_matcher(name, predicate, ...) abort
+function themis#helper#expect#define_matcher(name, predicate, ...) abort
   if type(a:predicate) ==# type('')
     let s:matchers[a:name] = s:expr_to_matcher(a:name, a:predicate)
   elseif type(a:predicate) ==# type(function('function'))
@@ -71,7 +68,7 @@ function! themis#helper#expect#define_matcher(name, predicate, ...) abort
     let s:failure_messages[a:name] = function('s:default_failure_message')
   endif
   execute join([
-  \ 'function! s:expect.' . a:name . '(...)',
+  \ 'function s:expect.' . a:name . '(...)',
   \ '  return call("s:matcher_impl", ['. string(a:name) . ', s:matchers.' . a:name . ', s:failure_messages.' . a:name . '] + a:000, self)',
   \ 'endfunction'], "\n")
   let s:expect.not[a:name] = s:expect[a:name]
@@ -100,9 +97,6 @@ call themis#helper#expect#define_matcher('to_be_list', 'type(a:1) ==# type([])')
 call themis#helper#expect#define_matcher('to_be_dict', 'type(a:1) ==# type({})')
 call themis#helper#expect#define_matcher('to_be_float', 'type(a:1) ==# type(0.0)')
 
-function! themis#helper#expect#new(_) abort
+function themis#helper#expect#new(_) abort
   return function('themis#helper#expect#_create_expect')
 endfunction
-
-let &cpo = s:save_cpo
-unlet s:save_cpo

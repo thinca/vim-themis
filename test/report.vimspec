@@ -1,7 +1,7 @@
 Describe Report
   Before
     let bundle = themis#bundle#new('base')
-    function! bundle.suite.test1() abort
+    function bundle.suite.test1() abort
     endfunction
     let report = themis#report#new(bundle, 'test1')
   End

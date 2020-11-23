@@ -13,7 +13,7 @@ Describe supporter-builtin_assert
   End
 
   It handles assert_true()
-    function! suite.test_assert_true() abort
+    function suite.test_assert_true() abort
       call assert_true(0)
     endfunction
     call runner.run(bundle)
