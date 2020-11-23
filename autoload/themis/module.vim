@@ -2,9 +2,6 @@
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
-let s:save_cpo = &cpo
-set cpo&vim
-
 function themis#module#exists(type, name) abort
   let path = printf('autoload/themis/%s/%s.vim', a:type, a:name)
   return globpath(&runtimepath, path, 1) !=# ''
@@ -41,7 +38,3 @@ endfunction
 function themis#module#supporter(name, runner) abort
   return themis#module#load('supporter', a:name, [a:runner])
 endfunction
-
-
-let &cpo = s:save_cpo
-unlet s:save_cpo

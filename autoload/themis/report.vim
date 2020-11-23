@@ -2,9 +2,6 @@
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
-let s:save_cpo = &cpo
-set cpo&vim
-
 let s:Report = {
 \   'result': 'yet',
 \   'exceptions': [],
@@ -59,7 +56,3 @@ function themis#report#new(bundle, entry) abort
 endfunction
 
 call themis#func_alias({'themis/Report': s:Report})
-
-
-let &cpo = s:save_cpo
-unlet s:save_cpo

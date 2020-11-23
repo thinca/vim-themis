@@ -2,9 +2,6 @@
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
-let s:save_cpo = &cpo
-set cpo&vim
-
 let s:Runner = {}
 
 function s:Runner.init() abort
@@ -308,7 +305,3 @@ function themis#runner#new() abort
 endfunction
 
 call themis#func_alias({'themis/Runner': s:Runner})
-
-
-let &cpo = s:save_cpo
-unlet s:save_cpo

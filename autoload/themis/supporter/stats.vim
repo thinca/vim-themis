@@ -2,10 +2,6 @@
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
-let s:save_cpo = &cpo
-set cpo&vim
-
-
 let s:receiver = {
 \   '_count': 0,
 \   '_passes': 0,
@@ -69,6 +65,3 @@ function themis#supporter#stats#new(runner) abort
   call a:runner.add_event(supporter.receiver)
   return supporter
 endfunction
-
-let &cpo = s:save_cpo
-unlet s:save_cpo

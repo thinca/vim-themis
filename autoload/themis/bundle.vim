@@ -2,9 +2,6 @@
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
-let s:save_cpo = &cpo
-set cpo&vim
-
 let s:Bundle = {
 \   'suite': {},
 \   'suite_descriptions': {},
@@ -134,7 +131,3 @@ function themis#bundle#is_bundle(obj) abort
 endfunction
 
 call themis#func_alias({'themis/Bundle': s:Bundle})
-
-
-let &cpo = s:save_cpo
-unlet s:save_cpo

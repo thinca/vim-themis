@@ -2,9 +2,6 @@
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
-let s:save_cpo = &cpo
-set cpo&vim
-
 let s:reporter = {}
 
 function s:reporter.init(runner, root_bundle) abort
@@ -60,6 +57,3 @@ endfunction
 function themis#reporter#tap#new() abort
   return deepcopy(s:reporter)
 endfunction
-
-let &cpo = s:save_cpo
-unlet s:save_cpo

@@ -1,6 +1,3 @@
-let s:save_cpo = &cpo
-set cpo&vim
-
 let s:expect = {
 \   '_negate' : 0,
 \   'not' : {
@@ -103,6 +100,3 @@ call themis#helper#expect#define_matcher('to_be_float', 'type(a:1) ==# type(0.0)
 function themis#helper#expect#new(_) abort
   return function('themis#helper#expect#_create_expect')
 endfunction
-
-let &cpo = s:save_cpo
-unlet s:save_cpo

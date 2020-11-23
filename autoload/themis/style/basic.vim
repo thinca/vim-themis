@@ -2,9 +2,6 @@
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
-let s:save_cpo = &cpo
-set cpo&vim
-
 let s:func_t = type(function('type'))
 let s:special_names = [
 \   'before',
@@ -97,6 +94,3 @@ endfunction
 function themis#style#basic#new() abort
   return deepcopy(s:style)
 endfunction
-
-let &cpo = s:save_cpo
-unlet s:save_cpo

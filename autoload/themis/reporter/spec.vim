@@ -4,9 +4,6 @@
 
 scriptencoding utf-8
 
-let s:save_cpo = &cpo
-set cpo&vim
-
 if has('win32')
   let s:pass_symbol = 'o'
   let s:fail_symbol = 'x'
@@ -78,6 +75,3 @@ endfunction
 function themis#reporter#spec#new() abort
   return deepcopy(s:reporter)
 endfunction
-
-let &cpo = s:save_cpo
-unlet s:save_cpo

@@ -2,9 +2,6 @@
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
-let s:save_cpo = &cpo
-set cpo&vim
-
 let s:T = g:themis#vital.import('Vim.Type')
 let s:type_names = copy(s:T.type_names)
 " Tweak type names
@@ -458,6 +455,3 @@ let s:helper = s:make_helper()
 function themis#helper#assert#new(runner) abort
   return deepcopy(s:helper)
 endfunction
-
-let &cpo = s:save_cpo
-unlet s:save_cpo

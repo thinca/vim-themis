@@ -2,9 +2,6 @@
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
-let s:save_cpo = &cpo
-set cpo&vim
-
 function themis#command#start(args) abort
   let [paths, options] = s:parse_args(a:args)
   if get(options, 'exit', 0)
@@ -121,6 +118,3 @@ function s:process_option(name, args, options) abort
     throw 'themis: Unknown option: --' . a:name
   endif
 endfunction
-
-let &cpo = s:save_cpo
-unlet s:save_cpo

@@ -2,9 +2,6 @@
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
-let s:save_cpo = &cpo
-set cpo&vim
-
 " If user makes a typo such as "themis#sutie()",
 " this script will be reloaded.  Then the following error occurs.
 " E127: Cannot redefine function themis#run: It is in use
@@ -115,7 +112,3 @@ endfunction
 function themis#failure(expr) abort
   return 'themis: report: failure: ' . themis#message(a:expr)
 endfunction
-
-
-let &cpo = s:save_cpo
-unlet s:save_cpo

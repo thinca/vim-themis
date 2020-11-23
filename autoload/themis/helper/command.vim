@@ -2,9 +2,6 @@
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
-let s:save_cpo = &cpo
-set cpo&vim
-
 let s:f_type = type(function('type'))
 
 let s:helper = {
@@ -238,6 +235,3 @@ function themis#helper#command#new(runner) abort
   call a:runner.add_event(events)
   return events.helper
 endfunction
-
-let &cpo = s:save_cpo
-unlet s:save_cpo

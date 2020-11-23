@@ -2,9 +2,6 @@
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
-let s:save_cpo = &cpoptions
-set cpoptions&vim
-
 let s:Emitter = {
 \   '_listeners': [],
 \ }
@@ -48,6 +45,3 @@ endfunction
 function themis#emitter#new() abort
   return deepcopy(s:Emitter)
 endfunction
-
-let &cpoptions = s:save_cpo
-unlet s:save_cpo

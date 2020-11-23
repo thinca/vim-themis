@@ -2,9 +2,6 @@
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
-let s:save_cpo = &cpoptions
-set cpoptions&vim
-
 let s:receiver = {}
 
 function s:receiver.start_test(bundle, entry) abort
@@ -32,6 +29,3 @@ function themis#supporter#builtin_assert#new(runner) abort
   call a:runner.add_event(deepcopy(s:receiver))
   return {}
 endfunction
-
-let &cpoptions = s:save_cpo
-unlet s:save_cpo

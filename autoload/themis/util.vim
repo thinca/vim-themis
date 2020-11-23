@@ -2,9 +2,6 @@
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
-let s:save_cpo = &cpo
-set cpo&vim
-
 let s:func_aliases = {}
 let s:line_adjuster = {}
 
@@ -295,7 +292,3 @@ function themis#util#find_files(paths, filename) abort
   let files = findfile(a:filename, join(map(dirs, 'v:val . ";"'), ','), -1)
   return themis#util#sortuniq(files)
 endfunction
-
-
-let &cpo = s:save_cpo
-unlet s:save_cpo

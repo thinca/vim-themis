@@ -2,9 +2,6 @@
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
-let s:save_cpo = &cpoptions
-set cpoptions&vim
-
 let s:Local = g:themis#vital.import('Vim.ScriptLocal')
 
 let s:helper = {}
@@ -20,6 +17,3 @@ endfunction
 function themis#helper#scope#new(runner) abort
   return  deepcopy(s:helper)
 endfunction
-
-let &cpoptions = s:save_cpo
-unlet s:save_cpo

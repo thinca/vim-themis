@@ -2,9 +2,6 @@
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
-let s:save_cpo = &cpo
-set cpo&vim
-
 let s:func_t = type(function('type'))
 
 function s:parse_describe(tokens, lnum, context_stack, scope_id) abort
@@ -298,6 +295,3 @@ function themis#style#vimspec#new() abort
 endfunction
 
 call themis#func_alias({'themis/style.vimspec.ScopeKeeper': s:ScopeKeeper})
-
-let &cpo = s:save_cpo
-unlet s:save_cpo
