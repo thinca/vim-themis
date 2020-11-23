@@ -17,11 +17,11 @@ let g:themis#vital = vital#themis#new()
 
 let s:version = '1.5.5'
 
-function! themis#version() abort
+function themis#version() abort
   return s:version
 endfunction
 
-function! themis#run(paths, ...) abort
+function themis#run(paths, ...) abort
   let s:current_runner = themis#runner#new()
   try
     let options = get(a:000, 0, themis#option#empty_options())
@@ -33,30 +33,30 @@ endfunction
 
 " -- Utilities for test
 
-function! s:runner() abort
+function s:runner() abort
   if !exists('s:current_runner')
     throw 'themis: Test is not running.'
   endif
   return s:current_runner
 endfunction
 
-function! themis#bundle(title) abort
+function themis#bundle(title) abort
   let base_bundle = s:runner().get_loading_bundle()
   let new_bundle = themis#bundle#new(a:title)
   call base_bundle.add_child(new_bundle)
   return new_bundle
 endfunction
 
-function! themis#suite(...) abort
+function themis#suite(...) abort
   let title = get(a:000, 0, '')
   return themis#bundle(title).suite
 endfunction
 
-function! themis#helper(name) abort
+function themis#helper(name) abort
   return themis#helper#{a:name}#new(s:runner())
 endfunction
 
-function! themis#option(...) abort
+function themis#option(...) abort
   if !exists('s:custom_options')
     let s:custom_options = themis#option#default()
   endif
@@ -77,20 +77,20 @@ function! themis#option(...) abort
   endif
 endfunction
 
-function! themis#func_alias(dict) abort
+function themis#func_alias(dict) abort
   call themis#util#func_alias(a:dict, [])
 endfunction
 
-function! themis#exception(type, message) abort
+function themis#exception(type, message) abort
   return printf('themis: %s: %s', a:type, themis#message(a:message))
 endfunction
 
-function! themis#log(expr, ...) abort
+function themis#log(expr, ...) abort
   let mes = themis#message(a:expr) . "\n"
   call call('themis#logn', [mes] + a:000)
 endfunction
 
-function! themis#logn(expr, ...) abort
+function themis#logn(expr, ...) abort
   let string = themis#message(a:expr)
   if !empty(a:000)
     let string = call('printf', [string] + a:000)
@@ -104,7 +104,7 @@ function! themis#logn(expr, ...) abort
   endif
 endfunction
 
-function! themis#message(expr) abort
+function themis#message(expr) abort
   let t = type(a:expr)
   return
   \  t == type('') ? a:expr :
@@ -112,7 +112,7 @@ function! themis#message(expr) abort
   \                  string(a:expr)
 endfunction
 
-function! themis#failure(expr) abort
+function themis#failure(expr) abort
   return 'themis: report: failure: ' . themis#message(a:expr)
 endfunction
 

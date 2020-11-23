@@ -12,7 +12,7 @@ if exists('*GetVimspecFold')
   finish
 endif
 
-function! GetVimspecFold(lnum) abort
+function GetVimspecFold(lnum) abort
   let line = getline(a:lnum)
   if line =~# s:pattern_folds
     return 'a1'

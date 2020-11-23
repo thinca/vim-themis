@@ -7,13 +7,13 @@ set cpoptions&vim
 
 let s:receiver = {}
 
-function! s:receiver.start_test(bundle, entry) abort
+function s:receiver.start_test(bundle, entry) abort
   if exists('v:errors')
     let v:errors = []
   endif
 endfunction
 
-function! s:receiver.end_test(report) abort
+function s:receiver.end_test(report) abort
   if !exists('v:errors')
     return
   endif
@@ -24,11 +24,11 @@ function! s:receiver.end_test(report) abort
   let v:errors = []
 endfunction
 
-function! s:parse_error(error) abort
+function s:parse_error(error) abort
   let matched = matchlist(a:error, '\v^(.{-}) line (\d+):\s*(.+)$')
 endfunction
 
-function! themis#supporter#builtin_assert#new(runner) abort
+function themis#supporter#builtin_assert#new(runner) abort
   call a:runner.add_event(deepcopy(s:receiver))
   return {}
 endfunction

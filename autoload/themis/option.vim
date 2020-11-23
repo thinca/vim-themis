@@ -14,11 +14,11 @@ let s:default_options = {
 \   'exclude': [],
 \ }
 
-function! themis#option#default() abort
+function themis#option#default() abort
   return deepcopy(s:default_options)
 endfunction
 
-function! themis#option#empty_options() abort
+function themis#option#empty_options() abort
   let options = deepcopy(s:default_options)
   let list_t = type([])
   call filter(options, 'type(v:val) == list_t')
@@ -26,7 +26,7 @@ function! themis#option#empty_options() abort
   return options
 endfunction
 
-function! themis#option#merge(base, overwriter) abort
+function themis#option#merge(base, overwriter) abort
   let merged = copy(a:base)
   for [name, value] in items(a:overwriter)
     if type(value) == type([]) && has_key(merged, name)

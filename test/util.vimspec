@@ -1,10 +1,10 @@
 let s:file = expand('<sfile>')
 
-function! ExecuteCmd(cmd) abort
+function ExecuteCmd(cmd) abort
   execute a:cmd
 endfunction
 
-function! SampleFunctionForUtil(foo, bar, ...) abort
+function SampleFunctionForUtil(foo, bar, ...) abort
   echo "line1"
   echo "line2"
   echo [
@@ -15,20 +15,20 @@ function! SampleFunctionForUtil(foo, bar, ...) abort
   echo "lastline"
 endfunction
 
-function! s:is_indication_of_attribute_supported() abort
+function s:is_indication_of_attribute_supported() abort
   return  (v:version == 703 && has('patch1136')) || 703 < v:version
 endfunction
 
 if s:is_indication_of_attribute_supported()
-  function! SampleFunctionWithoutAbort()
+  function SampleFunctionWithoutAbort()
   endfunction
-  function! SampleFunctionWithDict() dict
+  function SampleFunctionWithDict() dict
   endfunction
-  function! SampleFunctionWithRange() range
+  function SampleFunctionWithRange() range
   endfunction
   if has('lambda')
-    function! SampleFunctionWithClosureParent()
-      function! SampleFunctionWithClosure() closure
+    function SampleFunctionWithClosureParent()
+      function SampleFunctionWithClosure() closure
       endfunction
     endfunction
     call SampleFunctionWithClosureParent()
@@ -98,7 +98,7 @@ Describe util
     End
     It takes a anonymous function
       let obj = {}
-      function! obj.func() abort
+      function obj.func() abort
       endfunction
       let funcname = matchstr(string(obj.func), '^function(''\zs[^'']\{-}\ze''')
       Assert True(themis#util#funcdata(funcname).exists)
@@ -113,7 +113,7 @@ Describe util
     End
     It returns the data with "exists" flag as false when the function is already deleted
       let obj = {}
-      function! obj.func() abort
+      function obj.func() abort
       endfunction
       let funcname = matchstr(string(obj.func), '^function(''\zs[^'']\{-}\ze''')
       unlet obj
@@ -213,7 +213,7 @@ Describe util
     End
     It returns function name of anonymous function
       let obj = {}
-      function! obj.funcname() abort
+      function obj.funcname() abort
       endfunction
       Assert Match(themis#util#funcname(obj.funcname), '^\d\+$')
     End
@@ -229,25 +229,25 @@ Describe util
   Describe #get_full_title()
     It returns the full title of a suite or a report
       let obj1 = {}
-      function! obj1.get_title() abort
+      function obj1.get_title() abort
         return 'foo'
       endfunction
       Assert Equals(themis#util#get_full_title(obj1), 'foo')
 
       let obj2 = {'parent': obj1}
-      function! obj2.get_title() abort
+      function obj2.get_title() abort
         return 'bar'
       endfunction
       Assert Equals(themis#util#get_full_title(obj2), 'foo bar')
 
       let obj3 = {'parent': obj2}
-      function! obj3.get_title() abort
+      function obj3.get_title() abort
         return ''
       endfunction
       Assert Equals(themis#util#get_full_title(obj3), 'foo bar')
 
       let obj4 = {'parent': obj3}
-      function! obj4.get_title() abort
+      function obj4.get_title() abort
         return 'buz'
       endfunction
       Assert Equals(themis#util#get_full_title(obj4), 'foo bar buz')

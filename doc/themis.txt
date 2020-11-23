@@ -74,14 +74,14 @@ Test is a Vim script like the following.
 	let s:assert = themis#helper('assert')
 
 	" The function name(my_test_1) will be a test name.
-	function! s:suite.my_test_1()
+	function s:suite.my_test_1()
 	  call s:assert.equals(3, 1 + 2)
 	endfunction
 
-	function! s:suite.my_test_2()
+	function s:suite.my_test_2()
 	  call s:assert.equals(8, 2 * 4)
 	endfunction
-	function! s:suite.my_fail_test()
+	function s:suite.my_fail_test()
 	  call s:assert.fail('this will fail')
 	endfunction
 <
@@ -169,7 +169,7 @@ themis#func_alias({dict})			*themis#func_alias()*
 	For example:
 >
 	let s:MyClass = {}
-	function! s:MyClass.useful_function()
+	function s:MyClass.useful_function()
 	  throw 'some error!'
 	endfunction
 	call themis#func_alias({'MyClass': s:MyClass})
@@ -284,7 +284,7 @@ You can put helpers in global scope, and use all test scripts.
 <
 You can define helper functions or commands used only in this project.
 >
-	function! InitBuffer()
+	function InitBuffer()
 	  tabonly!
 	  only!
 	  enew!
@@ -320,7 +320,7 @@ And write a test.  There is a sample with explanation comment.
 	" Define a function to suite.
 	" This function is a test.
 	" Function name becomes a title of test.  In this case, "my_test".
-	function! s:suite.my_test_1()
+	function s:suite.my_test_1()
 	  " Check the calculation result
 	  let value = 1 + 2
 	  call s:assert.equals(value, 3)
@@ -449,9 +449,9 @@ Some test names have a special meaning.  They are called in special situation.
   - This is called before the all test.
   - You can make nested suite in this function.  >
 	let s:parent = themis#suite('parent')
-	function! s:parent.__child__()
+	function s:parent.__child__()
 	  let child = themis#suite('child')
-	  function! child.test()
+	  function child.test()
 	    " Test code here...
 	  endfunction
 	endfunction
@@ -760,7 +760,7 @@ command.prefix({prefix})		*themis-helper-command-prefix()*
 >
 	call themis#helper('command').prefix('Themis')
 
-	function! s:suite.test()
+	function s:suite.test()
 	  ThemisAssert 1 + 1 == 2
 	endfunction
 <
@@ -774,7 +774,7 @@ command.with({scope})			*themis-helper-command-with()*
 	let s:assert = themis#helper('assert')
 	call themis#helper('command').with(s:)
 
-	function! s:suite.test()
+	function s:suite.test()
 	  Assert assert.equals(1 + 1, 2)
 	endfunction
 <
@@ -783,7 +783,7 @@ command.with({scope})			*themis-helper-command-with()*
 	let s:assert = themis#helper('assert')
 	call themis#helper('command').with(s:assert)
 
-	function! s:suite.test()
+	function s:suite.test()
 	  Assert Equals(1 + 1, 2)
 	  Assert HasKey({'foo': 0}, 'foo')
 	endfunction
@@ -930,7 +930,7 @@ themis#helper#expect#define_matcher({name}, {predicate} [, {meesageexpr}])
 	by specifying {messageexpr}.
 	If {messageexpr} is |Funcref|, it should have the following signature.
 >
-	function! MyMessage(not, name, x, y)
+	function MyMessage(not, name, x, y)
 	  let name = (a:not ? 'not ' : '') . a:name
 	  return printf("You tested '%s' with %s and %s but failed",
 	  \ name, a:x, a:y)

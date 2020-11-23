@@ -9,15 +9,15 @@ let s:Local = g:themis#vital.import('Vim.ScriptLocal')
 
 let s:helper = {}
 
-function! s:helper.funcs(path) abort
+function s:helper.funcs(path) abort
   return s:Local.sfuncs(a:path)
 endfunction
 
-function! s:helper.vars(path) abort
+function s:helper.vars(path) abort
   return s:Local.svars(a:path)
 endfunction
 
-function! themis#helper#scope#new(runner) abort
+function themis#helper#scope#new(runner) abort
   return  deepcopy(s:helper)
 endfunction
 

@@ -10,23 +10,23 @@ let s:Report = {
 \   'exceptions': [],
 \ }
 
-function! s:Report.is_success() abort
+function s:Report.is_success() abort
   return self.result ==# 'pass'
 endfunction
 
-function! s:Report.get_full_title() abort
+function s:Report.get_full_title() abort
   return self.bundle.get_test_full_title(self.entry)
 endfunction
 
-function! s:Report.get_title() abort
+function s:Report.get_title() abort
   return self.bundle.get_test_title(self.entry)
 endfunction
 
-function! s:Report.get_message() abort
+function s:Report.get_message() abort
   return join(map(copy(self.exceptions), 'v:val.message'), "\n---\n")
 endfunction
 
-function! s:Report.add_exception(exception, throwpoint) abort
+function s:Report.add_exception(exception, throwpoint) abort
   let callstack = themis#util#callstacklines(a:throwpoint, -1)
   if a:exception =~? '^themis:\_s*report:'
     let result = matchstr(a:exception, '\c^themis:\_s*report:\_s*\zs.*')
@@ -51,7 +51,7 @@ function! s:Report.add_exception(exception, throwpoint) abort
   endif
 endfunction
 
-function! themis#report#new(bundle, entry) abort
+function themis#report#new(bundle, entry) abort
   let report = deepcopy(s:Report)
   let report.bundle = a:bundle
   let report.entry = a:entry

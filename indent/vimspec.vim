@@ -17,7 +17,7 @@ if exists('*GetVimspecIndent')
   finish
 endif
 
-function! GetVimspecIndent() abort
+function GetVimspecIndent() abort
   try
     " Old Vim's indent plugin has a bug that uses =~
     let ignorecase_save = &ignorecase
@@ -40,11 +40,11 @@ function! GetVimspecIndent() abort
 endfunction
 
 if exists('*shiftwidth')
-  function! s:shiftwidth() abort
+  function s:shiftwidth() abort
     return shiftwidth()
   endfunction
 else
-  function! s:shiftwidth() abort
+  function s:shiftwidth() abort
     return &l:shiftwidth == 0 ? &l:tabstop : &l:shiftwidth
   endfunction
 endif
