@@ -239,7 +239,7 @@ function s:helper.__expect__() abort
     function custom_matcher.before() abort
       call themis#helper#expect#define_matcher('to_be_one_bigger_than', 'a:1 ==# a:2 + 1',
       \ '(a:not ? "Not e" : "E") . "xpect " . string(a:1) . " to equal " . string(a:2) . "+1"')
-      function AmbigousEqual(a, b) abort
+      function AmbiguousEqual(a, b) abort
         return a:a == a:b
       endfunction
       function MyFailureMessage(not, name, x, y) abort
@@ -249,17 +249,17 @@ function s:helper.__expect__() abort
           return 'Expect ' . string(a:x) . ' == ' . string(a:y)
         endif
       endfunction
-      call themis#helper#expect#define_matcher('to_be_similar', function('AmbigousEqual'), function('MyFailureMessage'))
+      call themis#helper#expect#define_matcher('to_be_similar', function('AmbiguousEqual'), function('MyFailureMessage'))
     endfunction
     function custom_matcher.after() abort
-      delfunction AmbigousEqual
+      delfunction AmbiguousEqual
       delfunction MyFailureMessage
     endfunction
     function custom_matcher.can_be_defined() abort
       call s:expect(2).to_be_one_bigger_than(1)
       call s:expect('2').to_be_similar(2)
     endfunction
-    function custom_matcher.provides_failre_message_definition() abort
+    function custom_matcher.provides_failure_message_definition() abort
       call s:check_throw('to_be_one_bigger_than', 2, [0], 0, 'themis: report: failure: Expect 2 to equal 0+1')
       call s:check_throw('to_be_one_bigger_than', 2, [1], 1, 'themis: report: failure: Not expect 2 to equal 1+1')
       call s:check_throw('to_be_similar', 2, ['1'], 0, 'themis: report: failure: Expect 2 == ''1''')
