@@ -15,11 +15,12 @@ function s:Emitter.get_listeners() abort
 endfunction
 
 function s:Emitter.emit(event, ...) abort
+  let before_emitting = self.emitting()
   let self._emitting = a:event
   for listener in self._listeners
     call themis#emitter#fire(listener, a:event, a:000)
   endfor
-  unlet self._emitting
+  let self._emitting = before_emitting
 endfunction
 
 function s:Emitter.emitting() abort
