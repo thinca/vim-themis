@@ -103,8 +103,10 @@ function s:Runner.load_scripts(files_with_styles, target_bundle) abort
     let style = self._styles[style_name]
     let base = themis#bundle#new('', a:target_bundle)
     let base.style = style
+    let before_loading_bundle = self.get_loading_bundle()
     call self.set_loading_bundle(base)
     call style.load_script(filename, self)
+    call self.set_loading_bundle(before_loading_bundle)
   endfor
 endfunction
 

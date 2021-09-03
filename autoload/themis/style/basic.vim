@@ -14,6 +14,7 @@ let s:describe_pattern = '^__.\+__$'
 let s:event = {}
 
 function s:load_nested_bundle(bundle, runner) abort
+  let before_loading_bundle = a:runner.get_loading_bundle()
   call a:runner.set_loading_bundle(a:bundle)
   let suite = copy(a:bundle.suite)
   call filter(suite, 'v:key =~# s:describe_pattern')
@@ -26,6 +27,7 @@ function s:load_nested_bundle(bundle, runner) abort
   for child in a:bundle.children
     call s:load_nested_bundle(child, a:runner)
   endfor
+  call a:runner.set_loading_bundle(before_loading_bundle)
 endfunction
 
 function s:event.before_suite(bundle) abort
