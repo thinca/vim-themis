@@ -26,7 +26,7 @@ function s:Runner.start(paths, options) abort
 
     let paths = type(a:paths) == type([]) ? a:paths : [a:paths]
 
-    call s:load_themisrc(paths)
+    call self.load_themisrc(paths)
 
     let options = themis#option#merge(themis#option(), a:options)
 
@@ -61,6 +61,18 @@ function s:Runner.set_loading_bundle(bundle) abort
   let self._loading_bundle = a:bundle
 endfunction
 
+function s:Runner.get_loading_filename() abort
+  let filename = get(self, '_loading_filename', '')
+  if filename is# ''
+    throw 'themis: Not loading any file now.'
+  endif
+  return filename
+endfunction
+
+function s:Runner.set_loading_filename(filename) abort
+  let self._loading_filename = a:filename
+endfunction
+
 function s:Runner.get_target_files(paths, options) abort
   let files = s:paths2files(a:paths, a:options.recursive)
 
@@ -70,6 +82,15 @@ function s:Runner.get_target_files(paths, options) abort
     call filter(files, 'v:val !~# exclude_pattern')
   endif
   return files
+endfunction
+
+function s:Runner.load_themisrc(paths) abort
+  let themisrcs = themis#util#find_files(a:paths, '.themisrc')
+  for themisrc in themisrcs
+    call self.set_loading_filename(themisrc)
+    execute 'source' fnameescape(themisrc)
+  endfor
+  call self.set_loading_filename('')
 endfunction
 
 function s:Runner.load_bundle_from_files(files, bundle) abort
@@ -103,10 +124,12 @@ function s:Runner.load_scripts(files_with_styles, target_bundle) abort
     let style = self._styles[style_name]
     let base = themis#bundle#new('', a:target_bundle)
     let base.style = style
+    call self.set_loading_filename(filename)
     let before_loading_bundle = self.get_loading_bundle()
     call self.set_loading_bundle(base)
     call style.load_script(filename, self)
     call self.set_loading_bundle(before_loading_bundle)
+    call self.set_loading_filename('')
   endfor
 endfunction
 
@@ -254,13 +277,6 @@ function s:append_rtp(path) abort
     endif
   endif
   return appended
-endfunction
-
-function s:load_themisrc(paths) abort
-  let themisrcs = themis#util#find_files(a:paths, '.themisrc')
-  for themisrc in themisrcs
-    execute 'source' fnameescape(themisrc)
-  endfor
 endfunction
 
 function s:load_plugins(runtimepaths) abort
