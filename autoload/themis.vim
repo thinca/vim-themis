@@ -49,7 +49,11 @@ function themis#suite(...) abort
 endfunction
 
 function themis#helper(name) abort
-  return themis#helper#{a:name}#new(s:runner())
+  try
+    return themis#helper#{a:name}#new(s:runner())
+  catch /Vim(return):E117:/
+    throw 'themis: Unknown helper: ' . a:name
+  endtry
 endfunction
 
 function themis#option(...) abort
