@@ -123,9 +123,25 @@ function s:translate_script(lines) abort
   let current_func_id = 1
   let current_scope_id = 1  " scope_id = 0 is special value for a test scope
   let lnum = 0
+  let heredoc_endmarker = ''
 
   for line in a:lines
     let lnum += 1
+
+    if heredoc_endmarker isnot# ''
+      if line =~# heredoc_endmarker
+        let heredoc_endmarker = ''
+      endif
+      let result += [line]
+      continue
+    endif
+    let tokens = matchlist(line, '^\s*let\s\+[[:alnum:]:#]\+\s*=<<\s*\(trim\s*\)\?\(\w\+\)')
+    if !empty(tokens)
+      let trim_part = tokens[1] is# '' ? '' : '\s*'
+      let heredoc_endmarker = '^' . trim_part . tokens[2] . '$'
+      let result += [line]
+      continue
+    endif
 
     let tokens = matchlist(line, '^\s*\([Dd]escribe\|[Cc]ontext\)\s*\(.*\)$')
     if !empty(tokens)

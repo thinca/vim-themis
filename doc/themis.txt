@@ -1058,6 +1058,7 @@ Unreleased
 	- Add |themis-helper-assert-not_exists()|.
 	- Add |themis-helper-assert-cmd_not_exists()|.
 	- Fix scope of |themis-helper-command|.
+	- Fix a bug that couldn't include some keywords in heredoc of vimspec.
 
 1.5.5	2020-11-19
 	- Some fixes.
