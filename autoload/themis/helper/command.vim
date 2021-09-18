@@ -91,7 +91,7 @@ function s:define_throws(command, scope_key) abort
   \ '|   let s:c.result = s:eval(s:c.expr, s:current_scopes.' . a:scope_key . ' + [l:])'
   \ '|   let s:c.not_thrown = 1'
   \ '| catch'
-  \ '|   call s:check_exception(expand("<slnum>"), v:exception, s:c.expect_exception)'
+  \ '|   let s:c._ = s:check_exception(expand("<slnum>"), v:exception, s:c.expect_exception)'
   \ '| endtry'
   \ '| if s:c.not_thrown'
   \ '|   call s:not_thrown(expand("<slnum>"), s:c.expect_exception, s:c.result)'
