@@ -983,6 +983,52 @@ scope.vars({path})			*themis-helper-scope-vars()*
 	CAUTION: vars() will temporarily overwrite the target file and
 	restore the file, so please be careful if you want to use it.
 
+------------------------------------------------------------------------------
+DEPS						*themis-helper-deps*
+
+Deps-helper provides a feature to get and store the plugin dependencies.
+This assumes such as library plugin or base plugin that has plugin system.
+This helper gets the specified deps to local, and adds it to 'runtimepath'.
+Currently, this can get only Git repository, and need `git` command.
+
+deps.dir					*themis-helper-deps-dir*
+	Base directory to store the dependencies.
+	Default value is set to `fnamemodify({themisrc}, ':h') . '/.deps'` .
+
+deps.git({deps-spec})				*themis-helper-deps-git()*
+	Gets a Git repository as deps to local, and adds it to 'runtimepath'.
+
+	When {deps-spec} is a String, it is one of the following forms.
+	- GitHub repository such as "owner/repos".
+	- URL of Git repository.
+	A String value can contain "#branch-name" suffix.  It is a branch name
+	following "#".
+
+	When {deps-spec} is a Dictionary, it has the following keys.
+	"repos":	(Required)
+		String value of {deps-spec} that described in above.
+	"name":		(Optional)
+		The name of dependency.  This is used as directory name in
+		base directory.  If omitted, the last part of "repos" except
+		branch name is used.
+	"branch":	(Optional)
+		The name of branch.  If this is specified, "#branch-name" in
+		"repos" has no special mean, treated as is.
+
+	When the deps already exists in local, does not fetch it.
+	You need delete old deps if you want to update deps.
+
+	Example:
+>
+	let s:deps = themis#helper('deps')
+	call s:deps.git('kana/vim-textobj-user')
+
+deps.git_cmd					*themis-helper-deps-git_cmd*
+	Command name of Git.
+	Default: "git"
+
+
+
 ==============================================================================
 REPORTER					*themis-reporter*
 
@@ -1057,6 +1103,7 @@ CHANGELOG					*themis-changelog*
 Unreleased
 	- Add |themis-helper-assert-not_exists()|.
 	- Add |themis-helper-assert-cmd_not_exists()|.
+	- Add |themis-helper-deps|.
 	- Fix scope of |themis-helper-command|.
 	- Fix a bug that couldn't include some keywords in heredoc of vimspec.
 
