@@ -6,7 +6,7 @@ Describe Runner
   Describe events
     Before
       let listener = {'called': []}
-      function! listener._(name, args) abort
+      function listener._(name, args) abort
         let self.called += [a:name]
       endfunction
       call runner.add_event(listener)
@@ -32,12 +32,12 @@ Describe Runner
       Before
         let bundle = themis#bundle#new('test')
         let bundle.style = runner._styles['basic']
-        function! bundle.suite.success_test() abort
+        function bundle.suite.success_test() abort
         endfunction
-        function! bundle.suite.failure_test() abort
+        function bundle.suite.failure_test() abort
           Fail fail test
         endfunction
-        function! bundle.suite.pending_test() abort
+        function bundle.suite.pending_test() abort
           Skip pending
         endfunction
       End

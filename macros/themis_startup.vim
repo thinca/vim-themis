@@ -4,7 +4,7 @@
 
 let s:themis_home = expand('<sfile>:h:h')
 
-function! s:append_rtp(path) abort
+function s:append_rtp(path) abort
   if isdirectory(a:path)
     let path = substitute(a:path, '\\\+', '/', 'g')
     let path = substitute(path, '/$', '', 'g')
@@ -16,7 +16,7 @@ function! s:append_rtp(path) abort
   endif
 endfunction
 
-function! s:start() abort
+function s:start() abort
   let g:themis#cmdline = 1
   call s:append_rtp(s:themis_home)
   let args = argv()
@@ -33,7 +33,7 @@ function! s:start() abort
   return themis#command#start(args)
 endfunction
 
-function! s:dump_error(throwpoint, exception) abort
+function s:dump_error(throwpoint, exception) abort
   new
   try
     if $THEMIS_DEBUG == 1 || a:exception =~# '^Vim'
@@ -55,7 +55,7 @@ function! s:dump_error(throwpoint, exception) abort
   endtry
 endfunction
 
-function! s:main() abort
+function s:main() abort
   " This :visual is needed for 2 purpose.
   " 1. To Start test in Normal mode.
   " 2. Exit code is set to 1, whenever it ends Vim from Ex mode after an error
@@ -72,6 +72,7 @@ function! s:main() abort
     if mode(1) ==# 'ce'
       visual
     endif
+    autocmd! plugin-themis-startup VimLeave
     if error_count == 0
       qall!
     else
@@ -83,6 +84,7 @@ endfunction
 augroup plugin-themis-startup
   autocmd!
   autocmd VimEnter * nested call s:main()
+  autocmd VimLeave * call themis#log('ERROR: Vim quit unexpectedly.') | cquit
 augroup END
 
 call s:append_rtp(getcwd())

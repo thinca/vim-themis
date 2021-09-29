@@ -5,19 +5,19 @@ Describe supporter-stats
 
     let bundle = NewBasicSuite('sample', runner)
     let suite = bundle.suite
-    function! suite.success1() abort
+    function suite.success1() abort
     endfunction
-    function! suite.success2() abort
+    function suite.success2() abort
     endfunction
-    function! suite.success3() abort
+    function suite.success3() abort
     endfunction
-    function! suite.fail1() abort
+    function suite.fail1() abort
       Fail fail test
     endfunction
-    function! suite.fail2() abort
+    function suite.fail2() abort
       throw 'omg'
     endfunction
-    function! suite.pending1() abort
+    function suite.pending1() abort
       Skip pending test
     endfunction
 

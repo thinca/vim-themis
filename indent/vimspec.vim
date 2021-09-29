@@ -10,19 +10,19 @@ runtime! indent/vim.vim
 
 let b:did_indent = 1
 
-setlocal indentexpr=GetVimspecIndent()
+let &l:indentexpr = 'GetVimspecIndent(' . string(&l:indentexpr) . ')'
 setlocal indentkeys+==End
 
 if exists('*GetVimspecIndent')
   finish
 endif
 
-function! GetVimspecIndent() abort
+function GetVimspecIndent(orig_indentexpr) abort
   try
     " Old Vim's indent plugin has a bug that uses =~
     let ignorecase_save = &ignorecase
     set noignorecase
-    let indent = GetVimIndent()
+    let indent = eval(a:orig_indentexpr)
   finally
     let &ignorecase = ignorecase_save
   endtry
@@ -40,11 +40,11 @@ function! GetVimspecIndent() abort
 endfunction
 
 if exists('*shiftwidth')
-  function! s:shiftwidth() abort
+  function s:shiftwidth() abort
     return shiftwidth()
   endfunction
 else
-  function! s:shiftwidth() abort
+  function s:shiftwidth() abort
     return &l:shiftwidth == 0 ? &l:tabstop : &l:shiftwidth
   endfunction
 endif

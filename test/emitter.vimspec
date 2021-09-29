@@ -42,7 +42,7 @@ Describe Emitter
     Context with a listener which has "foo" event
       Before
         let listener = {'called': 0}
-        function! listener.foo(value) abort
+        function listener.foo(value) abort
           let self.called = 1
           let self.value = a:value
         endfunction
@@ -72,13 +72,13 @@ Describe Emitter
     Context with two or more listeners
       Before
         let listener1 = {'called': 0}
-        function! listener1.foo() abort
+        function listener1.foo() abort
           let self.called = 1
         endfunction
         call emitter.add_listener(listener1)
 
         let listener2 = {'called': 0}
-        function! listener2.foo() abort
+        function listener2.foo() abort
           let self.called = 1
         endfunction
         call emitter.add_listener(listener2)
@@ -94,7 +94,7 @@ Describe Emitter
     Context with a listener which has wildcard event
       Before
         let listener = {'called': {}}
-        function! listener._(event, args) abort
+        function listener._(event, args) abort
           let self.called[a:event] = 1
         endfunction
         call emitter.add_listener(listener)
@@ -109,7 +109,7 @@ Describe Emitter
 
       Context and has "foo" event
         Before
-          function! listener.foo() abort
+          function listener.foo() abort
           endfunction
         End
         It doesn't receive the defined event
@@ -125,7 +125,7 @@ Describe Emitter
     Context when event is emitting
       Before
         let listener = {'emitter': emitter}
-        function! listener.foo() abort
+        function listener.foo() abort
           let self.emitting = self.emitter.emitting()
         endfunction
         call emitter.add_listener(listener)
@@ -147,7 +147,7 @@ Describe Emitter
     Context when an error occurred while emitting
       Before
         let listener = {}
-        function! listener.foo() abort
+        function listener.foo() abort
           throw 'error'
         endfunction
         call emitter.add_listener(listener)

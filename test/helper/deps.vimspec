@@ -1,0 +1,179 @@
+let s:deps = themis#helper('deps')
+
+Describe helper-deps
+  Before
+    let deps = s:deps
+  End
+  Describe .dir
+    It has a default value
+      Assert Match(deps.dir, '[/\\]test[/\\]helper[/\\]\.deps$')
+    End
+  End
+
+  Describe .git()
+    Before
+      if !has('patch-7.4.1128')
+        Skip delete() with second argument not available.
+      endif
+      let tempfile = tempname()
+
+      if &shell =~? 'cmd\.exe'
+        let cmd = tempname() . '.cmd'
+        call writefile([
+        \   "@:s\r",
+        \   "@if xx == x%1x goto :eof\r",
+        \   printf("@echo %%~1>> \"%s\"\r", tempfile),
+        \   "@shift\r",
+        \   "@goto :s\r",
+        \ ], cmd)
+        let s:deps.git_cmd = cmd
+      elseif &shell =~? 'sh$'
+        let s:deps.git_cmd = printf('git() { printf "%%s\n" "$@" > %s; }; git', tempfile)
+      else
+        Skip Not supported 'shell'
+      endif
+      let save_runtimepath = copy(themis#option('runtimepath'))
+    End
+    After
+      if !has('patch-7.4.1128')
+        return
+      endif
+      if exists('save_runtimepath')
+        let options = themis#option()
+        let options.runtimepath = save_runtimepath
+      endif
+      if exists('tempfile') && filereadable(tempfile)
+        call delete(tempfile)
+      endif
+      if exists('cmd') && filereadable(cmd)
+        call delete(cmd)
+      endif
+      call delete(deps.dir, 'rf')
+    End
+
+    Describe owner/repos form
+      It clones a GitHub repository using git command
+        call s:deps.git('owner/repos')
+        Assert True(filereadable(tempfile))
+        let args = readfile(tempfile)
+        let repos_path = deps.dir . '/repos'
+        Assert Equals(args[-2], 'https://github.com/owner/repos')
+        Assert Equals(args[-1], repos_path)
+        Assert True(0 <= index(themis#option('runtimepath'), repos_path))
+      End
+
+      Context when branch name specified
+        It clones a GitHub repository with branch
+          call s:deps.git('owner/repos#branch-name')
+          Assert True(filereadable(tempfile))
+          let args = readfile(tempfile)
+          let repos_path = deps.dir . '/repos'
+          Assert Equals(args[-4], '--branch')
+          Assert Equals(args[-3], 'branch-name')
+          Assert Equals(args[-2], 'https://github.com/owner/repos')
+          Assert Equals(args[-1], repos_path)
+          Assert True(0 <= index(themis#option('runtimepath'), repos_path))
+        End
+      End
+    End
+
+    Describe URL form
+      It clones a Git repository using git command
+        call s:deps.git('https://example.com/git/repos')
+        Assert True(filereadable(tempfile))
+        let args = readfile(tempfile)
+        let repos_path = deps.dir . '/repos'
+        Assert Equals(args[-2], 'https://example.com/git/repos')
+        Assert Equals(args[-1], repos_path)
+        Assert True(0 <= index(themis#option('runtimepath'), repos_path))
+      End
+
+      Context when branch name specified
+        It clones a Git repository with branch
+          call s:deps.git('https://example.com/git/repos#branch-name')
+          Assert True(filereadable(tempfile))
+          let args = readfile(tempfile)
+          let repos_path = deps.dir . '/repos'
+          Assert Equals(args[-4], '--branch')
+          Assert Equals(args[-3], 'branch-name')
+          Assert Equals(args[-2], 'https://example.com/git/repos')
+          Assert Equals(args[-1], repos_path)
+          Assert True(0 <= index(themis#option('runtimepath'), repos_path))
+        End
+      End
+    End
+
+    Describe dictionary form
+      Context when only "repos" is specified
+        It clones a repository using git command
+          call s:deps.git({'repos': 'https://example.com/git/repos'})
+          Assert True(filereadable(tempfile))
+          let args = readfile(tempfile)
+          let repos_path = deps.dir . '/repos'
+          Assert Equals(args[-2], 'https://example.com/git/repos')
+          Assert Equals(args[-1], repos_path)
+          Assert True(0 <= index(themis#option('runtimepath'), repos_path))
+        End
+      End
+
+      Context when "repos" and "name" is specified
+        It clones a repository to specified place by "name"
+          call s:deps.git({
+          \   'repos': 'https://example.com/git/repos',
+          \   'name': 'repository',
+          \ })
+          Assert True(filereadable(tempfile))
+          let args = readfile(tempfile)
+          let repos_path = deps.dir . '/repository'
+          Assert Equals(args[-2], 'https://example.com/git/repos')
+          Assert Equals(args[-1], repos_path)
+          Assert True(0 <= index(themis#option('runtimepath'), repos_path))
+        End
+      End
+
+      Context when "repos" and "branch" is specified
+        It clones a repository using git command
+          call s:deps.git({
+          \   'repos': 'https://example.com/git/repos#ignored',
+          \   'branch': 'branch-name',
+          \ })
+          Assert True(filereadable(tempfile))
+          let args = readfile(tempfile)
+          let repos_path = deps.dir . '/repos#ignored'
+          Assert Equals(args[-4], '--branch')
+          Assert Equals(args[-3], 'branch-name')
+          Assert Equals(args[-2], 'https://example.com/git/repos#ignored')
+          Assert Equals(args[-1], repos_path)
+          Assert True(0 <= index(themis#option('runtimepath'), repos_path))
+        End
+      End
+    End
+
+    Context when already fetched
+      Before
+        call mkdir(deps.dir . '/repos', 'p')
+      End
+
+      It clones a repository using git command
+        call s:deps.git('owner/repos')
+        Assert False(filereadable(tempfile))
+        let repos_path = deps.dir . '/repos'
+        Assert True(0 <= index(themis#option('runtimepath'), repos_path))
+      End
+    End
+
+    Context when git command failed
+      Before
+        let s:deps.git_cmd = 'exit 1;'
+      End
+
+      It throws an error
+        let deps = s:deps
+        Throws /^themis: helper\/deps:/ deps.git('owner/repos')
+        Assert False(filereadable(tempfile))
+        let repos_path = deps.dir . '/repos'
+        Assert False(0 <= index(themis#option('runtimepath'), repos_path))
+      End
+    End
+  End
+End

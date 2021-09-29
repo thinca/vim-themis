@@ -2,12 +2,9 @@
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
-let s:save_cpo = &cpo
-set cpo&vim
-
 let s:Runner = {}
 
-function! s:Runner.init() abort
+function s:Runner.init() abort
   let self._emitter = themis#emitter#new()
   let self._supporters = {}
   let self._styles = {}
@@ -20,13 +17,16 @@ function! s:Runner.init() abort
   call self.add_event(style_event)
 endfunction
 
-function! s:Runner.start(paths, options) abort
+function s:Runner.start(paths, options) abort
   try
     let save_runtimepath = &runtimepath
 
+    let base_bundle = themis#bundle#new()
+    call self.set_loading_bundle(base_bundle)
+
     let paths = type(a:paths) == type([]) ? a:paths : [a:paths]
 
-    call s:load_themisrc(paths)
+    call self.load_themisrc(paths)
 
     let options = themis#option#merge(themis#option(), a:options)
 
@@ -36,20 +36,44 @@ function! s:Runner.start(paths, options) abort
     call self.add_event(reporter)
 
     let files = self.get_target_files(paths, options)
-    let bundle = self.load_bundle_from_files(files)
-    if !themis#bundle#is_bundle(bundle)
+    let base_bundle = self.load_bundle_from_files(files, base_bundle)
+    if !themis#bundle#is_bundle(base_bundle)
       return 1
     endif
 
     let target_pattern = join(a:options.target, '\m\|')
-    call bundle.select_tests_recursive(target_pattern)
-    return self.run(bundle)
+    call base_bundle.select_tests_recursive(target_pattern)
+    return self.run(base_bundle)
   finally
     let &runtimepath = save_runtimepath
   endtry
 endfunction
 
-function! s:Runner.get_target_files(paths, options) abort
+function s:Runner.get_loading_bundle() abort
+  let bundle = get(self, '_loading_bundle', 0)
+  if bundle is# 0
+    throw 'themis: Does not ready the base bundle.'
+  endif
+  return bundle
+endfunction
+
+function s:Runner.set_loading_bundle(bundle) abort
+  let self._loading_bundle = a:bundle
+endfunction
+
+function s:Runner.get_loading_filename() abort
+  let filename = get(self, '_loading_filename', '')
+  if filename is# ''
+    throw 'themis: Not loading any file now.'
+  endif
+  return filename
+endfunction
+
+function s:Runner.set_loading_filename(filename) abort
+  let self._loading_filename = a:filename
+endfunction
+
+function s:Runner.get_target_files(paths, options) abort
   let files = s:paths2files(a:paths, a:options.recursive)
 
   let exclude_options = filter(copy(a:options.exclude), '!empty(v:val)')
@@ -60,7 +84,16 @@ function! s:Runner.get_target_files(paths, options) abort
   return files
 endfunction
 
-function! s:Runner.load_bundle_from_files(files) abort
+function s:Runner.load_themisrc(paths) abort
+  let themisrcs = themis#util#find_files(a:paths, '.themisrc')
+  for themisrc in themisrcs
+    call self.set_loading_filename(themisrc)
+    execute 'source' fnameescape(themisrc)
+  endfor
+  call self.set_loading_filename('')
+endfunction
+
+function s:Runner.load_bundle_from_files(files, bundle) abort
   let files_with_styles = {}
   for file in a:files
     let style = s:can_handle(values(self._styles), file)
@@ -73,18 +106,17 @@ function! s:Runner.load_bundle_from_files(files) abort
     throw 'themis: Target file not found.'
   endif
 
-  let bundle = themis#bundle#new()
   try
-    call self.load_scripts(files_with_styles, bundle)
+    call self.load_scripts(files_with_styles, a:bundle)
     call self.emit('script_loaded', self)
   catch
     call self.on_error('script loading', v:exception, v:throwpoint)
     return {}
   endtry
-  return bundle
+  return a:bundle
 endfunction
 
-function! s:Runner.load_scripts(files_with_styles, target_bundle) abort
+function s:Runner.load_scripts(files_with_styles, target_bundle) abort
   for [filename, style_name] in items(a:files_with_styles)
     if !filereadable(filename)
       throw printf('themis: Target file was not found: %s', filename)
@@ -92,13 +124,16 @@ function! s:Runner.load_scripts(files_with_styles, target_bundle) abort
     let style = self._styles[style_name]
     let base = themis#bundle#new('', a:target_bundle)
     let base.style = style
-    call themis#_set_base_bundle(base)
-    call style.load_script(filename, base)
-    call themis#_unset_base_bundle()
+    call self.set_loading_filename(filename)
+    let before_loading_bundle = self.get_loading_bundle()
+    call self.set_loading_bundle(base)
+    call style.load_script(filename, self)
+    call self.set_loading_bundle(before_loading_bundle)
+    call self.set_loading_filename('')
   endfor
 endfunction
 
-function! s:Runner.run(bundle) abort
+function s:Runner.run(bundle) abort
   let stats = self.supporter('stats')
   call self.supporter('builtin_assert')
   call self.emit('init', self, a:bundle)
@@ -115,13 +150,13 @@ function! s:Runner.run(bundle) abort
   return error_count
 endfunction
 
-function! s:Runner.run_all(bundle) abort
+function s:Runner.run_all(bundle) abort
   call self.emit('start', self)
   call self.run_bundle(a:bundle)
   call self.emit('end', self)
 endfunction
 
-function! s:Runner.run_bundle(bundle) abort
+function s:Runner.run_bundle(bundle) abort
   if a:bundle.is_empty()
     return
   endif
@@ -133,14 +168,14 @@ function! s:Runner.run_bundle(bundle) abort
   call self.emit('after_suite', a:bundle)
 endfunction
 
-function! s:Runner.run_suite(bundle, test_entries) abort
+function s:Runner.run_suite(bundle, test_entries) abort
   for entry in a:test_entries
     call self.emit('start_test', a:bundle, entry)
     call self.run_test(a:bundle, entry)
   endfor
 endfunction
 
-function! s:Runner.run_test(bundle, test_entry) abort
+function s:Runner.run_test(bundle, test_entry) abort
   let report = themis#report#new(a:bundle, a:test_entry)
   try
     call self.emit_before_test(a:bundle, a:test_entry)
@@ -160,14 +195,14 @@ endfunction
 
 " FIXME: a:bundle may not have a:test_entry.
 " Should I pass the original bundle?
-function! s:Runner.emit_before_test(bundle, test_entry) abort
+function s:Runner.emit_before_test(bundle, test_entry) abort
   if has_key(a:bundle, 'parent')
     call self.emit_before_test(a:bundle.parent, a:test_entry)
   endif
   call self.emit('before_test', a:bundle, a:test_entry)
 endfunction
 
-function! s:Runner.emit_after_test(bundle, test_entry, report) abort
+function s:Runner.emit_after_test(bundle, test_entry, report) abort
   try
     call self.emit('after_test', a:bundle, a:test_entry)
   catch
@@ -178,22 +213,22 @@ function! s:Runner.emit_after_test(bundle, test_entry, report) abort
   endif
 endfunction
 
-function! s:Runner.supporter(name) abort
+function s:Runner.supporter(name) abort
   if !has_key(self._supporters, a:name)
     let self._supporters[a:name] = themis#module#supporter(a:name, self)
   endif
   return self._supporters[a:name]
 endfunction
 
-function! s:Runner.add_event(listener) abort
+function s:Runner.add_event(listener) abort
   call self._emitter.add_listener(a:listener)
 endfunction
 
-function! s:Runner.emit(name, ...) abort
+function s:Runner.emit(name, ...) abort
   call call(self._emitter.emit, [a:name] + a:000, self._emitter)
 endfunction
 
-function! s:Runner.on_error(phase, exception, throwpoint) abort
+function s:Runner.on_error(phase, exception, throwpoint) abort
   let phase = self._emitter.emitting()
   if phase ==# ''
     let phase = a:phase
@@ -212,7 +247,7 @@ function! s:Runner.on_error(phase, exception, throwpoint) abort
 endfunction
 
 let s:style_event = {}
-function! s:style_event._(event, args) abort
+function s:style_event._(event, args) abort
   if themis#bundle#is_bundle(get(a:args, 0))
     let bundle = a:args[0]
     let style = bundle.get_style()
@@ -228,7 +263,7 @@ function! s:style_event._(event, args) abort
   endif
 endfunction
 
-function! s:append_rtp(path) abort
+function s:append_rtp(path) abort
   let appended = []
   if isdirectory(a:path)
     let path = substitute(a:path, '\\\+', '/', 'g')
@@ -244,14 +279,7 @@ function! s:append_rtp(path) abort
   return appended
 endfunction
 
-function! s:load_themisrc(paths) abort
-  let themisrcs = themis#util#find_files(a:paths, '.themisrc')
-  for themisrc in themisrcs
-    execute 'source' fnameescape(themisrc)
-  endfor
-endfunction
-
-function! s:load_plugins(runtimepaths) abort
+function s:load_plugins(runtimepaths) abort
   let appended = [getcwd()]
   if !empty(a:runtimepaths)
     for rtp in a:runtimepaths
@@ -265,7 +293,7 @@ function! s:load_plugins(runtimepaths) abort
   endfor
 endfunction
 
-function! s:paths2files(paths, recursive) abort
+function s:paths2files(paths, recursive) abort
   let files = []
   let target_pattern = a:recursive ? '**/*' : '*'
   for path in a:paths
@@ -279,7 +307,7 @@ function! s:paths2files(paths, recursive) abort
   return filter(map(files, 'fnamemodify(v:val, mods)'), '!isdirectory(v:val)')
 endfunction
 
-function! s:can_handle(styles, file) abort
+function s:can_handle(styles, file) abort
   for style in a:styles
     if style.can_handle(a:file)
       return style.name
@@ -288,14 +316,10 @@ function! s:can_handle(styles, file) abort
   return ''
 endfunction
 
-function! themis#runner#new() abort
+function themis#runner#new() abort
   let runner = deepcopy(s:Runner)
   call runner.init()
   return runner
 endfunction
 
 call themis#func_alias({'themis/Runner': s:Runner})
-
-
-let &cpo = s:save_cpo
-unlet s:save_cpo

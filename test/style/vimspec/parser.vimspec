@@ -1,0 +1,15 @@
+Describe vimspec-style
+  Describe parser
+    It can treat here document
+      if !has('patch-8.1.1354')
+        Skip heredoc is not supported
+      endif
+      " The below line that starts with 'It' must not treated
+      " as opening of it block.
+      let lines =<< trim EOL
+      It is a Vim.
+      EOL
+      Assert Equals(lines, ['It is a Vim.'])
+    End
+  End
+End

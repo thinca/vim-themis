@@ -2,9 +2,6 @@
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
-let s:save_cpo = &cpo
-set cpo&vim
-
 let s:func_aliases = {}
 let s:line_adjuster = {}
 
@@ -15,7 +12,7 @@ let s:StackInfo = {
 \   'filled': 0,
 \ }
 
-function! s:StackInfo.fill_info() abort
+function s:StackInfo.fill_info() abort
   if self.filled
     return
   endif
@@ -35,7 +32,7 @@ function! s:StackInfo.fill_info() abort
   let self.filled = 1
 endfunction
 
-function! s:StackInfo.make_signature() abort
+function s:StackInfo.make_signature() abort
   let funcname = get(s:func_aliases, self.funcname, self.funcname)
   let args = join(self.arguments, ', ')
   let flags = ''
@@ -54,7 +51,7 @@ function! s:StackInfo.make_signature() abort
   return printf('function %s(%s)%s', funcname, args, flags)
 endfunction
 
-function! s:StackInfo.format() abort
+function s:StackInfo.format() abort
   call self.fill_info()
   if !self.exists
     return printf('function %s()  This function is already deleted.',
@@ -77,7 +74,7 @@ function! s:StackInfo.format() abort
   return 'Unknown Stack'
 endfunction
 
-function! s:StackInfo.get_line(...) abort
+function s:StackInfo.get_line(...) abort
   let lnum = a:0 ? a:1 : self.line
   call self.fill_info()
   if self.type ==# 'file'
@@ -98,26 +95,26 @@ function! s:StackInfo.get_line(...) abort
   return ''
 endfunction
 
-function! s:StackInfo.adjusted_lnum(...) abort
+function s:StackInfo.adjusted_lnum(...) abort
   let lnum = a:0 ? a:1 : self.line
   let adjuster = get(s:line_adjuster, self.funcname, 0)
   return lnum + adjuster
 endfunction
 
-function! s:StackInfo.adjusted_abs_lnum(...) abort
+function s:StackInfo.adjusted_abs_lnum(...) abort
   let lnum = a:0 ? a:1 : self.line
   let deflnum = self.defline
   let adjuster = get(s:line_adjuster, self.funcname, 0)
   return lnum + deflnum + adjuster
 endfunction
 
-function! s:StackInfo.get_line_with_lnum(...) abort
+function s:StackInfo.get_line_with_lnum(...) abort
   let lnum = a:0 ? a:1 : self.line
   let line = self.get_line(lnum)
   return printf('%3d: %s', self.adjusted_lnum(lnum), line)
 endfunction
 
-function! themis#util#stack_info(stack) abort
+function themis#util#stack_info(stack) abort
   let info = deepcopy(s:StackInfo)
   let info.stack = a:stack
 
@@ -136,7 +133,7 @@ function! themis#util#stack_info(stack) abort
   return info
 endfunction
 
-function! themis#util#func_alias(dict, prefixes) abort
+function themis#util#func_alias(dict, prefixes) abort
   let dict_t = type({})
   let func_t = type(function('type'))
   for [key, Value] in items(a:dict)
@@ -151,7 +148,7 @@ function! themis#util#func_alias(dict, prefixes) abort
   endfor
 endfunction
 
-function! themis#util#adjust_func_line(target, line) abort
+function themis#util#adjust_func_line(target, line) abort
   let t = type(a:target)
   if t == type({})
     for V in values(a:target)
@@ -166,12 +163,12 @@ function! themis#util#adjust_func_line(target, line) abort
   endif
 endfunction
 
-function! themis#util#callstacklines(throwpoint, ...) abort
+function themis#util#callstacklines(throwpoint, ...) abort
   let infos = call('themis#util#callstack', [a:throwpoint] + a:000)
   return map(infos, 'v:val.format()')
 endfunction
 
-function! themis#util#callstack(throwpoint, ...) abort
+function themis#util#callstack(throwpoint, ...) abort
   let this_stacks = themis#util#parse_callstack(expand('<sfile>'))[: -2]
   let throwpoint_stacks = themis#util#parse_callstack(a:throwpoint)
   let start = a:0 ? len(this_stacks) + a:1 : 0
@@ -182,13 +179,13 @@ function! themis#util#callstack(throwpoint, ...) abort
   return throwpoint_stacks[start :]
 endfunction
 
-function! themis#util#parse_callstack(callstack) abort
+function themis#util#parse_callstack(callstack) abort
   let callstack_line = matchstr(a:callstack, '^\%(function\s\+\)\?\zs.*')
   let stack_infos = split(callstack_line, '\.\.')
   return map(stack_infos, 'themis#util#stack_info(v:val)')
 endfunction
 
-function! themis#util#funcdata(func) abort
+function themis#util#funcdata(func) abort
   let func = type(a:func) == type(function('type')) ?
   \          themis#util#funcname(a:func) : a:func
   if func =~# '^\d\+'
@@ -235,7 +232,7 @@ function! themis#util#funcdata(func) abort
   \ }
 endfunction
 
-function! themis#util#error_info(stacktrace) abort
+function themis#util#error_info(stacktrace) abort
   let tracelines = map(copy(a:stacktrace), 'v:val.format()')
   let tail = a:stacktrace[-1]
   if tail.line
@@ -244,11 +241,11 @@ function! themis#util#error_info(stacktrace) abort
   return join(tracelines, "\n")
 endfunction
 
-function! themis#util#is_funcname(name) abort
+function themis#util#is_funcname(name) abort
   return a:name =~# '\v^%(%(\<lambda\>)?\d+|%(\u|g:\u|s:|\<SNR\>\d+_)\w+|\h\w*%(#\w+)+)$'
 endfunction
 
-function! themis#util#funcname(funcref) abort
+function themis#util#funcname(funcref) abort
   if has('patch-7.4.1608')
     " From Vim 7.4.1608, the result of string() with Partial
     " (a kind of Funcref) contains {arglist} and {self} as follows
@@ -264,7 +261,7 @@ function! themis#util#funcname(funcref) abort
   return matchstr(str, '^function(''\zs[^'']\{-}\ze''')
 endfunction
 
-function! themis#util#get_full_title(obj, ...) abort
+function themis#util#get_full_title(obj, ...) abort
   let obj = a:obj
   let titles = a:0 ? a:1 : []
   call insert(titles, obj.get_title())
@@ -275,7 +272,7 @@ function! themis#util#get_full_title(obj, ...) abort
   return join(filter(titles, 'v:val !=# ""'), ' ')
 endfunction
 
-function! themis#util#sortuniq(list) abort
+function themis#util#sortuniq(list) abort
   call sort(a:list)
   let i = len(a:list) - 1
   while 0 < i
@@ -287,7 +284,7 @@ function! themis#util#sortuniq(list) abort
   return a:list
 endfunction
 
-function! themis#util#find_files(paths, filename) abort
+function themis#util#find_files(paths, filename) abort
   let todir =  'isdirectory(v:val) ? v:val : fnamemodify(v:val, ":h")'
   let dirs = map(copy(a:paths), todir)
   let mod = ':p:gs?\\\+?/?:s?/$??'
@@ -295,7 +292,3 @@ function! themis#util#find_files(paths, filename) abort
   let files = findfile(a:filename, join(map(dirs, 'v:val . ";"'), ','), -1)
   return themis#util#sortuniq(files)
 endfunction
-
-
-let &cpo = s:save_cpo
-unlet s:save_cpo

@@ -22,8 +22,7 @@ Describe helper-scope
 
     Context with {path} is full path
       Before
-        let paths = globpath(&runtimepath, 'test/fixture/scope.vim')
-        let path = split(paths, "\n")[0]
+        let path = fnamemodify('test/fixture/scope.vim', ':p')
         let funcs = s:scope.funcs(path)
       End
 
@@ -58,8 +57,7 @@ Describe helper-scope
 
     Context with {path} is full path
       Before
-        let paths = globpath(&runtimepath, 'test/fixture/scope.vim')
-        let path = split(paths, "\n")[0]
+        let path = fnamemodify('test/fixture/scope.vim', ':p')
         let vars = s:scope.vars(path)
       End
 

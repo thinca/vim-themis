@@ -74,14 +74,14 @@ Test is a Vim script like the following.
 	let s:assert = themis#helper('assert')
 
 	" The function name(my_test_1) will be a test name.
-	function! s:suite.my_test_1()
+	function s:suite.my_test_1()
 	  call s:assert.equals(3, 1 + 2)
 	endfunction
 
-	function! s:suite.my_test_2()
+	function s:suite.my_test_2()
 	  call s:assert.equals(8, 2 * 4)
 	endfunction
-	function! s:suite.my_fail_test()
+	function s:suite.my_fail_test()
 	  call s:assert.fail('this will fail')
 	endfunction
 <
@@ -169,7 +169,7 @@ themis#func_alias({dict})			*themis#func_alias()*
 	For example:
 >
 	let s:MyClass = {}
-	function! s:MyClass.useful_function()
+	function s:MyClass.useful_function()
 	  throw 'some error!'
 	endfunction
 	call themis#func_alias({'MyClass': s:MyClass})
@@ -204,7 +204,7 @@ $THEMIS_ARGS					*$THEMIS_ARGS*
 	Extra arguments passed to |$THEMIS_VIM|. "-e -s" is used when this is
 	empty. Note that chainging the value may cause invalid test run.
 	Change the value of this variable with your own responsibility.
-	
+
 
 ------------------------------------------------------------------------------
 THEMISRC					*themis-themisrc*
@@ -284,13 +284,13 @@ You can put helpers in global scope, and use all test scripts.
 <
 You can define helper functions or commands used only in this project.
 >
-	function! InitBuffer()
+	function InitBuffer()
 	  tabonly!
 	  only!
 	  enew!
 	  put =['aaa', 'bbb', 'ccc']
 	endfunction
-	command! InitBuffer call InitBuffer
+	command! InitBuffer call InitBuffer()
 <
 You can define a new matcher for expect-helper.
 See |themis#helper#expect#define_matcher()| for detail.
@@ -320,7 +320,7 @@ And write a test.  There is a sample with explanation comment.
 	" Define a function to suite.
 	" This function is a test.
 	" Function name becomes a title of test.  In this case, "my_test".
-	function! s:suite.my_test_1()
+	function s:suite.my_test_1()
 	  " Check the calculation result
 	  let value = 1 + 2
 	  call s:assert.equals(value, 3)
@@ -362,7 +362,8 @@ Others
 |themis-helper-assert-length_of()|
 |themis-helper-assert-key_exists()| / |themis-helper-assert-key_not_exists()|
 |themis-helper-assert-has_key()|
-|themis-helper-assert-exists()| / |themis-helper-assert-cmd_exists()|
+|themis-helper-assert-exists()| / |themis-helper-not_assert-not_exists()|
+|themis-helper-assert-cmd_exists()| / |themis-helper-assert-cmd_not_exists()|
 |themis-helper-assert-empty()|
 |themis-helper-assert-not_empty()|
 
@@ -448,9 +449,9 @@ Some test names have a special meaning.  They are called in special situation.
   - This is called before the all test.
   - You can make nested suite in this function.  >
 	let s:parent = themis#suite('parent')
-	function! s:parent.__child__()
+	function s:parent.__child__()
 	  let child = themis#suite('child')
-	  function! child.test()
+	  function child.test()
 	    " Test code here...
 	  endfunction
 	endfunction
@@ -725,11 +726,21 @@ assert.has_key({list}, {index} [, {message}])
 	If the first argument is an array, check {index} exists in {list}.
 
 assert.exists({expr} [, {message}])	*themis-helper-assert-exists()*
-	Checks {expr} by |exists()|.
+	Checks by |exists()| that {expr} exist.
+	Note that this can not use for |local-variable| and |script-variable|.
+
+assert.not_exists({expr} [, {message}])	*themis-helper-assert-not_exists()*
+	Checks by |exists()| that {expr} does not exist.
 	Note that this can not use for |local-variable| and |script-variable|.
 
 assert.cmd_exists({cmd} [, {message}])	*themis-helper-assert-cmd_exists()*
-	Checks {cmd} by |exists()| strictly(full match with a command).
+	Checks by |exists()| strictly(full match with a command) that {cmd}
+	exist.
+
+					*themis-helper-assert-cmd_not_exists()*
+assert.cmd_not_exists({cmd} [, {message}])
+	Checks by |exists()| strictly(full match with a command) that {cmd}
+	does not exist.
 
 assert.empty({expr} [, {message}])	*themis-helper-assert-empty()*
 	Checks {expr} by |empty()|.
@@ -749,7 +760,7 @@ command.prefix({prefix})		*themis-helper-command-prefix()*
 >
 	call themis#helper('command').prefix('Themis')
 
-	function! s:suite.test()
+	function s:suite.test()
 	  ThemisAssert 1 + 1 == 2
 	endfunction
 <
@@ -763,7 +774,7 @@ command.with({scope})			*themis-helper-command-with()*
 	let s:assert = themis#helper('assert')
 	call themis#helper('command').with(s:)
 
-	function! s:suite.test()
+	function s:suite.test()
 	  Assert assert.equals(1 + 1, 2)
 	endfunction
 <
@@ -772,7 +783,7 @@ command.with({scope})			*themis-helper-command-with()*
 	let s:assert = themis#helper('assert')
 	call themis#helper('command').with(s:assert)
 
-	function! s:suite.test()
+	function s:suite.test()
 	  Assert Equals(1 + 1, 2)
 	  Assert HasKey({'foo': 0}, 'foo')
 	endfunction
@@ -919,7 +930,7 @@ themis#helper#expect#define_matcher({name}, {predicate} [, {meesageexpr}])
 	by specifying {messageexpr}.
 	If {messageexpr} is |Funcref|, it should have the following signature.
 >
-	function! MyMessage(not, name, x, y)
+	function MyMessage(not, name, x, y)
 	  let name = (a:not ? 'not ' : '') . a:name
 	  return printf("You tested '%s' with %s and %s but failed",
 	  \ name, a:x, a:y)
@@ -972,6 +983,52 @@ scope.vars({path})			*themis-helper-scope-vars()*
 	CAUTION: vars() will temporarily overwrite the target file and
 	restore the file, so please be careful if you want to use it.
 
+------------------------------------------------------------------------------
+DEPS						*themis-helper-deps*
+
+Deps-helper provides a feature to get and store the plugin dependencies.
+This assumes such as library plugin or base plugin that has plugin system.
+This helper gets the specified deps to local, and adds it to 'runtimepath'.
+Currently, this can get only Git repository, and need `git` command.
+
+deps.dir					*themis-helper-deps-dir*
+	Base directory to store the dependencies.
+	Default value is set to `fnamemodify({themisrc}, ':h') . '/.deps'` .
+
+deps.git({deps-spec})				*themis-helper-deps-git()*
+	Gets a Git repository as deps to local, and adds it to 'runtimepath'.
+
+	When {deps-spec} is a String, it is one of the following forms.
+	- GitHub repository such as "owner/repos".
+	- URL of Git repository.
+	A String value can contain "#branch-name" suffix.  It is a branch name
+	following "#".
+
+	When {deps-spec} is a Dictionary, it has the following keys.
+	"repos":	(Required)
+		String value of {deps-spec} that described in above.
+	"name":		(Optional)
+		The name of dependency.  This is used as directory name in
+		base directory.  If omitted, the last part of "repos" except
+		branch name is used.
+	"branch":	(Optional)
+		The name of branch.  If this is specified, "#branch-name" in
+		"repos" has no special mean, treated as is.
+
+	When the deps already exists in local, does not fetch it.
+	You need delete old deps if you want to update deps.
+
+	Example:
+>
+	let s:deps = themis#helper('deps')
+	call s:deps.git('kana/vim-textobj-user')
+
+deps.git_cmd					*themis-helper-deps-git_cmd*
+	Command name of Git.
+	Default: "git"
+
+
+
 ==============================================================================
 REPORTER					*themis-reporter*
 
@@ -1023,12 +1080,16 @@ Some assertion functions were added after Vim 7.4.944.
 
 - |assert_equal()|
 - |assert_notequal()|
+- |assert_equalfile()|
 - |assert_match()|
 - |assert_notmatch()|
+- |assert_inrange()|
 - |assert_true()|
 - |assert_false()|
 - |assert_exception()|
 - |assert_fails()|
+- |assert_beeps()|
+- |assert_report()|
 
 themis.vim handles these functions.  You can use these for test.
 Note that these functions do not throw an exception, so a test does not stop
@@ -1038,6 +1099,13 @@ when assertion fails.
 
 ==============================================================================
 CHANGELOG					*themis-changelog*
+
+Unreleased
+	- Add |themis-helper-assert-not_exists()|.
+	- Add |themis-helper-assert-cmd_not_exists()|.
+	- Add |themis-helper-deps|.
+	- Fix scope of |themis-helper-command|.
+	- Fix a bug that couldn't include some keywords in heredoc of vimspec.
 
 1.5.5	2020-11-19
 	- Some fixes.
