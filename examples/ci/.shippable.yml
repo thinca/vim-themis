@@ -2,6 +2,6 @@ language: none
 
 build:
   ci:
-    - git clone https://github.com/thinca/vim-themis --quiet --branch v1.5.5 --single-branch --depth 1 /tmp/vim-themis
+    - git clone https://github.com/thinca/vim-themis --quiet --branch v1.6.0 --single-branch --depth 1 /tmp/vim-themis
     - vim --version
     - /tmp/vim-themis/bin/themis --reporter dot
