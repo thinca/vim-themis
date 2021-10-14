@@ -357,6 +357,7 @@ Check types
 |themis-helper-assert-is_none()| / |themis-helper-assert-is_not_none()|
 |themis-helper-assert-is_job()| / |themis-helper-assert-is_not_job()|
 |themis-helper-assert-is_channel()| / |themis-helper-assert-is_not_channel()|
+|themis-helper-assert-is_blob()| / |themis-helper-assert-is_not_blob()|
 |themis-helper-assert-type_of()|
 Others
 |themis-helper-assert-length_of()|
@@ -696,13 +697,20 @@ assert.is_channel({value} [, {message}])
 assert.is_not_channel({value} [, {message}])
 	Checks type of {value} is not |channel|.
 
+assert.is_blob({value} [, {message}])	*themis-helper-assert-is_blob()*
+	Checks type of {value} is |blob|.
+
+					*themis-helper-assert-is_not_blob()*
+assert.is_not_blob({value} [, {message}])
+	Checks type of {value} is not |blob|.
+
 					*themis-helper-assert-type_of()*
 assert.type_of({value}, {names} [, {message}])
 	Checks the type of {value} is one of {names}.
 	{names} is a List of type names or a String of type name.
 	Type name is one of the following:
-	"number", "string", "funcref", "func", "function", "list",
-	"dict", "dictionary", "float", "bool", "none", "job", "channel"
+	"number", "string", "funcref", "func", "function", "list", "dict",
+	"dictionary", "float", "bool", "none", "job", "channel", "blob"
 	Type name is case-insensitive.
 
 					*themis-helper-assert-length_of()*
@@ -1099,6 +1107,11 @@ when assertion fails.
 
 ==============================================================================
 CHANGELOG					*themis-changelog*
+
+Unreleased
+	- Add |Blob| support.
+	  - Add |themis-helper-assert-is_blob()|.
+	  - Add |themis-helper-assert-is_not_blob()|.
 
 1.6.0	2021-09-30
 	- Add |themis-helper-assert-not_exists()|.

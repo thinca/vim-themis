@@ -589,6 +589,40 @@ Describe helper-assert
 
   endif
 
+  if exists('*test_null_blob')
+    Describe .is_blob()
+      It checks the type of value is a blob
+        call s:assert.is_blob(test_null_blob())
+      End
+      It throws a report when the type of value is not a blob
+        call s:check_throw('is_blob', [v:null], 'The type of value was expected to be blob')
+      End
+      It returns truthy value when the check was successful
+        call s:assert.truthy(s:assert.is_blob(test_null_blob()))
+      End
+      It accepts an optional message
+        call s:assert.is_blob(test_null_blob(), 'error message')
+        call s:check_throw('is_blob', [v:null, 'error message'], 'error message')
+      End
+    End
+
+    Describe .is_not_blob()
+      It checks the type of value is not a blob
+        call s:assert.is_not_blob(v:null)
+      End
+      It throws a report when the type of value is a blob
+        call s:check_throw('is_not_blob', [test_null_blob()], 'The type of value was not expected to be blob')
+      End
+      It returns truthy value when the check was successful
+        call s:assert.truthy(s:assert.is_not_blob(v:null))
+      End
+      It accepts an optional message
+        call s:assert.is_not_blob(v:null, 'error message')
+        call s:check_throw('is_not_blob', [test_null_blob(), 'error message'], 'error message')
+      End
+    End
+  endif
+
   Describe .type_of()
     It checks the type of value
       call s:assert.type_of(0, 'Number')
