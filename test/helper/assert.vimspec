@@ -666,13 +666,22 @@ Describe helper-assert
     It checks the length of a dictionary
       call s:assert.length_of({'elem': 1}, 1)
     End
+    It checks the length of a blob
+      if !exists('v:t_blob')
+        Skip Blob not supported.
+      endif
+      call s:assert.length_of(0zDEADBEEF, 4)
+    End
     It throws a report when the length is mismatched
       call s:check_throw('length_of', ['', 1], 'The length of value was expected to the specified length')
       call s:check_throw('length_of', [[], 1], 'The length of value was expected to the specified length')
       call s:check_throw('length_of', [{}, 1], 'The length of value was expected to the specified length')
+      if exists('v:t_blob')
+        call s:check_throw('length_of', [0z, 1], 'The length of value was expected to the specified length')
+      endif
     End
     It throws a report when the first argument is not valid
-      call s:check_throw('length_of', [0, 1], 'The type of value was expected to be one of string, list or dictionary')
+      call s:check_throw('length_of', [0, 1], 'The type of value was expected to be one of string, list, dictionary or blob')
     End
     It returns truthy value when the check was successful
       call s:assert.truthy(s:assert.length_of('', 0))
