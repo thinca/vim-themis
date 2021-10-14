@@ -206,7 +206,7 @@ function s:assert_type_of(value, names, ...) abort
 endfunction
 
 function s:assert_length_of(value, length, ...) abort
-  call s:assert_type_of(a:value, ['String', 'List', 'Dictionary'])
+  call s:assert_type_of(a:value, ['String', 'List', 'Dictionary', 'Blob'])
   let got_length = len(a:value)
   if got_length != a:length
     throw s:failure([

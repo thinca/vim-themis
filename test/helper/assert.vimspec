@@ -589,6 +589,40 @@ Describe helper-assert
 
   endif
 
+  if exists('*test_null_blob')
+    Describe .is_blob()
+      It checks the type of value is a blob
+        call s:assert.is_blob(test_null_blob())
+      End
+      It throws a report when the type of value is not a blob
+        call s:check_throw('is_blob', [v:null], 'The type of value was expected to be blob')
+      End
+      It returns truthy value when the check was successful
+        call s:assert.truthy(s:assert.is_blob(test_null_blob()))
+      End
+      It accepts an optional message
+        call s:assert.is_blob(test_null_blob(), 'error message')
+        call s:check_throw('is_blob', [v:null, 'error message'], 'error message')
+      End
+    End
+
+    Describe .is_not_blob()
+      It checks the type of value is not a blob
+        call s:assert.is_not_blob(v:null)
+      End
+      It throws a report when the type of value is a blob
+        call s:check_throw('is_not_blob', [test_null_blob()], 'The type of value was not expected to be blob')
+      End
+      It returns truthy value when the check was successful
+        call s:assert.truthy(s:assert.is_not_blob(v:null))
+      End
+      It accepts an optional message
+        call s:assert.is_not_blob(v:null, 'error message')
+        call s:check_throw('is_not_blob', [test_null_blob(), 'error message'], 'error message')
+      End
+    End
+  endif
+
   Describe .type_of()
     It checks the type of value
       call s:assert.type_of(0, 'Number')
@@ -632,13 +666,22 @@ Describe helper-assert
     It checks the length of a dictionary
       call s:assert.length_of({'elem': 1}, 1)
     End
+    It checks the length of a blob
+      if !exists('v:t_blob')
+        Skip Blob not supported.
+      endif
+      call s:assert.length_of(0zDEADBEEF, 4)
+    End
     It throws a report when the length is mismatched
       call s:check_throw('length_of', ['', 1], 'The length of value was expected to the specified length')
       call s:check_throw('length_of', [[], 1], 'The length of value was expected to the specified length')
       call s:check_throw('length_of', [{}, 1], 'The length of value was expected to the specified length')
+      if exists('v:t_blob')
+        call s:check_throw('length_of', [0z, 1], 'The length of value was expected to the specified length')
+      endif
     End
     It throws a report when the first argument is not valid
-      call s:check_throw('length_of', [0, 1], 'The type of value was expected to be one of string, list or dictionary')
+      call s:check_throw('length_of', [0, 1], 'The type of value was expected to be one of string, list, dictionary or blob')
     End
     It returns truthy value when the check was successful
       call s:assert.truthy(s:assert.length_of('', 0))
