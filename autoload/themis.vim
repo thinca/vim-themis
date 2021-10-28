@@ -2,7 +2,7 @@
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
-" If user makes a typo such as "themis#sutie()",
+" If user makes a typo such as "themis#suite()",
 " this script will be reloaded.  Then the following error occurs.
 " E127: Cannot redefine function themis#run: It is in use
 " This avoids it.
