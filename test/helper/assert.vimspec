@@ -757,6 +757,13 @@ Describe helper-assert
         call s:check_throw('includes', [{}, 'foo'], 'Unsupported value was passed to includes matcher')
       End
     End
+    It returns truthy value when the check was successful
+      call s:assert.truthy(s:assert.includes('abc', 'a'))
+    End
+    It accepts an optional message
+      call s:assert.includes('abc', 'a', 'error message')
+      call s:check_throw('includes', ['abc', 'd', 'error message'], 'error message')
+    End
   End
 
   Describe .not_includes()
@@ -823,6 +830,13 @@ Describe helper-assert
         call s:check_throw('not_includes', [0.5, 5], 'Unsupported value was passed to includes matcher')
         call s:check_throw('not_includes', [{}, 'foo'], 'Unsupported value was passed to includes matcher')
       End
+    End
+    It returns truthy value when the check was successful
+      call s:assert.truthy(s:assert.not_includes('abc', 'd'))
+    End
+    It accepts an optional message
+      call s:assert.not_includes('abc', 'd', 'error message')
+      call s:check_throw('not_includes', ['abc', 'a', 'error message'], 'error message')
     End
   End
 

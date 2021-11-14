@@ -229,6 +229,7 @@ function s:assert_includes(value, target, ...) abort
     \   '    expected to include: ' . string(a:target),
     \ ], a:000)
   endif
+  return 1
 endfunction
 
 function s:assert_not_includes(value, target, ...) abort
@@ -240,6 +241,7 @@ function s:assert_not_includes(value, target, ...) abort
     \   '    expected to include: ' . string(a:target),
     \ ], a:000)
   endif
+  return 1
 endfunction
 
 function s:assert_has_key(value, key, ...) abort
