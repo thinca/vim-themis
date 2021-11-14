@@ -692,6 +692,140 @@ Describe helper-assert
     End
   End
 
+  Describe .includes()
+    Context when {value} is a String
+      It checks the {value} includes a {target} string
+        call s:assert.includes('abcde', 'bcd')
+        call s:check_throw('includes', ['abcde', 'bd'], 'The value was expected to include the target, but it was not the case')
+      End
+    End
+    Context when {value} is a List
+      It checks the {value} includes a {target} element
+        call s:assert.includes([1, 2, 3], 2)
+        call s:assert.includes(['foo', 'bar', 'buz'], 'buz')
+        let dict = {}
+        call s:assert.includes([dict], dict)
+        call s:check_throw('includes', [[1, 2, 3], '2'], 'The value was expected to include the target, but it was not the case')
+        call s:check_throw('includes', [[dict], {}], 'The value was expected to include the target, but it was not the case')
+      End
+    End
+    Context when {value} is a Dictionary
+      Before
+        let value = {'one': 1, 'two': 2, 'three': 3}
+      End
+      Context when {target} is a Dictionary
+        It checks the {target} be a part of {value}
+          call s:assert.includes(value, {'one': 1})
+          call s:assert.includes(value, {})
+          call s:check_throw('includes', [value, {'four': 4}], 'The value was expected to include the target, but it was not the case')
+        End
+      End
+      Context when {target} is a List
+        It checks the {target} be a part of keys of {value}
+          call s:assert.includes(value, ['one', 'two'])
+          call s:assert.includes(value, {})
+          call s:check_throw('includes', [value, ['four']], 'The value was expected to include the target, but it was not the case')
+        End
+      End
+    End
+    Context when {value} is a Blob
+      Before
+        if !exists('v:t_blob')
+          Skip Blob not supported.
+        endif
+        let value = 0zDEADBEEF
+      End
+      Context when {target} is a Number
+        It checks the {value} includes {target}
+          call s:assert.includes(value, 0xBE)
+          call s:check_throw('includes', [value, 0xEE], 'The value was expected to include the target, but it was not the case')
+        End
+      End
+      Context when {target} is a Blob
+        It checks the {value} includes {target}
+          call s:assert.includes(value, 0zADBE)
+          call s:assert.includes(value, 0z)
+          call s:check_throw('includes', [value, 0zADEF], 'The value was expected to include the target, but it was not the case')
+        End
+      End
+    End
+    Context when {value} and {target} apir is not supported
+      It throws an exception
+        call s:check_throw('includes', [10, 1], 'Unsupported value was passed to includes matcher')
+        call s:check_throw('includes', ['12345', 5], 'Unsupported value was passed to includes matcher')
+        call s:check_throw('includes', [0.5, 5], 'Unsupported value was passed to includes matcher')
+        call s:check_throw('includes', [{}, 'foo'], 'Unsupported value was passed to includes matcher')
+      End
+    End
+  End
+
+  Describe .not_includes()
+    Context when {value} is a String
+      It checks the {value} does not include a {target} string
+        call s:assert.not_includes('abcde', 'bd')
+        call s:check_throw('not_includes', ['abcde', 'bcd'], 'The value was expected to not include the target, but it was not the case')
+      End
+    End
+    Context when {value} is a List
+      It checks the {value} does not include a {target} element
+        call s:assert.not_includes([1, 2, 3], '2')
+        let dict = {}
+        call s:assert.not_includes([dict], {})
+        call s:check_throw('not_includes', [[1, 2, 3], 2], 'The value was expected to not include the target, but it was not the case')
+        call s:check_throw('not_includes', [['foo', 'bar', 'buz'], 'buz'], 'The value was expected to not include the target, but it was not the case')
+        call s:check_throw('not_includes', [[dict], dict], 'The value was expected to not include the target, but it was not the case')
+      End
+    End
+    Context when {value} is a Dictionary
+      Before
+        let value = {'one': 1, 'two': 2, 'three': 3}
+      End
+      Context when {target} is a Dictionary
+        It checks the {target} not be a part of {value}
+          call s:assert.not_includes(value, {'four': 4})
+          call s:check_throw('not_includes', [value, {'one': 1}], 'The value was expected to not include the target, but it was not the case')
+          call s:check_throw('not_includes', [value, {}], 'The value was expected to not include the target, but it was not the case')
+        End
+      End
+      Context when {target} is a List
+        It checks the {target} not be a part of keys of {value}
+          call s:assert.not_includes(value, ['four'])
+          call s:check_throw('not_includes', [value, ['one', 'two']], 'The value was expected to not include the target, but it was not the case')
+          call s:check_throw('not_includes', [value, {}], 'The value was expected to not include the target, but it was not the case')
+        End
+      End
+    End
+    Context when {value} is a Blob
+      Before
+        if !exists('v:t_blob')
+          Skip Blob not supported.
+        endif
+        let value = 0zDEADBEEF
+      End
+      Context when {target} is a Number
+        It checks the {value} does not include {target}
+          call s:assert.not_includes(value, 0xEE)
+          call s:check_throw('not_includes', [value, 0xBE], 'The value was expected to not include the target, but it was not the case')
+        End
+      End
+      Context when {target} is a Blob
+        It checks the {value} does not include {target}
+          call s:assert.not_includes(value, 0zADEF)
+          call s:check_throw('not_includes', [value, 0zADBE], 'The value was expected to not include the target, but it was not the case')
+          call s:check_throw('not_includes', [value, 0z], 'The value was expected to not include the target, but it was not the case')
+        End
+      End
+    End
+    Context when {value} and {target} apir is not supported
+      It throws an exception
+        call s:check_throw('not_includes', [10, 1], 'Unsupported value was passed to includes matcher')
+        call s:check_throw('not_includes', ['12345', 5], 'Unsupported value was passed to includes matcher')
+        call s:check_throw('not_includes', [0.5, 5], 'Unsupported value was passed to includes matcher')
+        call s:check_throw('not_includes', [{}, 'foo'], 'Unsupported value was passed to includes matcher')
+      End
+    End
+  End
+
   Describe .has_key()
     It checks key exists in a dictionary
       call s:assert.has_key({'foo': 0}, 'foo')

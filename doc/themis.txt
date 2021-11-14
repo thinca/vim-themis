@@ -361,6 +361,7 @@ Check types
 |themis-helper-assert-type_of()|
 Others
 |themis-helper-assert-length_of()|
+|themis-helper-assert-includes()| / |themis-helper-assert-not_includes()|
 |themis-helper-assert-key_exists()| / |themis-helper-assert-key_not_exists()|
 |themis-helper-assert-has_key()|
 |themis-helper-assert-exists()| / |themis-helper-not_assert-not_exists()|
@@ -718,6 +719,24 @@ assert.length_of({value}, {length} [, {message}])
 	Checks length of {value} is {length}.
 	{value} is a String, a List, Dictionary, or a Blob.
 	|len()| is used for length of {value}.
+
+					*themis-helper-assert-includes()*
+assert.includes({value}, {target} [, {message}])
+	Checks {value} includes {target}.
+	When {value} is a String, {target} must be a String and checks
+	{target} is part of {value}.
+	When {value} is a List, checks {value} includes {target} as an
+	element.  Using |expr-is#| to compare elements.
+	When {value} is a Dictionary:
+		When {target} is a List, checks {value} has {target}s as key.
+		When {target} is a Dictionary, checks {value} includes key and
+		value pairs from {target}.  Values of dicts are compared by
+		|expr-is#|.
+
+					*themis-helper-assert-not_includes()*
+assert.not_includes({value}, {target} [, {message}])
+	Checks {value} does not include {target}.
+	This is inversed version of |themis-helper-assert-includes()|.
 
 					*themis-helper-assert-key_exists()*
 assert.key_exists({dict}, {key} [, {message}])
@@ -1113,6 +1132,8 @@ Unreleased
 	  - Add |themis-helper-assert-is_blob()|.
 	  - Add |themis-helper-assert-is_not_blob()|.
 	  - |themis-helper-assert-length_of()| accepts a blob.
+	- Add |themis-helper-assert-includes()| and
+	  |themis-helper-assert-not_includes()|.
 
 1.6.0	2021-09-30
 	- Add |themis-helper-assert-not_exists()|.
