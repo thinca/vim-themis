@@ -2,6 +2,10 @@ box: debian
 build:
   steps:
     - script:
+        name: Install vim
+        code: |-
+          apt-get update && apt-get install -y vim
+    - script:
         name: echo vim version
         code: |-
           vim --version
