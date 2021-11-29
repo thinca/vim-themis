@@ -1,4 +1,4 @@
-box: wercker/default
+box: debian
 build:
   steps:
     - script:
