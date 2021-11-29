@@ -823,7 +823,12 @@ Expect-helper also provides not object.
 It is useful to invert the result of the test.
 >
 	call s:expect(2 + 3).not.to_equal(42)
-
+<
+					*themis-helper-expect-with_message()*
+If you want to override failure message, you can use with_message().
+>
+	call s:expect(1).with_message("not equal!").to_be_equal(1)
+<
 Of course you can easily make a custom matcher.
 See |themis#helper#expect#define_matcher()|
 
