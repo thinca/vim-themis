@@ -267,6 +267,29 @@ function s:helper.__expect__() abort
     endfunction
   endfunction
 
+  function expect.__with_message__() abort
+    let with_message = themis#suite('.with_message()')
+    function with_message.does_not_affect_regular_case() abort
+      call s:expect(1).to_be_true()
+    endfunction
+    function with_message.shows_specified_message_if_failed() abort
+      try
+        call s:expect(0).with_message("error").to_be_true()
+      catch
+        if v:exception !=# "themis: report: failure: error"
+          throw printf('themis: report: failure: message "error" expected but thrown wrong exception: %s', v:exception)
+        endif
+      endtry
+      try
+        call s:expect(0).with_message("error").not.to_be_false()
+      catch
+        if v:exception !=# "themis: report: failure: error"
+          throw printf('themis: report: failure: message "error" expected but thrown wrong exception: %s', v:exception)
+        endif
+      endtry
+    endfunction
+  endfunction
+
 endfunction
 
 function s:check_throw(target, actual, ...) abort
