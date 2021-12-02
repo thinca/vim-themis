@@ -115,9 +115,6 @@ workflows:
       - linux-test:
           name: 'Linux: Vim latest'
       - windows-test:
-          name: 'Windows: Vim v7.3'
-          version: 'v7.3'
-      - windows-test:
           name: 'Windows: Vim v7.4'
           version: 'v7.4'
       - windows-test:
