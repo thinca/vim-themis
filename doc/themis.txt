@@ -1139,6 +1139,7 @@ Unreleased
 	  - |themis-helper-assert-length_of()| accepts a blob.
 	- Add |themis-helper-assert-includes()| and
 	  |themis-helper-assert-not_includes()|.
+	- Add |themis-helper-expect-with_message()|.
 
 1.6.0	2021-09-30
 	- Add |themis-helper-assert-not_exists()|.
