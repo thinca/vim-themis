@@ -1,6 +1,6 @@
 *themis.txt*	A testing framework for Vim script.
 
-Version: 1.6.0
+Version: 1.7.0
 Author : thinca <thinca+vim@gmail.com>
 License: zlib License
 
@@ -1132,7 +1132,7 @@ when assertion fails.
 ==============================================================================
 CHANGELOG					*themis-changelog*
 
-Unreleased
+1.7.0	2021-12-03
 	- Add |Blob| support.
 	  - Add |themis-helper-assert-is_blob()|.
 	  - Add |themis-helper-assert-is_not_blob()|.

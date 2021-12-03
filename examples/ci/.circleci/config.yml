@@ -4,7 +4,7 @@ parameters:
   themis_version:
     description: Version of themis.vim
     type: string
-    default: v1.6.0
+    default: v1.7.0
 
 orbs:
   win: circleci/windows@1.0.0
