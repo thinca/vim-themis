@@ -12,7 +12,7 @@ endif
 
 let g:themis#vital = vital#themis#new()
 
-let s:version = '1.6.0'
+let s:version = '1.7.0'
 
 function themis#version() abort
   return s:version

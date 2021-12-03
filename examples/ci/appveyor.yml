@@ -25,7 +25,7 @@ install:
 
     $Env:THEMIS_VIM = (Get-ChildItem -r -Filter 'vim.exe' $vim).FullName
 
-    git -c advice.detachedHead=false clone https://github.com/thinca/vim-themis --quiet --branch v1.6.0 --single-branch --depth 1 $Env:TEMP\vim-themis
+    git -c advice.detachedHead=false clone https://github.com/thinca/vim-themis --quiet --branch v1.7.0 --single-branch --depth 1 $Env:TEMP\vim-themis
 build: off
 test_script:
 - ps: |
