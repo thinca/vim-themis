@@ -12,6 +12,12 @@ function themis#helper#expect#_create_expect(actual) abort
   return expect
 endfunction
 
+function s:expect.with_message(message) abort
+  let self._error_message = a:message
+  let self.not._error_message = a:message
+  return self
+endfunction
+
 function s:matcher_impl(name, f, error_msg, ...) dict abort
   let result = call(a:f, [self._actual] + a:000)
   if self._negate
@@ -20,7 +26,12 @@ function s:matcher_impl(name, f, error_msg, ...) dict abort
   if result
     return {'and' : self}
   else
-    throw themis#failure(call(a:error_msg, [self._negate, a:name, self._actual] + a:000))
+    if has_key(self, "_error_message")
+      let msg = self._error_message
+    else
+      let msg = call(a:error_msg, [self._negate, a:name, self._actual] + a:000)
+    endif
+    throw themis#failure(msg)
   endif
 endfunction
 

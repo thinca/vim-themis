@@ -589,6 +589,40 @@ Describe helper-assert
 
   endif
 
+  if exists('*test_null_blob')
+    Describe .is_blob()
+      It checks the type of value is a blob
+        call s:assert.is_blob(test_null_blob())
+      End
+      It throws a report when the type of value is not a blob
+        call s:check_throw('is_blob', [v:null], 'The type of value was expected to be blob')
+      End
+      It returns truthy value when the check was successful
+        call s:assert.truthy(s:assert.is_blob(test_null_blob()))
+      End
+      It accepts an optional message
+        call s:assert.is_blob(test_null_blob(), 'error message')
+        call s:check_throw('is_blob', [v:null, 'error message'], 'error message')
+      End
+    End
+
+    Describe .is_not_blob()
+      It checks the type of value is not a blob
+        call s:assert.is_not_blob(v:null)
+      End
+      It throws a report when the type of value is a blob
+        call s:check_throw('is_not_blob', [test_null_blob()], 'The type of value was not expected to be blob')
+      End
+      It returns truthy value when the check was successful
+        call s:assert.truthy(s:assert.is_not_blob(v:null))
+      End
+      It accepts an optional message
+        call s:assert.is_not_blob(v:null, 'error message')
+        call s:check_throw('is_not_blob', [test_null_blob(), 'error message'], 'error message')
+      End
+    End
+  endif
+
   Describe .type_of()
     It checks the type of value
       call s:assert.type_of(0, 'Number')
@@ -632,13 +666,22 @@ Describe helper-assert
     It checks the length of a dictionary
       call s:assert.length_of({'elem': 1}, 1)
     End
+    It checks the length of a blob
+      if !exists('v:t_blob')
+        Skip Blob not supported.
+      endif
+      call s:assert.length_of(0zDEADBEEF, 4)
+    End
     It throws a report when the length is mismatched
       call s:check_throw('length_of', ['', 1], 'The length of value was expected to the specified length')
       call s:check_throw('length_of', [[], 1], 'The length of value was expected to the specified length')
       call s:check_throw('length_of', [{}, 1], 'The length of value was expected to the specified length')
+      if exists('v:t_blob')
+        call s:check_throw('length_of', [0z, 1], 'The length of value was expected to the specified length')
+      endif
     End
     It throws a report when the first argument is not valid
-      call s:check_throw('length_of', [0, 1], 'The type of value was expected to be one of string, list or dictionary')
+      call s:check_throw('length_of', [0, 1], 'The type of value was expected to be one of string, list, dictionary or blob')
     End
     It returns truthy value when the check was successful
       call s:assert.truthy(s:assert.length_of('', 0))
@@ -646,6 +689,154 @@ Describe helper-assert
     It accepts an optional message
       call s:assert.length_of('12345', 5, 'error message')
       call s:check_throw('length_of', ['', 1, 'error message'], 'error message')
+    End
+  End
+
+  Describe .includes()
+    Context when {value} is a String
+      It checks the {value} includes a {target} string
+        call s:assert.includes('abcde', 'bcd')
+        call s:check_throw('includes', ['abcde', 'bd'], 'The value was expected to include the target, but it was not the case')
+      End
+    End
+    Context when {value} is a List
+      It checks the {value} includes a {target} element
+        call s:assert.includes([1, 2, 3], 2)
+        call s:assert.includes(['foo', 'bar', 'buz'], 'buz')
+        let dict = {}
+        call s:assert.includes([dict], dict)
+        call s:check_throw('includes', [[1, 2, 3], '2'], 'The value was expected to include the target, but it was not the case')
+        call s:check_throw('includes', [[dict], {}], 'The value was expected to include the target, but it was not the case')
+      End
+    End
+    Context when {value} is a Dictionary
+      Before
+        let value = {'one': 1, 'two': 2, 'three': 3}
+      End
+      Context when {target} is a Dictionary
+        It checks the {target} be a part of {value}
+          call s:assert.includes(value, {'one': 1})
+          call s:assert.includes(value, {})
+          call s:check_throw('includes', [value, {'four': 4}], 'The value was expected to include the target, but it was not the case')
+        End
+      End
+      Context when {target} is a List
+        It checks the {target} be a part of keys of {value}
+          call s:assert.includes(value, ['one', 'two'])
+          call s:assert.includes(value, {})
+          call s:check_throw('includes', [value, ['four']], 'The value was expected to include the target, but it was not the case')
+        End
+      End
+    End
+    Context when {value} is a Blob
+      Before
+        if !exists('v:t_blob')
+          Skip Blob not supported.
+        endif
+        let value = 0zDEADBEEF
+      End
+      Context when {target} is a Number
+        It checks the {value} includes {target}
+          call s:assert.includes(value, 0xBE)
+          call s:check_throw('includes', [value, 0xEE], 'The value was expected to include the target, but it was not the case')
+        End
+      End
+      Context when {target} is a Blob
+        It checks the {value} includes {target}
+          call s:assert.includes(value, 0zADBE)
+          call s:assert.includes(value, 0z)
+          call s:check_throw('includes', [value, 0zADEF], 'The value was expected to include the target, but it was not the case')
+        End
+      End
+    End
+    Context when {value} and {target} apir is not supported
+      It throws an exception
+        call s:check_throw('includes', [10, 1], 'Unsupported value was passed to includes matcher')
+        call s:check_throw('includes', ['12345', 5], 'Unsupported value was passed to includes matcher')
+        call s:check_throw('includes', [0.5, 5], 'Unsupported value was passed to includes matcher')
+        call s:check_throw('includes', [{}, 'foo'], 'Unsupported value was passed to includes matcher')
+      End
+    End
+    It returns truthy value when the check was successful
+      call s:assert.truthy(s:assert.includes('abc', 'a'))
+    End
+    It accepts an optional message
+      call s:assert.includes('abc', 'a', 'error message')
+      call s:check_throw('includes', ['abc', 'd', 'error message'], 'error message')
+    End
+  End
+
+  Describe .not_includes()
+    Context when {value} is a String
+      It checks the {value} does not include a {target} string
+        call s:assert.not_includes('abcde', 'bd')
+        call s:check_throw('not_includes', ['abcde', 'bcd'], 'The value was expected to not include the target, but it was not the case')
+      End
+    End
+    Context when {value} is a List
+      It checks the {value} does not include a {target} element
+        call s:assert.not_includes([1, 2, 3], '2')
+        let dict = {}
+        call s:assert.not_includes([dict], {})
+        call s:check_throw('not_includes', [[1, 2, 3], 2], 'The value was expected to not include the target, but it was not the case')
+        call s:check_throw('not_includes', [['foo', 'bar', 'buz'], 'buz'], 'The value was expected to not include the target, but it was not the case')
+        call s:check_throw('not_includes', [[dict], dict], 'The value was expected to not include the target, but it was not the case')
+      End
+    End
+    Context when {value} is a Dictionary
+      Before
+        let value = {'one': 1, 'two': 2, 'three': 3}
+      End
+      Context when {target} is a Dictionary
+        It checks the {target} not be a part of {value}
+          call s:assert.not_includes(value, {'four': 4})
+          call s:check_throw('not_includes', [value, {'one': 1}], 'The value was expected to not include the target, but it was not the case')
+          call s:check_throw('not_includes', [value, {}], 'The value was expected to not include the target, but it was not the case')
+        End
+      End
+      Context when {target} is a List
+        It checks the {target} not be a part of keys of {value}
+          call s:assert.not_includes(value, ['four'])
+          call s:check_throw('not_includes', [value, ['one', 'two']], 'The value was expected to not include the target, but it was not the case')
+          call s:check_throw('not_includes', [value, {}], 'The value was expected to not include the target, but it was not the case')
+        End
+      End
+    End
+    Context when {value} is a Blob
+      Before
+        if !exists('v:t_blob')
+          Skip Blob not supported.
+        endif
+        let value = 0zDEADBEEF
+      End
+      Context when {target} is a Number
+        It checks the {value} does not include {target}
+          call s:assert.not_includes(value, 0xEE)
+          call s:check_throw('not_includes', [value, 0xBE], 'The value was expected to not include the target, but it was not the case')
+        End
+      End
+      Context when {target} is a Blob
+        It checks the {value} does not include {target}
+          call s:assert.not_includes(value, 0zADEF)
+          call s:check_throw('not_includes', [value, 0zADBE], 'The value was expected to not include the target, but it was not the case')
+          call s:check_throw('not_includes', [value, 0z], 'The value was expected to not include the target, but it was not the case')
+        End
+      End
+    End
+    Context when {value} and {target} apir is not supported
+      It throws an exception
+        call s:check_throw('not_includes', [10, 1], 'Unsupported value was passed to includes matcher')
+        call s:check_throw('not_includes', ['12345', 5], 'Unsupported value was passed to includes matcher')
+        call s:check_throw('not_includes', [0.5, 5], 'Unsupported value was passed to includes matcher')
+        call s:check_throw('not_includes', [{}, 'foo'], 'Unsupported value was passed to includes matcher')
+      End
+    End
+    It returns truthy value when the check was successful
+      call s:assert.truthy(s:assert.not_includes('abc', 'd'))
+    End
+    It accepts an optional message
+      call s:assert.not_includes('abc', 'd', 'error message')
+      call s:check_throw('not_includes', ['abc', 'a', 'error message'], 'error message')
     End
   End
 

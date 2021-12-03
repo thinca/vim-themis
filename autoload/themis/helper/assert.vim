@@ -206,7 +206,7 @@ function s:assert_type_of(value, names, ...) abort
 endfunction
 
 function s:assert_length_of(value, length, ...) abort
-  call s:assert_type_of(a:value, ['String', 'List', 'Dictionary'])
+  call s:assert_type_of(a:value, ['String', 'List', 'Dictionary', 'Blob'])
   let got_length = len(a:value)
   if got_length != a:length
     throw s:failure([
@@ -215,6 +215,30 @@ function s:assert_length_of(value, length, ...) abort
     \   '    expected length: ' . a:length,
     \   '         got length: ' . got_length,
     \   '          got value: ' . string(a:value),
+    \ ], a:000)
+  endif
+  return 1
+endfunction
+
+function s:assert_includes(value, target, ...) abort
+  if !s:includes(a:value, a:target, a:000)
+    throw s:failure([
+    \   'The value was expected to include the target, but it was not the case.',
+    \   '',
+    \   '                  value: ' . string(a:value),
+    \   '    expected to include: ' . string(a:target),
+    \ ], a:000)
+  endif
+  return 1
+endfunction
+
+function s:assert_not_includes(value, target, ...) abort
+  if s:includes(a:value, a:target, a:000)
+    throw s:failure([
+    \   'The value was expected to not include the target, but it was not the case.',
+    \   '',
+    \   '                  value: ' . string(a:value),
+    \   '    expected to include: ' . string(a:target),
     \ ], a:000)
   endif
   return 1
@@ -402,6 +426,78 @@ function s:check_type(value, expected_types, not, additional_message) abort
     \ ], a:additional_message)
   endif
   return 1
+endfunction
+
+function s:includes(value, target, additional_message) abort
+  let t_v = type(a:value)
+  let t_t = type(a:target)
+  if t_v == type('') && t_t == type('')
+    return 0 <= stridx(a:value, a:target)
+  endif
+  if t_v == type([])
+    for V in a:value
+      if V is# a:target
+        return 1
+      endif
+    endfor
+    return 0
+  endif
+  if t_v == type({})
+    if t_t == type([])
+      for Key in a:target
+        if !has_key(a:value, Key)
+          return 0
+        endif
+      endfor
+      return 1
+    endif
+    if t_t == type({})
+      let not_exist = []
+      for [k, V] in items(a:target)
+        if get(a:value, k, not_exist) isnot# V
+          return 0
+        endif
+      endfor
+      return 1
+    endif
+  endif
+  if t_v == get(v:, 't_blob', -1)
+    if t_t == type(0)
+      return 0 <= index(a:value, a:target)
+    endif
+    if t_t == v:t_blob
+      if empty(a:target)
+        return 1
+      endif
+      let endpos = len(a:value) - len(a:target)
+      let startpos = 0
+      while startpos <= endpos
+        let pos = index(a:value, a:target[0], startpos)
+        if pos < 0
+          return 0
+        endif
+        let i = 0
+        for n in a:target
+          if a:value[pos + i] != n
+            let i = -1
+            break
+          endif
+          let i += 1
+        endfor
+        if 0 <= i
+          return 1
+        endif
+        let startpos = pos + 1
+      endwhile
+      return 0
+    endif
+  endif
+  throw s:failure([
+  \   'Unsupported value was passed to includes matcher.',
+  \   '',
+  \   printf('     value: %s', string(a:value)),
+  \   printf('    target: %s', string(a:target)),
+  \ ], a:additional_message)
 endfunction
 
 function s:failure(mes, additional) abort

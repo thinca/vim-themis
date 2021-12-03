@@ -51,7 +51,7 @@ endfunction
 function themis#helper(name) abort
   try
     return themis#helper#{a:name}#new(s:runner())
-  catch /Vim(return):E117:/
+  catch /^Vim(return):E117:/
     throw 'themis: Unknown helper: ' . a:name
   endtry
 endfunction
