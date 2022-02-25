@@ -55,6 +55,12 @@ Describe util
       Assert Equals(info.stack, '<SNR>567_foo')
       Assert Equals(info.line, 0)
     End
+
+    It can treat autocmd entry
+      let info = themis#util#stack_info('FileType Autocommands for "vim"')
+      Assert Equals(info.stack, 'FileType Autocommands for "vim"')
+      Assert Equals(info.line, 0)
+    End
   End
 
   Describe #parse_callstack()

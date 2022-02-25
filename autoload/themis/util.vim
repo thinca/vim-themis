@@ -16,20 +16,31 @@ function s:StackInfo.fill_info() abort
   if self.filled
     return
   endif
+  let self.filled = 1
   if themis#util#is_funcname(self.stack)
     call extend(self, themis#util#funcdata(self.stack), 'keep')
     let self.type = 'function'
-  elseif filereadable(self.stack)
+    return
+  endif
+  if filereadable(self.stack)
     let self.exists = 1
     let self.filename = self.stack
     let self.funcname = ''
     let self.type = 'file'
-  else
-    let self.exists = 0
-    let self.funcname = self.stack
-    let self.type = 'unknown'
+    return
   endif
-  let self.filled = 1
+  let matched = matchlist(self.stack, '^\(\w\+\) Autocommands for \(.*\)')
+  if !empty(matched)
+    let self.exists = 1
+    let self.autocmd_event = matched[1]
+    " a pattern is surrounded by '"'
+    let self.autocmd_pattern = matched[2][1 : -2]
+    let self.type = 'autocmd'
+    return
+  endif
+  let self.exists = 0
+  let self.funcname = self.stack
+  let self.type = 'unknown'
 endfunction
 
 function s:StackInfo.make_signature() abort
@@ -70,6 +81,9 @@ function s:StackInfo.format() abort
       let result .= '  [ Absolute Line: ' . self.adjusted_abs_lnum() . ' ]'
     endif
     return result . '  (' . self.filename . ')'
+  endif
+  if self.type ==# 'autocmd'
+    return printf('autocmd %s %s', self.autocmd_event, self.autocmd_pattern)
   endif
   return 'Unknown Stack'
 endfunction
@@ -118,17 +132,19 @@ function themis#util#stack_info(stack) abort
   let info = deepcopy(s:StackInfo)
   let info.stack = a:stack
 
-  let patterns = [
-  \   '^\([^, ]\+\),\? .\{-}\(\d\+\)',
-  \   '^\(.\{-}\)\[\(\d\+\)\]$',
-  \ ]
-  for pat in patterns
-    let matched = matchlist(a:stack, pat)
-    if !empty(matched)
-      let info.stack = matched[1]
-      let info.line = matched[2] - 0
-    endif
-  endfor
+  if a:stack !~# ' Autocommands for '
+    let patterns = [
+    \   '^\([^, ]\+\),\? .\{-}\(\d\+\)',
+    \   '^\(.\{-}\)\[\(\d\+\)\]$',
+    \ ]
+    for pat in patterns
+      let matched = matchlist(a:stack, pat)
+      if !empty(matched)
+        let info.stack = matched[1]
+        let info.line = matched[2] - 0
+      endif
+    endfor
+  endif
 
   return info
 endfunction
@@ -181,6 +197,10 @@ endfunction
 
 function themis#util#parse_callstack(callstack) abort
   let callstack_line = matchstr(a:callstack, '^\%(function\s\+\)\?\zs.*')
+  " XXX: split() returns the wrong result if `callstack_line` contains an
+  " autocmd that has a pattern includes '..'.
+  " Since this is a rare case and cannot be detected completely, it is ignored
+  " here.
   let stack_infos = split(callstack_line, '\.\.')
   return map(stack_infos, 'themis#util#stack_info(v:val)')
 endfunction
