@@ -8,7 +8,7 @@ let s:line_adjuster = {}
 let s:StackInfo = {
 \   'stack': '',
 \   'type': '',
-\   'line': 0,
+\   'lnum': 0,
 \   'filled': 0,
 \ }
 
@@ -70,11 +70,11 @@ function s:StackInfo.format() abort
   endif
 
   if self.type ==# 'file'
-    return printf('%s Line:%d', self.filename, self.line)
+    return printf('%s Line:%d', self.filename, self.lnum)
   endif
   if self.type ==# 'function'
     let result = self.make_signature()
-    if self.line
+    if self.lnum
       let result .= '  Line:' . self.adjusted_lnum()
     endif
     if self.defline
@@ -89,7 +89,7 @@ function s:StackInfo.format() abort
 endfunction
 
 function s:StackInfo.get_line(...) abort
-  let lnum = a:0 ? a:1 : self.line
+  let lnum = a:0 ? a:1 : self.lnum
   call self.fill_info()
   if self.type ==# 'file'
     if !has_key(self, 'body')
@@ -110,20 +110,20 @@ function s:StackInfo.get_line(...) abort
 endfunction
 
 function s:StackInfo.adjusted_lnum(...) abort
-  let lnum = a:0 ? a:1 : self.line
+  let lnum = a:0 ? a:1 : self.lnum
   let adjuster = get(s:line_adjuster, self.funcname, 0)
   return lnum + adjuster
 endfunction
 
 function s:StackInfo.adjusted_abs_lnum(...) abort
-  let lnum = a:0 ? a:1 : self.line
+  let lnum = a:0 ? a:1 : self.lnum
   let deflnum = self.defline
   let adjuster = get(s:line_adjuster, self.funcname, 0)
   return lnum + deflnum + adjuster
 endfunction
 
 function s:StackInfo.get_line_with_lnum(...) abort
-  let lnum = a:0 ? a:1 : self.line
+  let lnum = a:0 ? a:1 : self.lnum
   let line = self.get_line(lnum)
   return printf('%3d: %s', self.adjusted_lnum(lnum), line)
 endfunction
@@ -141,7 +141,7 @@ function themis#util#stack_info(stack) abort
       let matched = matchlist(a:stack, pat)
       if !empty(matched)
         let info.stack = matched[1]
-        let info.line = matched[2] - 0
+        let info.lnum = matched[2] - 0
       endif
     endfor
   endif
@@ -255,7 +255,7 @@ endfunction
 function themis#util#error_info(stacktrace) abort
   let tracelines = map(copy(a:stacktrace), 'v:val.format()')
   let tail = a:stacktrace[-1]
-  if tail.line
+  if tail.lnum
     let tracelines += [tail.get_line_with_lnum()]
   endif
   return join(tracelines, "\n")

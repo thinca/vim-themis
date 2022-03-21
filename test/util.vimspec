@@ -41,25 +41,25 @@ Describe util
     It can parse tail line number
       let info = themis#util#stack_info('<SNR>567_foo, line 5')
       Assert Equals(info.stack, '<SNR>567_foo')
-      Assert Equals(info.line, 5)
+      Assert Equals(info.lnum, 5)
     End
 
     It can parse nested function line number
       let info = themis#util#stack_info('<SNR>567_foo[5]')
       Assert Equals(info.stack, '<SNR>567_foo')
-      Assert Equals(info.line, 5)
+      Assert Equals(info.lnum, 5)
     End
 
     It accepts old stacktrace
       let info = themis#util#stack_info('<SNR>567_foo')
       Assert Equals(info.stack, '<SNR>567_foo')
-      Assert Equals(info.line, 0)
+      Assert Equals(info.lnum, 0)
     End
 
     It can treat autocmd entry
       let info = themis#util#stack_info('FileType Autocommands for "vim"')
       Assert Equals(info.stack, 'FileType Autocommands for "vim"')
-      Assert Equals(info.line, 0)
+      Assert Equals(info.lnum, 0)
     End
   End
 
@@ -68,11 +68,11 @@ Describe util
       let stacks = themis#util#parse_callstack(ExecuteCmd('return expand("<sfile>")'))
       for stack in stacks
         Assert HasKey(stack, 'stack')
-        Assert HasKey(stack, 'line')
+        Assert HasKey(stack, 'lnum')
       endfor
       let laststack = stacks[-1]
       Assert Equals(laststack.stack, 'ExecuteCmd')
-      Assert Equals(laststack.line, 0)
+      Assert Equals(laststack.lnum, 0)
     End
 
     It can parse throwpoint
@@ -83,11 +83,11 @@ Describe util
       endtry
       for stack in stacks
         Assert HasKey(stack, 'stack')
-        Assert HasKey(stack, 'line')
+        Assert HasKey(stack, 'lnum')
       endfor
       let laststack = stacks[-1]
       Assert Equals(laststack.stack, 'ExecuteCmd')
-      Assert Equals(laststack.line, 1)
+      Assert Equals(laststack.lnum, 1)
     End
   End
 
