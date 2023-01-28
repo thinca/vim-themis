@@ -115,11 +115,8 @@ function s:StackInfo.adjusted_lnum(...) abort
   return lnum + adjuster
 endfunction
 
-function s:StackInfo.adjusted_abs_lnum(...) abort
-  let lnum = a:0 ? a:1 : self.lnum
-  let deflnum = self.deflnum
-  let adjuster = get(s:line_adjuster, self.funcname, 0)
-  return lnum + deflnum + adjuster
+function s:StackInfo.adjusted_abs_lnum() abort
+  return self.adjusted_lnum() + self.deflnum
 endfunction
 
 function s:StackInfo.get_line_with_lnum(...) abort
