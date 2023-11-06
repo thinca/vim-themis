@@ -26,6 +26,8 @@ jobs:
             download: 'always'
 
         exclude:
+          - vim_version: 'v8.0.0001'
+            platform: 'MacOS'
           - vim_version: 'v7.4'
             platform: 'MacOS'
 
