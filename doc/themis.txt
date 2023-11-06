@@ -364,7 +364,7 @@ Others
 |themis-helper-assert-includes()| / |themis-helper-assert-not_includes()|
 |themis-helper-assert-key_exists()| / |themis-helper-assert-key_not_exists()|
 |themis-helper-assert-has_key()|
-|themis-helper-assert-exists()| / |themis-helper-not_assert-not_exists()|
+|themis-helper-assert-exists()| / |themis-helper-assert-not_exists()|
 |themis-helper-assert-cmd_exists()| / |themis-helper-assert-cmd_not_exists()|
 |themis-helper-assert-empty()|
 |themis-helper-assert-not_empty()|
