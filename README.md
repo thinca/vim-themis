@@ -19,8 +19,8 @@ CI Service                       | Status
 [CircleCI-badge]: https://circleci.com/gh/thinca/vim-themis/tree/master.svg?style=svg "CircleCI"
 [CircleCI-result]: https://circleci.com/gh/thinca/vim-themis/tree/master
 [gh-action-home]: https://github.com/features/actions
-[gh-action-badge]: ./../../workflows/Test/badge.svg?branch=master "Test"
-[gh-action-result]: ./../../actions?query=workflow%3ATest+branch%3Amaster
+[gh-action-badge]: ./../../actions/workflows/test.yml/badge.svg?branch=master "Test"
+[gh-action-result]: ./../../actions/workflows/test.yml?query=branch%3Amaster
 [Semaphore-home]: https://semaphoreci.com/
 [Semaphore-badge]: https://thinca.semaphoreci.com/badges/vim-themis/branches/master.svg "Build status"
 [Semaphore-result]: https://thinca.semaphoreci.com/projects/vim-themis
