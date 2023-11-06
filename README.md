@@ -9,7 +9,6 @@ CI Service                       | Status
 [CircleCI][CircleCI-home]        | [![CircleCI][CircleCI-badge]][CircleCI-result]
 [GitHub Actions][gh-action-home] | [![Test][gh-action-badge]][gh-action-result]
 [Semaphore][Semaphore-home]      | [![Build status][Semaphore-badge]][Semaphore-result]
-[wercker][wercker-home]          | [![wercker status][wercker-badge]][wercker-result]
 
 [AppVeyor-home]: https://ci.appveyor.com/
 [AppVeyor-badge]: https://ci.appveyor.com/api/projects/status/hr4us4ogbir0177i/branch/master?svg=true "Build status"
@@ -23,6 +22,3 @@ CI Service                       | Status
 [Semaphore-home]: https://semaphoreci.com/
 [Semaphore-badge]: https://thinca.semaphoreci.com/badges/vim-themis/branches/master.svg "Build status"
 [Semaphore-result]: https://thinca.semaphoreci.com/projects/vim-themis
-[wercker-home]: https://app.wercker.com/
-[wercker-badge]: https://app.wercker.com/status/4c5cb9f41d67922a9bcb858a74ed5409/m/master "wercker status"
-[wercker-result]: https://app.wercker.com/project/bykey/4c5cb9f41d67922a9bcb858a74ed5409
