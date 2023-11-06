@@ -22,8 +22,8 @@ CI Service                       | Status
 [gh-action-badge]: ./../../workflows/Test/badge.svg?branch=master "Test"
 [gh-action-result]: ./../../actions?query=workflow%3ATest+branch%3Amaster
 [Semaphore-home]: https://semaphoreci.com/
-[Semaphore-badge]: https://semaphoreci.com/api/v1/projects/49e31cae-d92f-4d50-a0ed-632a94ba9ca1/319490/badge.svg "Build status"
-[Semaphore-result]: https://semaphoreci.com/thinca/vim-themis
+[Semaphore-badge]: https://thinca.semaphoreci.com/badges/vim-themis/branches/master.svg "Build status"
+[Semaphore-result]: https://thinca.semaphoreci.com/projects/vim-themis
 [Shippable-home]: https://app.shippable.com/
 [Shippable-badge]: https://api.shippable.com/projects/54a186acd46935d5fbc11cfb/badge?branch=master "Run status"
 [Shippable-result]: https://app.shippable.com/projects/54a186acd46935d5fbc11cfb
