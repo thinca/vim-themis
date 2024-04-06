@@ -14,8 +14,8 @@ CI Service                       | Status
 [AppVeyor-badge]: https://ci.appveyor.com/api/projects/status/hr4us4ogbir0177i/branch/master?svg=true "Build status"
 [AppVeyor-result]: https://ci.appveyor.com/project/thinca/vim-themis/branch/master
 [CircleCI-home]: https://circleci.com/
-[CircleCI-badge]: https://circleci.com/gh/thinca/vim-themis/tree/master.svg?style=svg "CircleCI"
-[CircleCI-result]: https://circleci.com/gh/thinca/vim-themis/tree/master
+[CircleCI-badge]: https://dl.circleci.com/status-badge/img/circleci/3775y8m7ayd3ZUJkcLeC1F/JGVoXQ8uTvM9JEDkvrqcBt/tree/master.svg?style=svg
+[CircleCI-result]: https://dl.circleci.com/status-badge/redirect/circleci/3775y8m7ayd3ZUJkcLeC1F/JGVoXQ8uTvM9JEDkvrqcBt/tree/master
 [gh-action-home]: https://github.com/features/actions
 [gh-action-badge]: ./../../actions/workflows/test.yml/badge.svg?branch=master "Test"
 [gh-action-result]: ./../../actions/workflows/test.yml?query=branch%3Amaster
