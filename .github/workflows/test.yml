@@ -8,6 +8,7 @@ jobs:
       matrix:
         vim_version:
           - 'head'
+          - 'v9.1.0000'
           - 'v9.0.0000'
           - 'v8.2.0000'
           - 'v8.1.0001'
