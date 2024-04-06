@@ -7,7 +7,7 @@ parameters:
     default: v1.7.0
 
 orbs:
-  win: circleci/windows@1.0.0
+  win: circleci/windows@5.0.0
 
 jobs:
   linux-test:
@@ -37,7 +37,7 @@ jobs:
         type: string
         default: latest
     executor:
-      name: win/vs2019
+      name: win/default
       shell: bash.exe
     steps:
       - run:
@@ -120,6 +120,12 @@ workflows:
           name: 'Linux: Vim v8.2.0000'
           version: 'v8.2.0000'
       - linux-test:
+          name: 'Linux: Vim v9.0.0000'
+          version: 'v9.0.0000'
+      - linux-test:
+          name: 'Linux: Vim v9.1.0000'
+          version: 'v9.1.0000'
+      - linux-test:
           name: 'Linux: Vim latest'
       - windows-test:
           name: 'Windows: Vim v7.4'
@@ -133,5 +139,11 @@ workflows:
       - windows-test:
           name: 'Windows: Vim v8.2.0008'
           version: 'v8.2.0008'
+      - windows-test:
+          name: 'Windows: Vim v9.0.0000'
+          version: 'v9.0.0000'
+      - windows-test:
+          name: 'Windows: Vim v9.1.0'
+          version: 'v9.1.0'
       - windows-test:
           name: 'Windows: Vim latest'
