@@ -1,0 +1,15 @@
+version: v1.0
+name: Test
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu2004
+blocks:
+  - name: Test
+    task:
+      jobs:
+        - name: Run test
+          commands:
+            - checkout
+            - vim --version
+            - bin/themis --reporter dot
