@@ -13,10 +13,20 @@ Describe supporter-builtin_assert
   End
 
   It handles assert_true()
+    let listener = {}
+    function listener.fail(report) abort
+      let self.report = a:report
+    endfunction
+    call runner.add_event(listener)
+
     function suite.test_assert_true() abort
       call assert_true(0)
     endfunction
     call runner.run(bundle)
+
     Assert Equals(stats.fail(), 1)
+    let exception = get(listener.report.exceptions, 0, {})
+    Assert NotEquals(get(exception, 'type', 'error'), 'error')
+    Assert Match(get(exception, 'message'), '^Expected')
   End
 End

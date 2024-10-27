@@ -16,7 +16,7 @@ function s:receiver.end_test(report) abort
   endif
   for error in v:errors
     let [throwpoint, exception] = matchlist(error, '\v([^:]+):\s*(.*)')[1 : 2]
-    call a:report.add_exception(exception, throwpoint)
+    call a:report.add_exception('themis:report:' . exception, throwpoint)
   endfor
   let v:errors = []
 endfunction
