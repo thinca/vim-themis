@@ -815,6 +815,26 @@ command.with({scope})			*themis-helper-command-with()*
 	  Assert HasKey({'foo': 0}, 'foo')
 	endfunction
 <
+	You can also add custom assertion functions to the helper. Custom
+	assertions must return a truthy value on success and throw an exception
+	on failure:
+>
+	function! s:assert_greater_than_two(value) abort
+	  if a:value <= 2
+	    throw 'themis: Expected value > 2, got: ' . a:value
+	  endif
+	  return 1
+	endfunction
+
+	let s:assert = themis#helper('assert')
+	let s:assert.greater_than_two = function('s:assert_greater_than_two')
+	call themis#helper('command').with(s:assert)
+
+	function s:suite.test()
+	  Assert GreaterThanTwo(5)  " passes
+	  Assert GreaterThanTwo(1)  " fails with custom message
+	endfunction
+<
 
 :Assert {value}				*themis-helper-command-:Assert*
 	Checks {value} is truthy value.
