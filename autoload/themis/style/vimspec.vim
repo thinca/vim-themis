@@ -19,7 +19,7 @@ function s:parse_describe(tokens, lnum, context_stack, scope_id) abort
 
   let funcname = printf('s:themis_vimspec_scope_%d', a:scope_id)
   call add(a:context_stack, ['describe', a:lnum, funcname, a:scope_id])
-  return [
+  let result = [
   \   printf('function %s() abort', funcname),
   \   printf('let s:themis_vimspec_bundles += [%s]', bundle_new),
   \   'let s:themis_vimspec_bundles[-1]._vimspec_hooks = {}',
@@ -27,6 +27,10 @@ function s:parse_describe(tokens, lnum, context_stack, scope_id) abort
   \   printf('  call s:themis_vimspec_scopes.tmp_scope(%d)', a:scope_id),
   \   'endfunction',
   \ ]
+  return {
+  \   'result': result,
+  \   'map_pos': 1,
+  \ }
 endfunction
 
 function s:parse_example(tokens, lnum, context_stack, func_id) abort
@@ -42,7 +46,7 @@ function s:parse_example(tokens, lnum, context_stack, func_id) abort
   call add(a:context_stack, ['example', a:lnum])
   let bundle_var = 's:themis_vimspec_bundles'
   let scope_var = 's:themis_vimspec_scopes'
-  return [
+  let result = [
   \   printf('let %s[-1].suite_descriptions["T_%05d"] = %s',
   \           bundle_var, a:func_id, string(example)),
   \   printf('function %s[-1].suite.T_%05d() abort',
@@ -50,6 +54,10 @@ function s:parse_example(tokens, lnum, context_stack, func_id) abort
   \   printf('execute %s.extend("%s.scope(%d)", 0)',
   \           scope_var, scope_var, scope_id),
   \ ]
+  return {
+  \   'result': result,
+  \   'map_pos': 2,
+  \ }
 endfunction
 
 function s:parse_hook(tokens, lnum, context_stack) abort
@@ -72,12 +80,16 @@ function s:parse_hook(tokens, lnum, context_stack) abort
   call add(a:context_stack, ['hook', a:lnum, timing])
   let bundle_var = 's:themis_vimspec_bundles'
   let scope_var = 's:themis_vimspec_scopes'
-  return [
+  let result = [
   \   printf('function %s[-1]._vimspec_hooks.%s() abort',
   \           bundle_var, hook_point),
   \   printf('execute %s.extend("%s.scope(%d)", %d)',
   \           scope_var, scope_var, scope_id, copy),
   \ ]
+  return {
+  \   'result': result,
+  \   'map_pos': 1,
+  \ }
 endfunction
 
 function s:parse_end(tokens, lnum, context_stack) abort
@@ -125,6 +137,8 @@ function s:translate_script(lines) abort
   let lnum = 0
   let heredoc_endmarker = ''
 
+  let map_lines = []
+
   for line in a:lines
     let lnum += 1
 
@@ -145,24 +159,30 @@ function s:translate_script(lines) abort
 
     let tokens = matchlist(line, '^\s*\([Dd]escribe\|[Cc]ontext\)\s*\(.*\)$')
     if !empty(tokens)
-      let result +=
+      let parsed =
       \   s:parse_describe(tokens, lnum, context_stack, current_scope_id)
       let current_scope_id += 1
+      let map_lines += [[len(result) + parsed.map_pos, lnum, 'desc']]
+      let result += parsed.result
       continue
     endif
 
     let tokens = matchlist(line, '^\s*\([Ii]t\)\s*\(.*\)$')
     if !empty(tokens)
-      let result +=
+      let parsed =
       \   s:parse_example(tokens, lnum, context_stack, current_func_id)
       let current_func_id += 1
+      let map_lines += [[len(result) + parsed.map_pos, lnum, 'it']]
+      let result += parsed.result
       continue
     endif
 
     let tokens = matchlist(line,
     \                      '^\s*\([Bb]efore\|[Aa]fter\)\%(\s\+\(.*\)\)\?$')
     if !empty(tokens)
-      let result += s:parse_hook(tokens, lnum, context_stack)
+      let parsed = s:parse_hook(tokens, lnum, context_stack)
+      let map_lines += [[len(result) + parsed.map_pos, lnum, 'hook']]
+      let result += parsed.result
       continue
     endif
 
@@ -180,13 +200,14 @@ function s:translate_script(lines) abort
     throw printf('vimspec:%d:This declaration is not closed.', opened_lnum)
   endif
 
-  return result
+  return [result, map_lines]
 endfunction
 
 function s:compile_specfile(specfile_path, result_path) abort
   let slines = readfile(a:specfile_path)
-  let rlines = s:translate_script(slines)
+  let [rlines, map_lines] = s:translate_script(slines)
   call writefile(rlines, a:result_path)
+  return map_lines
 endfunction
 
 
@@ -294,8 +315,12 @@ function s:style.load_script(filename, runner) abort
   let compiled_specfile_path = tempname()
   call add(self.event._converted_files, compiled_specfile_path)
   try
-    call s:compile_specfile(a:filename, compiled_specfile_path)
+    let map_lines = s:compile_specfile(a:filename, compiled_specfile_path)
     execute 'source' fnameescape(compiled_specfile_path)
+    call themis#util#add_source_map(compiled_specfile_path, {
+    \   'original_filename': a:filename,
+    \   'map_lines': reverse(map_lines),
+    \ })
   catch /^vimspec:/
     let pat = '\v^vimspec:(\d+):(.*)'
     let [lnum, message] = matchlist(v:exception, pat)[1 : 2]

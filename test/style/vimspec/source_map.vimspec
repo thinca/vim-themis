@@ -1,0 +1,40 @@
+Describe vimspec-style
+  Describe source_map
+    Before
+      try
+        throw 'hook'  " Here is line 5 in file
+      catch
+        let hook_point = v:throwpoint
+      endtry
+    End
+
+    It treats correct line number
+      try
+        throw 'error'  " Here is line 13 in file
+      catch
+        let throwpoint = v:throwpoint
+      endtry
+      let stacks = themis#util#parse_callstack(throwpoint)
+      let last_stack = stacks[-1]
+      call last_stack.fill_info()
+      if !last_stack.deflnum
+        Skip Line number of function definition is unavailable.
+      endif
+      Assert Equals(fnamemodify(last_stack.filename, ':t'), 'source_map.vimspec')
+      Assert Equals(last_stack.adjusted_lnum(), 2)
+      Assert Equals(last_stack.adjusted_abs_lnum(), 13)
+    End
+
+    It treats correct line number in hook
+      let stacks = themis#util#parse_callstack(hook_point)
+      let last_stack = stacks[-1]
+      call last_stack.fill_info()
+      if !last_stack.deflnum
+        Skip Line number of function definition is unavailable.
+      endif
+      Assert Equals(fnamemodify(last_stack.filename, ':t'), 'source_map.vimspec')
+      Assert Equals(last_stack.adjusted_lnum(), 2)
+      Assert Equals(last_stack.adjusted_abs_lnum(), 5)
+    End
+  End
+End

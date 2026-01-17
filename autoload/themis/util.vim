@@ -4,6 +4,7 @@
 
 let s:func_aliases = {}
 let s:line_adjuster = {}
+let s:source_maps = {}
 
 let s:StackInfo = {
 \   'stack': '',
@@ -20,6 +21,7 @@ function s:StackInfo.fill_info() abort
   if themis#util#is_funcname(self.stack)
     call extend(self, themis#util#funcdata(self.stack), 'keep')
     let self.type = 'function'
+    call self.apply_source_map()
     return
   endif
   if filereadable(self.stack)
@@ -27,6 +29,8 @@ function s:StackInfo.fill_info() abort
     let self.filename = self.stack
     let self.funcname = ''
     let self.type = 'file'
+
+    call self.apply_source_map()
     return
   endif
   let matched = matchlist(self.stack, '^\(\w\+\) Autocommands for \(.*\)')
@@ -41,6 +45,25 @@ function s:StackInfo.fill_info() abort
   let self.exists = 0
   let self.funcname = self.stack
   let self.type = 'unknown'
+endfunction
+
+function s:StackInfo.apply_source_map() abort
+  let source_map = s:get_source_map(self.filename)
+  if source_map is 0
+    return
+  endif
+  let self.filename = get(source_map, 'original_filename', self.filename)
+
+  let deflnum = self.deflnum
+  let map_lines = get(source_map, 'map_lines', [])
+  if deflnum && len(map_lines) != 0
+    for [slnum, alnum; _] in map_lines
+      if slnum <= deflnum
+        let self.deflnum = alnum + (deflnum - slnum)
+        break
+      endif
+    endfor
+  endif
 endfunction
 
 function s:StackInfo.make_signature() abort
@@ -176,6 +199,14 @@ function themis#util#adjust_func_line(target, line) abort
   endif
 endfunction
 
+function themis#util#add_source_map(filename, source_map) abort
+  let s:source_maps[themis#util#normalize_path(a:filename)] = a:source_map
+endfunction
+
+function s:get_source_map(filename) abort
+  return get(s:source_maps, themis#util#normalize_path(a:filename), 0)
+endfunction
+
 function themis#util#callstacklines(throwpoint, ...) abort
   let infos = call('themis#util#callstack', [a:throwpoint] + a:000)
   return map(infos, 'v:val.format()')
@@ -225,7 +256,7 @@ function themis#util#funcdata(func) abort
   let signature = matchstr(lines[0], '^\s*\zs.*')
   let file = matchstr(lines[1], '^\t\%(Last set from\|.\{-}:\)\s*\zs.*$')
   let file = substitute(file, '[/\\]\+', '/', 'g')
-  let deflnum = str2nr(matchstr(file, '\d\+$'))
+  let deflnum = str2nr(matchstr(file, ' \d\+$'))
   " XXX: Remove ' line 10' at tail.  But the message may be translated.
   "      This can fail in some languages.
   let file = substitute(file, ' \S\+ \d\+$', '', '')
@@ -308,4 +339,8 @@ function themis#util#find_files(paths, filename) abort
   call map(dirs, 'fnamemodify(v:val, mod)')
   let files = findfile(a:filename, join(map(dirs, 'v:val . ";"'), ','), -1)
   return themis#util#sortuniq(files)
+endfunction
+
+function themis#util#normalize_path(path) abort
+  return fnamemodify(resolve(a:path), ':p:gs?\\\+?/?:s?/$??')
 endfunction
