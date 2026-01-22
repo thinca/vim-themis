@@ -4,11 +4,12 @@
 
 let s:func_aliases = {}
 let s:line_adjuster = {}
+let s:source_maps = {}
 
 let s:StackInfo = {
 \   'stack': '',
 \   'type': '',
-\   'line': 0,
+\   'lnum': 0,
 \   'filled': 0,
 \ }
 
@@ -20,6 +21,7 @@ function s:StackInfo.fill_info() abort
   if themis#util#is_funcname(self.stack)
     call extend(self, themis#util#funcdata(self.stack), 'keep')
     let self.type = 'function'
+    call self.apply_source_map()
     return
   endif
   if filereadable(self.stack)
@@ -27,6 +29,8 @@ function s:StackInfo.fill_info() abort
     let self.filename = self.stack
     let self.funcname = ''
     let self.type = 'file'
+
+    call self.apply_source_map()
     return
   endif
   let matched = matchlist(self.stack, '^\(\w\+\) Autocommands for \(.*\)')
@@ -41,6 +45,25 @@ function s:StackInfo.fill_info() abort
   let self.exists = 0
   let self.funcname = self.stack
   let self.type = 'unknown'
+endfunction
+
+function s:StackInfo.apply_source_map() abort
+  let source_map = s:get_source_map(self.filename)
+  if source_map is 0
+    return
+  endif
+  let self.filename = get(source_map, 'original_filename', self.filename)
+
+  let deflnum = self.deflnum
+  let map_lines = get(source_map, 'map_lines', [])
+  if deflnum && len(map_lines) != 0
+    for [slnum, alnum; _] in map_lines
+      if slnum <= deflnum
+        let self.deflnum = alnum + (deflnum - slnum)
+        break
+      endif
+    endfor
+  endif
 endfunction
 
 function s:StackInfo.make_signature() abort
@@ -70,14 +93,14 @@ function s:StackInfo.format() abort
   endif
 
   if self.type ==# 'file'
-    return printf('%s Line:%d', self.filename, self.line)
+    return printf('%s Line:%d', self.filename, self.lnum)
   endif
   if self.type ==# 'function'
     let result = self.make_signature()
-    if self.line
+    if self.lnum
       let result .= '  Line:' . self.adjusted_lnum()
     endif
-    if self.defline
+    if self.deflnum
       let result .= '  [ Absolute Line: ' . self.adjusted_abs_lnum() . ' ]'
     endif
     return result . '  (' . self.filename . ')'
@@ -89,7 +112,7 @@ function s:StackInfo.format() abort
 endfunction
 
 function s:StackInfo.get_line(...) abort
-  let lnum = a:0 ? a:1 : self.line
+  let lnum = a:0 ? a:1 : self.lnum
   call self.fill_info()
   if self.type ==# 'file'
     if !has_key(self, 'body')
@@ -110,20 +133,17 @@ function s:StackInfo.get_line(...) abort
 endfunction
 
 function s:StackInfo.adjusted_lnum(...) abort
-  let lnum = a:0 ? a:1 : self.line
+  let lnum = a:0 ? a:1 : self.lnum
   let adjuster = get(s:line_adjuster, self.funcname, 0)
   return lnum + adjuster
 endfunction
 
-function s:StackInfo.adjusted_abs_lnum(...) abort
-  let lnum = a:0 ? a:1 : self.line
-  let deflnum = self.defline
-  let adjuster = get(s:line_adjuster, self.funcname, 0)
-  return lnum + deflnum + adjuster
+function s:StackInfo.adjusted_abs_lnum() abort
+  return self.adjusted_lnum() + self.deflnum
 endfunction
 
 function s:StackInfo.get_line_with_lnum(...) abort
-  let lnum = a:0 ? a:1 : self.line
+  let lnum = a:0 ? a:1 : self.lnum
   let line = self.get_line(lnum)
   return printf('%3d: %s', self.adjusted_lnum(lnum), line)
 endfunction
@@ -141,7 +161,7 @@ function themis#util#stack_info(stack) abort
       let matched = matchlist(a:stack, pat)
       if !empty(matched)
         let info.stack = matched[1]
-        let info.line = matched[2] - 0
+        let info.lnum = matched[2] - 0
       endif
     endfor
   endif
@@ -177,6 +197,14 @@ function themis#util#adjust_func_line(target, line) abort
   elseif t == type(function('type'))
     let s:line_adjuster[themis#util#funcname(a:target)] = a:line
   endif
+endfunction
+
+function themis#util#add_source_map(filename, source_map) abort
+  let s:source_maps[themis#util#normalize_path(a:filename)] = a:source_map
+endfunction
+
+function s:get_source_map(filename) abort
+  return get(s:source_maps, themis#util#normalize_path(a:filename), 0)
 endfunction
 
 function themis#util#callstacklines(throwpoint, ...) abort
@@ -228,7 +256,7 @@ function themis#util#funcdata(func) abort
   let signature = matchstr(lines[0], '^\s*\zs.*')
   let file = matchstr(lines[1], '^\t\%(Last set from\|.\{-}:\)\s*\zs.*$')
   let file = substitute(file, '[/\\]\+', '/', 'g')
-  let defline = str2nr(matchstr(file, '\d\+$'))
+  let deflnum = str2nr(matchstr(file, ' \d\+$'))
   " XXX: Remove ' line 10' at tail.  But the message may be translated.
   "      This can fail in some languages.
   let file = substitute(file, ' \S\+ \d\+$', '', '')
@@ -239,7 +267,7 @@ function themis#util#funcdata(func) abort
   \   'exists': 1,
   \   'filename': file,
   \   'funcname': func,
-  \   'defline': defline,
+  \   'deflnum': deflnum,
   \   'signature': signature,
   \   'arguments': arguments,
   \   'arity': arity,
@@ -255,7 +283,7 @@ endfunction
 function themis#util#error_info(stacktrace) abort
   let tracelines = map(copy(a:stacktrace), 'v:val.format()')
   let tail = a:stacktrace[-1]
-  if tail.line
+  if tail.lnum
     let tracelines += [tail.get_line_with_lnum()]
   endif
   return join(tracelines, "\n")
@@ -311,4 +339,8 @@ function themis#util#find_files(paths, filename) abort
   call map(dirs, 'fnamemodify(v:val, mod)')
   let files = findfile(a:filename, join(map(dirs, 'v:val . ";"'), ','), -1)
   return themis#util#sortuniq(files)
+endfunction
+
+function themis#util#normalize_path(path) abort
+  return fnamemodify(resolve(a:path), ':p:gs?\\\+?/?:s?/$??')
 endfunction
