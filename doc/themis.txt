@@ -1133,7 +1133,8 @@ when assertion fails.
 CHANGELOG					*themis-changelog*
 
 Unreleased
-
+	- Improve display of filename and line when an error occurs in vimspec
+	style.
 
 1.7.0	2021-12-03
 	- Add |Blob| support.
